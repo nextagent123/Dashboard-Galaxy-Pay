@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -13,11 +13,14 @@ export default function Sidebar() {
   const pathname = usePathname();
   const { isAdmin, openUserAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  // Auto-close the drawer on navigation.
-  useEffect(() => {
+  // Auto-close the drawer on navigation (adjust state during render instead
+  // of an effect, per React's "you might not need an effect" guidance).
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setMobileOpen(false);
-  }, [pathname]);
+  }
 
   const navContent = (
     <>

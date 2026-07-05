@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getOtaReport, getOtaAgentOptions, getOtaPeriodOptions } from "@/lib/metrics";
+import { getOtaReport, getOtaAgentOptions, getOtaPeriodOptions, getOtaMonthlyOverview } from "@/lib/metrics";
 import { vnLoc } from "@/lib/format";
 import { ReportHeader } from "@/components/ui/PageHeader";
 import TicketStatCard from "@/components/ui/TicketStatCard";
@@ -24,6 +24,7 @@ export default function OtaPage() {
   const periodOptions = getOtaPeriodOptions(agent);
   const [periodKey, setPeriodKey] = useState(periodOptions[0]?.value || "");
   const r = getOtaReport(agent, periodKey || undefined);
+  const m = getOtaMonthlyOverview();
 
   function handleAgentChange(next) {
     setAgent(next);
@@ -36,8 +37,39 @@ export default function OtaPage() {
       <ReportHeader
         eyebrow="GALAXY PAY · DỊCH VỤ OTA"
         title="Báo cáo Dịch vụ OTA"
-        subtitle="Số lượng & Giá trị giao dịch vé máy bay — Chi tiết theo đối tác"
+        subtitle="Số lượng & Giá trị giao dịch vé máy bay — Tổng quan năm &amp; chi tiết theo đối tác"
       />
+
+      {/* Annual monthly overview — all partners combined */}
+      <div style={{ fontSize: 13, fontWeight: 800, color: "#ecedf5", display: "flex", alignItems: "center", gap: 8 }}>
+        <PlaneIcon size={15} color={ACCENT} />
+        Tổng quan theo tháng · Cả năm 2026 (tất cả đối tác)
+      </div>
+
+      <div className="grid-4">
+        <TicketStatCard icon={ICONS.doc} iconBg={`${ACCENT}22`} iconColor={ACCENT} accent={ACCENT} label="Total Bookings" val={m.kpiCards[0].val} sub={m.kpiCards[0].sub} />
+        <TicketStatCard icon={ICONS.check} iconBg="rgba(52,211,153,0.16)" iconColor="#34d399" accent="#34d399" label="Successful Bookings" val={m.kpiCards[1].val} sub={m.kpiCards[1].sub} />
+        <TicketStatCard icon={ICONS.cancel} iconBg="rgba(251,113,133,0.16)" iconColor="#fb7185" accent="#fb7185" label="Cancelled Bookings" val={m.kpiCards[2].val} sub={m.kpiCards[2].sub} />
+        <TicketStatCard icon={ICONS.wallet} iconBg="rgba(251,191,36,0.16)" iconColor="#fbbf24" accent="#fbbf24" label="Total Revenue" val={m.kpiCards[3].val} sub={m.kpiCards[3].sub} />
+      </div>
+
+      <section className="card" style={{ padding: "22px 24px" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#ecedf5", marginBottom: 4 }}>Booking Count</div>
+        <div style={{ fontSize: 11.5, color: "#8a8fa6", marginBottom: 6 }}>Số lượng đơn đặt theo tháng · Cả năm 2026</div>
+        <SimpleLineChart labels={m.labels} values={m.monthlyBookings} color={ACCENT} />
+      </section>
+
+      <section className="card" style={{ padding: "22px 24px" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "#ecedf5", marginBottom: 4 }}>Revenue Report</div>
+        <div style={{ fontSize: 11.5, color: "#8a8fa6", marginBottom: 6 }}>Doanh thu theo tháng (VND) · Cả năm 2026</div>
+        <SimpleBarChart labels={m.labels} values={m.monthlyRevenue} color={ACCENT} formatValue={(v) => (v >= 1e6 ? vnLoc(v / 1e6, 0) + "tr" : vnLoc(v, 0))} />
+      </section>
+
+      <div style={{ fontSize: 11, color: "#565a6e" }}>
+        Số liệu theo tháng được quy đổi tỷ lệ từ ảnh biểu đồ báo cáo để khớp đúng 4 số tổng đã xác nhận cả năm (Total/Successful/Cancelled Bookings, Total Revenue) — sẽ cập nhật số chính xác từng tháng khi có dữ liệu gốc.
+      </div>
+
+      <div style={{ fontSize: 13, fontWeight: 800, color: "#ecedf5", marginTop: 4 }}>Chi tiết theo đối tác</div>
 
       {/* Boarding-pass style hero */}
       <section
