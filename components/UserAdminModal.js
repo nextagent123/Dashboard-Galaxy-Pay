@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "./AuthProvider";
+import { USERS } from "@/lib/auth";
 
 export default function UserAdminModal() {
   const { showUserAdmin, closeUserAdmin, allUsers, deleteExtraUser, resetPassword, signup } = useAuth();
@@ -129,7 +130,7 @@ export default function UserAdminModal() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto" }}>
               {allUsers.map((u) => {
-                const isDefault = u.u === "taicv" || u.u === "diem";
+                const isDefault = USERS.some((x) => x.u === u.u);
                 return (
                   <div
                     key={u.u}
@@ -158,7 +159,7 @@ export default function UserAdminModal() {
                         {u.name} <span style={{ color: "#8a8fa6", fontWeight: 500 }}>· @{u.u}</span>
                       </div>
                       <div style={{ fontSize: 11, color: "#8a8fa6", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {u.role} · {isDefault ? "Admin (mặc định)" : "Thêm mới"}
+                        {u.role} · {isDefault ? "Có sẵn trong hệ thống" : "Thêm mới"}
                       </div>
                     </div>
                     <button
