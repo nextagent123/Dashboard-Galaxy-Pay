@@ -1,11 +1,24 @@
-import { getPersonalKpi } from "@/lib/metrics";
+"use client";
+
+import { useState } from "react";
+import { getPersonalKpi, PERSON_PERIOD_OPTIONS } from "@/lib/metrics";
+import { MONTHS_12 } from "@/lib/data";
+import { vn } from "@/lib/format";
 import { ReportHeader } from "@/components/ui/PageHeader";
 import GroupedCompareChart from "@/components/charts/GroupedCompareChart";
 import RadarHexagon from "@/components/charts/RadarHexagon";
-import MiniMonthChart from "@/components/charts/MiniMonthChart";
+import PersonMonthChart from "@/components/charts/PersonMonthChart";
+
+const fmtForUnit = (unit) => (v) => (unit === "tỷ" ? vn(v, 1) : vn(Math.round(v), 0));
+
+const PERIOD_GROUPS = ["Giai đoạn", "Theo tháng"];
 
 export default function PersonalKpiPage() {
-  const { people } = getPersonalKpi();
+  const [period, setPeriod] = useState("year");
+  const [bdm, setBdm] = useState("all");
+  const { people: allPeople } = getPersonalKpi(period);
+  const people = bdm === "all" ? allPeople : allPeople.filter((p) => p.name === bdm);
+  const periodLabel = (PERSON_PERIOD_OPTIONS.find((o) => o.value === period) || {}).label || "Cả năm";
 
   return (
     <>
@@ -20,6 +33,30 @@ export default function PersonalKpiPage() {
           </div>
         }
       />
+
+      <section className="card" style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "end", padding: "16px 20px" }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 200 }}>
+          <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1, color: "#8a8fa6", textTransform: "uppercase" }}>BDM phụ trách</span>
+          <select value={bdm} onChange={(e) => setBdm(e.target.value)} style={selectStyle}>
+            <option value="all">Tất cả</option>
+            {allPeople.map((p) => (
+              <option key={p.name} value={p.name}>{p.name}</option>
+            ))}
+          </select>
+        </label>
+        <label style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 200 }}>
+          <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1, color: "#8a8fa6", textTransform: "uppercase" }}>Thời gian đánh giá</span>
+          <select value={period} onChange={(e) => setPeriod(e.target.value)} style={selectStyle}>
+            {PERIOD_GROUPS.map((g) => (
+              <optgroup key={g} label={g}>
+                {PERSON_PERIOD_OPTIONS.filter((o) => o.group === g).map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>
+      </section>
 
       <section style={{ background: "linear-gradient(135deg, rgba(124,108,255,0.12), rgba(124,108,255,0.03))", border: "1px solid rgba(124,108,255,0.25)", borderRadius: 14, padding: "20px 24px", display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr 1fr", gap: 18, alignItems: "center" }} className="khoi-strip">
         <div>
@@ -45,7 +82,7 @@ export default function PersonalKpiPage() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, gap: 16, flexWrap: "wrap" }}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#ecedf5" }}>Mức độ hoàn thành KPI theo cá nhân</div>
-            <div style={{ fontSize: 11.5, color: "#8a8fa6", marginTop: 3 }}>% Đạt lũy kế năm — GMV / Revenue / Gross Profit · Mốc 100% = Đạt KPI</div>
+            <div style={{ fontSize: 11.5, color: "#8a8fa6", marginTop: 3 }}>% Đạt — GMV / Revenue / Gross Profit · {periodLabel} · Mốc 100% = Đạt KPI</div>
           </div>
           <div style={{ display: "flex", gap: 14, fontSize: 11, color: "#a7abbe" }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><span style={{ width: 12, height: 10, background: "#7c6cff", borderRadius: 2 }} />GMV</span>
@@ -104,6 +141,7 @@ export default function PersonalKpiPage() {
                   <span className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#ecedf5" }}>{m.actualYTDStr}</span>
                   <span style={{ fontSize: 11, color: "#8a8fa6" }}>/ KPI {m.kpiYTDStr}</span>
                 </div>
+                <div style={{ fontSize: 10, color: "#8a8fa6", marginTop: 2 }}>{periodLabel}</div>
                 <div style={{ position: "relative", height: 8, background: "rgba(255,255,255,0.05)", borderRadius: 5, overflow: "hidden", marginTop: 10 }}>
                   <div style={{ position: "absolute", inset: "0 auto 0 0", width: m.barWidth, background: m.barColor, borderRadius: 5, boxShadow: m.barGlow }} />
                   <div style={{ position: "absolute", top: 0, bottom: 0, left: "100%", width: 1, background: "#fbbf24" }} />
@@ -116,15 +154,15 @@ export default function PersonalKpiPage() {
             ))}
           </div>
 
-          <div className="grid-3" style={{ padding: "0 24px 22px" }}>
+          <div style={{ padding: "0 24px 22px", display: "flex", flexDirection: "column", gap: 14 }}>
             {person.metricRows.map((m) => (
-              <div key={m.key} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 12, padding: "12px 14px 6px" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#a7abbe", letterSpacing: 0.4 }}>{m.label} · 12 tháng</div>
-                  <div style={{ fontSize: 10, color: "#8a8fa6" }}>KPI: {m.kpiFYStr}</div>
+              <div key={m.key} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: 12, padding: "14px 16px 6px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#a7abbe", letterSpacing: 0.4 }}>{m.label} · Kế hoạch vs Thực tế theo tháng ({m.unit})</div>
+                  <div style={{ fontSize: 10.5, color: "#8a8fa6" }}>KPI cả năm: {m.kpiFYStr}</div>
                 </div>
-                <MiniMonthChart kpi={m.kpi} actual={m.actual} color={m.color} />
-                <div style={{ display: "flex", gap: 12, marginTop: 4, fontSize: 9.5, color: "#8a8fa6" }}>
+                <PersonMonthChart months={MONTHS_12} kpi={m.kpi} actual={m.actual} color={m.color} fmt={fmtForUnit(m.unit)} />
+                <div style={{ display: "flex", gap: 12, marginTop: 2, fontSize: 9.5, color: "#8a8fa6" }}>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><span style={{ width: 9, height: 9, background: m.color, opacity: 0.2, borderRadius: 2 }} />Kế hoạch</span>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><span style={{ width: 9, height: 9, background: m.color, borderRadius: 2 }} />Thực tế</span>
                 </div>
@@ -133,6 +171,21 @@ export default function PersonalKpiPage() {
           </div>
         </section>
       ))}
+
+      {people.length === 0 && (
+        <div style={{ textAlign: "center", padding: "40px 24px", color: "#8a8fa6", fontSize: 13.5 }}>Không tìm thấy BDM phù hợp.</div>
+      )}
     </>
   );
 }
+
+const selectStyle = {
+  background: "rgba(255,255,255,0.04)",
+  border: "1px solid rgba(255,255,255,0.1)",
+  borderRadius: 10,
+  padding: "9px 12px",
+  fontSize: 13,
+  color: "#ecedf5",
+  outline: "none",
+  cursor: "pointer",
+};

@@ -193,6 +193,10 @@ button {
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
 }
+.ota-hero-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+}
 
 /* ===================== SEGMENTED TABS ===================== */
 .seg-tabs {
@@ -324,11 +328,16 @@ button {
   .grid-home-split,
   .grid-2,
   .grid-ota-top,
+  .ota-hero-grid,
   .grid-pipeline-highlight,
   .grid-product-filter,
   .khoi-strip,
   .player-identity {
     grid-template-columns: 1fr;
+  }
+  .ota-filter-col {
+    border-left: none !important;
+    border-top: 1px dashed rgba(56, 189, 248, 0.35);
   }
 }
 
