@@ -16,7 +16,7 @@ const PERIOD_GROUPS = ["Giai đoạn", "Theo tháng"];
 export default function PersonalKpiPage() {
   const [period, setPeriod] = useState("year");
   const [bdm, setBdm] = useState("all");
-  const { people: allPeople } = getPersonalKpi(period);
+  const { people: allPeople, khoiTotals } = getPersonalKpi(period);
   const people = bdm === "all" ? allPeople : allPeople.filter((p) => p.name === bdm);
   const periodLabel = (PERSON_PERIOD_OPTIONS.find((o) => o.value === period) || {}).label || "Cả năm";
 
@@ -66,15 +66,15 @@ export default function PersonalKpiPage() {
         </div>
         <div style={{ borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 18 }}>
           <div style={{ fontSize: 11, color: "#8a8fa6" }}>GMV</div>
-          <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#7c6cff" }}>24.028 Tỷ</div>
+          <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#7c6cff" }}>{khoiTotals.gmv}</div>
         </div>
         <div style={{ borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 18 }}>
           <div style={{ fontSize: 11, color: "#8a8fa6" }}>Revenue</div>
-          <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#34d399" }}>345 Tỷ</div>
+          <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#34d399" }}>{khoiTotals.dt}</div>
         </div>
         <div style={{ borderLeft: "1px solid rgba(255,255,255,0.08)", paddingLeft: 18 }}>
           <div style={{ fontSize: 11, color: "#8a8fa6" }}>Gross Profit</div>
-          <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#f59e0b" }}>74 Tỷ</div>
+          <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#f59e0b" }}>{khoiTotals.ln}</div>
         </div>
       </section>
 

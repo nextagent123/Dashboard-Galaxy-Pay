@@ -32,12 +32,12 @@ export default function HomePage() {
         right={
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <SegmentedTabs options={PERIOD_OPTIONS} value={period} onChange={setPeriod} />
-            <DateBadge>Số liệu đến 31/05/2026</DateBadge>
+            <DateBadge>Số liệu đến 30/06/2026</DateBadge>
           </div>
         }
       />
 
-      <section className="grid-4">
+      <section className="grid-3">
         {data.metrics.map((m) => (
           <KpiCardShell key={m.key} label={m.label} icon={<Icon paths={METRIC_ICON_PATHS[m.key]} />} iconBg={m.iconBg} glow={m.glow}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 14, position: "relative" }}>
@@ -116,8 +116,8 @@ export default function HomePage() {
             flexDirection: "column",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Sức khỏe mục tiêu H1</h2>
-          <div style={{ fontSize: 12, color: "#a7abbe", marginTop: 3 }}>Lũy kế T1–T5 vs Target H1 (bình quân GMV/DT/LN)</div>
+          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Summary mục tiêu H1</h2>
+          <div style={{ fontSize: 12, color: "#a7abbe", marginTop: 3 }}>Lũy kế T1–T6 vs Target H1 (bình quân GMV/DT/LN)</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "20px 0 4px" }}>
             <span
               className="mono"
@@ -131,7 +131,7 @@ export default function HomePage() {
             </span>
           </div>
           <div style={{ display: "inline-flex", alignSelf: "flex-start", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 8, color: "#fbbf24", background: "rgba(251,191,36,0.12)" }}>
-            ↓ Chậm hơn tiến độ (đã qua 5/6 tháng)
+            ↓ Chậm hơn tiến độ (đã qua 6/6 tháng)
           </div>
 
           <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "20px 0" }} />
@@ -142,16 +142,16 @@ export default function HomePage() {
               <span className="mono" style={{ fontWeight: 700, color: "#fbbf24" }}>1 / 3</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 12.5, color: "#b9bccb" }}>GMV lũy kế T1–T5</span>
-              <span className="mono" style={{ fontWeight: 700 }}>8.826 tỷ</span>
+              <span style={{ fontSize: 12.5, color: "#b9bccb" }}>GMV lũy kế T1–T6</span>
+              <span className="mono" style={{ fontWeight: 700 }}>{data.trendTotal}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span style={{ fontSize: 12.5, color: "#b9bccb" }}>Biên lợi nhuận gộp</span>
-              <span className="mono" style={{ fontWeight: 700 }}>26,7%</span>
+              <span className="mono" style={{ fontWeight: 700 }}>{data.marginPct}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span style={{ fontSize: 12.5, color: "#b9bccb" }}>Cần chú ý</span>
-              <span style={{ fontSize: 12.5, fontWeight: 700, color: "#fb7185" }}>Doanh thu · 61,9% H1</span>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: "#fb7185" }}>{data.attentionLabel}</span>
             </div>
           </div>
 
@@ -174,13 +174,13 @@ export default function HomePage() {
         right={
           <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
             <span className="mono" style={{ fontSize: 22, fontWeight: 700 }}>{data.trendTotal}</span>
-            <span style={{ fontSize: 12, color: "#8a8fa6" }}>lũy kế T1–T5</span>
+            <span style={{ fontSize: 12, color: "#8a8fa6" }}>lũy kế T1–T6</span>
           </div>
         }
       >
         <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 11.5, color: "#8a8fa6", marginTop: 6, marginBottom: -8 }}>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#b98cff,#7c6cff)" }} />Thực đạt (T1–T5)
+            <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#b98cff,#7c6cff)" }} />Thực đạt (T1–T6)
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,rgba(255,255,255,0.18),rgba(255,255,255,0.18) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T6–T12)
@@ -196,13 +196,13 @@ export default function HomePage() {
           right={
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
               <span className="mono" style={{ fontSize: 20, fontWeight: 700 }}>{data.trendTotalDT}</span>
-              <span style={{ fontSize: 11, color: "#8a8fa6" }}>lũy kế T1–T5</span>
+              <span style={{ fontSize: 11, color: "#8a8fa6" }}>lũy kế T1–T6</span>
             </div>
           }
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 11.5, color: "#8a8fa6", marginTop: 6, marginBottom: -6 }}>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#6ee7b7,#34d399)" }} />Thực đạt (T1–T5)
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#6ee7b7,#34d399)" }} />Thực đạt (T1–T6)
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,rgba(255,255,255,0.18),rgba(255,255,255,0.18) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T6–T12)
@@ -216,13 +216,13 @@ export default function HomePage() {
           right={
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
               <span className="mono" style={{ fontSize: 20, fontWeight: 700 }}>{data.trendTotalLN}</span>
-              <span style={{ fontSize: 11, color: "#8a8fa6" }}>lũy kế T1–T5</span>
+              <span style={{ fontSize: 11, color: "#8a8fa6" }}>lũy kế T1–T6</span>
             </div>
           }
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 11.5, color: "#8a8fa6", marginTop: 6, marginBottom: -6 }}>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#fcd34d,#f59e0b)" }} />Thực đạt (T1–T5)
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#fcd34d,#f59e0b)" }} />Thực đạt (T1–T6)
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,rgba(255,255,255,0.18),rgba(255,255,255,0.18) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T6–T12)

@@ -15,7 +15,7 @@ const TABS = [
   { value: "gmv", label: "GMV" },
   { value: "dt", label: "Doanh thu" },
   { value: "ln", label: "Lợi nhuận" },
-  { value: "dv", label: "ĐV CNTT" },
+  { value: "dv", label: "ĐV CN Loa" },
 ];
 
 export default function KhoiPage() {
@@ -30,8 +30,8 @@ export default function KhoiPage() {
       <PageHeader
         eyebrow="GALAXY PAY · KPI KHỐI KINH DOANH"
         title="KPI Khối Kinh doanh 2026"
-        subtitle={'Nguồn: sheet "KPI Khối Kinh doanh" · Thực đạt vs Kế hoạch theo tháng · Cập nhật đến 31/05/2026'}
-        right={<DateBadge>Lũy kế T1–T5/2026</DateBadge>}
+        subtitle={'Nguồn: sheet "KPI Khối Kinh doanh" · Thực đạt vs Kế hoạch theo tháng · Cập nhật đến 30/06/2026'}
+        right={<DateBadge>Lũy kế T1–T6/2026</DateBadge>}
       />
 
       <section className="grid-4">
@@ -42,11 +42,11 @@ export default function KhoiPage() {
               <span style={{ fontSize: 12, color: "#8a8fa6", fontWeight: 600 }}>{k.unit}</span>
             </div>
             <div style={{ fontSize: 11.5, color: "#8a8fa6", marginTop: 4, position: "relative" }}>
-              KH lũy kế T1–T5: <b className="mono" style={{ color: "#c9cbd8" }}>{k.plan5}</b> · {k.unit}
+              KH lũy kế T1–T6: <b className="mono" style={{ color: "#c9cbd8" }}>{k.plan5}</b> · {k.unit}
             </div>
             <div style={{ marginTop: 14, position: "relative" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#8a8fa6", marginBottom: 6 }}>
-                <span>Đạt vs KH T1–T5</span>
+                <span>Đạt vs KH T1–T6</span>
                 <span className="mono" style={{ fontWeight: 700, color: k.pctColor }}>{k.pct}</span>
               </div>
               <div style={{ height: 6, borderRadius: 6, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
@@ -63,7 +63,7 @@ export default function KhoiPage() {
       <SectionCard title="Thực đạt vs Kế hoạch theo tháng" right={<SegmentedTabs options={TABS} value={metric} onChange={setMetric} size="sm" />}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 11.5, color: "#8a8fa6", marginTop: -14, marginBottom: 6 }}>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#b98cff,#7c6cff)" }} />Thực đạt (T1–T5)
+            <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#b98cff,#7c6cff)" }} />Thực đạt (T1–T6)
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 10, height: 10, borderRadius: 3, background: "rgba(124,108,255,0.18)", border: "1px dashed rgba(195,185,255,0.55)" }} />Kế hoạch
@@ -75,7 +75,7 @@ export default function KhoiPage() {
       <section>
         <div style={{ marginBottom: 14 }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Runrate — Ước tính cả năm theo tốc độ hiện tại</h2>
-          <div style={{ fontSize: 12, color: "#8a8fa6", marginTop: 4 }}>Trung bình/tháng (T1–T5) × 12 = dự báo cả năm · so với KPI năm và KH trung bình tháng.</div>
+          <div style={{ fontSize: 12, color: "#8a8fa6", marginTop: 4 }}>Trung bình/tháng (T1–T6) × 12 = dự báo cả năm · so với KPI năm và KH trung bình tháng.</div>
         </div>
         <div className="grid-2">
           {runrate.map((r) => (
@@ -120,7 +120,7 @@ export default function KhoiPage() {
         </div>
       </section>
 
-      <SectionCard title="Bảng chi tiết KPI Khối Kinh doanh" right={<div style={{ fontSize: 12, color: "#8a8fa6" }}>Đơn vị: tỷ VND (GMV/DT/LN) · đơn vị (ĐV CNTT)</div>}>
+      <SectionCard title="Bảng chi tiết KPI Khối Kinh doanh" right={<div style={{ fontSize: 12, color: "#8a8fa6" }}>Đơn vị: tỷ VND (GMV/DT/LN) · đơn vị (ĐV CN Loa Thanh toán)</div>}>
         <div className="table-wrap">
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 920 }}>
             <thead>
