@@ -43,7 +43,7 @@ export default function UserBadge() {
       >
         {user.ini}
       </div>
-      <div style={{ minWidth: 0, flex: 1 }}>
+      <div className="user-badge__text" style={{ minWidth: 0, flex: 1 }}>
         <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
         <div style={{ fontSize: 10.5, color: "#8a8fa6", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.role}</div>
       </div>

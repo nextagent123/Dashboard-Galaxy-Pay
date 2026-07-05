@@ -220,65 +220,100 @@ button {
   box-shadow: 0 4px 14px -4px rgba(124, 108, 255, 0.7);
 }
 
+/* ===================== MOBILE NAV (topbar + drawer) ===================== */
+.mobile-topbar {
+  display: none;
+}
+.mobile-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  color: var(--text);
+}
+.sidebar-close-btn {
+  display: none;
+}
+.sidebar-backdrop {
+  display: none;
+}
+
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 1024px) {
   .app-shell {
     flex-direction: column;
   }
-  .sidebar {
-    width: 100% !important;
-    height: auto !important;
-    position: static !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    border-right: none !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    padding: 12px !important;
-    gap: 8px !important;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-  .sidebar-logo-block {
-    flex-direction: row !important;
-    align-items: center;
-    padding: 0 12px 0 4px !important;
-    flex-shrink: 0;
-    border-right: 1px solid rgba(255, 255, 255, 0.06);
-    margin-right: 4px;
-  }
-  .sidebar-logo-img {
-    width: 96px !important;
-  }
-  .sidebar-subtitle {
-    display: none;
-  }
-  .sidebar-section {
+
+  .mobile-topbar {
     display: flex;
     align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
+    gap: 12px;
+    padding: 10px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 150;
+    background: rgba(10, 11, 18, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   }
-  .sidebar-section-label {
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 7, 12, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 250;
+  }
+
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: -300px;
+    width: 272px !important;
+    max-width: 84vw;
+    height: 100vh !important;
+    z-index: 300;
+    background-color: #0d0e17 !important;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0)) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transition: left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+  .sidebar--open {
+    left: 0;
+  }
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 16px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    color: var(--text-dim);
+  }
+
+  /* Name/role text pushes the badge too wide next to the topbar's hamburger
+     + logo — collapse to just the avatar and action buttons. */
+  .user-badge {
+    gap: 8px !important;
+    padding: 7px 9px !important;
+  }
+  .user-badge__text {
     display: none;
   }
-  .sidebar-link {
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-  /* Fixed top-right badge would otherwise float over the horizontal nav
-     scroller and permanently obscure whatever item scrolls under it — drop
-     it back into normal flow as its own row instead. */
-  .user-badge {
-    position: static !important;
-    top: auto !important;
-    right: auto !important;
-    width: 100%;
-    justify-content: flex-end;
-    border-radius: 0 !important;
-    border-left: none !important;
-    border-right: none !important;
-    border-top: none !important;
-  }
+
   .main-content {
     padding: 18px 16px 32px;
   }
