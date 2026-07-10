@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { getHome } from "@/lib/metrics";
+import { getHome, getAiInsights } from "@/lib/metrics";
 import { METRIC_ICON_PATHS } from "@/lib/icons";
 import { FEATURES } from "@/lib/nav";
 import Icon from "@/components/ui/Icon";
@@ -11,6 +11,7 @@ import SegmentedTabs from "@/components/ui/SegmentedTabs";
 import SectionCard from "@/components/ui/SectionCard";
 import { PageHeader, DateBadge } from "@/components/ui/PageHeader";
 import BarTrendChart from "@/components/charts/BarTrendChart";
+import AiInsightPanel from "@/components/ui/AiInsightPanel";
 
 const PERIOD_OPTIONS = [
   { value: "month", label: "Tháng" },
@@ -22,9 +23,12 @@ const PERIOD_OPTIONS = [
 export default function HomePage() {
   const [period, setPeriod] = useState("year");
   const data = getHome(period);
+  const aiInsights = getAiInsights(data);
 
   return (
     <>
+      <AiInsightPanel insights={aiInsights} />
+
       <PageHeader
         eyebrow="GALAXY PAY · BÁO CÁO KHỐI KINH DOANH"
         title="Tổng quan hoạt động kinh doanh"
