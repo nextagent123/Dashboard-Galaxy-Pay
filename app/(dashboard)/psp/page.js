@@ -280,23 +280,40 @@ export default function PspPage() {
         </div>
 
         {/* Provider grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
+        <style>{`
+          .psp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+          @media (max-width: 1024px) { .psp-grid { grid-template-columns: repeat(2, 1fr); } }
+          @media (max-width: 640px)  { .psp-grid { grid-template-columns: 1fr; } }
+          .psp-card {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: rgba(255,255,255,0.02);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+            animation: pspFadeUp 0.5s ease both;
+          }
+          .psp-card:nth-child(1) { animation-delay: 0s; }
+          .psp-card:nth-child(2) { animation-delay: 0.08s; }
+          .psp-card:nth-child(3) { animation-delay: 0.16s; }
+          .psp-card:nth-child(4) { animation-delay: 0.24s; }
+          .psp-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px -8px rgba(8,145,178,0.25);
+            border-color: rgba(107,156,240,0.35);
+          }
+          @keyframes pspFadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+        <div className="psp-grid">
           {PROVIDERS.map((p) => (
-            <div
-              key={p.title}
-              style={{
-                border: "1px solid var(--border)",
-                borderRadius: 16,
-                background: "rgba(255,255,255,0.02)",
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column",
-                transition: "box-shadow 0.2s, transform 0.2s",
-              }}
-            >
+            <div key={p.title} className="psp-card">
               <div
                 style={{
-                  padding: "14px 18px 12px",
+                  padding: "14px 16px 12px",
                   borderBottom: "1px solid var(--border)",
                   display: "flex",
                   alignItems: "center",
@@ -304,7 +321,7 @@ export default function PspPage() {
                   background: p.headGrad,
                 }}
               >
-                <span style={{ fontSize: 13, fontWeight: 700 }}>{p.title}</span>
+                <span style={{ fontSize: 12.5, fontWeight: 700 }}>{p.title}</span>
                 <span
                   style={{
                     fontSize: 10,
@@ -317,7 +334,7 @@ export default function PspPage() {
                   {p.badge}
                 </span>
               </div>
-              <div style={{ padding: "16px 18px", display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
+              <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>
                 {p.content}
               </div>
             </div>

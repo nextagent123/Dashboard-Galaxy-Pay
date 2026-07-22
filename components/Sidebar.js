@@ -112,10 +112,12 @@ export default function Sidebar() {
           display: "flex",
           flexDirection: "column",
           gap: 6,
-          position: "sticky",
+          position: "fixed",
           top: 0,
+          left: 0,
           height: "100vh",
           overflowY: "auto",
+          zIndex: 100,
         }}
         className={mobileOpen ? "sidebar sidebar--open" : "sidebar"}
       >
