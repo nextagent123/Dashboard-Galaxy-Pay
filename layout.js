@@ -1,29 +1,27 @@
-"use client";
+import { Manrope, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
 
-import { AuthProvider, useAuth } from "@/components/AuthProvider";
-import LoginScreen from "@/components/LoginScreen";
-import Sidebar from "@/components/Sidebar";
-import UserBadge from "@/components/UserBadge";
-import UserAdminModal from "@/components/UserAdminModal";
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+});
 
-function Gate({ children }) {
-  const { ready, user } = useAuth();
-  if (!ready) return null;
-  if (!user) return <LoginScreen />;
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
+export const metadata = {
+  title: "Galaxy Pay · Báo cáo Khối Kinh doanh",
+  description: "Dashboard báo cáo hoạt động kinh doanh Galaxy Pay",
+};
+
+export default function RootLayout({ children }) {
   return (
-    <div className="app-shell">
-      <Sidebar />
-      <UserBadge />
-      <UserAdminModal />
-      <main className="main-content">{children}</main>
-    </div>
-  );
-}
-
-export default function DashboardLayout({ children }) {
-  return (
-    <AuthProvider>
-      <Gate>{children}</Gate>
-    </AuthProvider>
+    <html lang="vi" className={`${manrope.variable} ${jetbrainsMono.variable}`}>
+      <body>{children}</body>
+    </html>
   );
 }
