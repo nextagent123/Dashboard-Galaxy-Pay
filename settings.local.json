@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/user/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/74ba549a-9537-4833-8d36-106a931bb424/bcad44c6-afea-4563-be26-1440d9208cd7/skills/xlsx/**)",
+      "Bash(markitdown \"C:\\\\Users\\\\user\\\\Downloads\\\\Dashboard Source - Khối Kinh doanh \\(4\\).xlsx\")",
+      "PowerShell(markitdown \"C:\\\\Users\\\\user\\\\Downloads\\\\Dashboard Source - Kh?i Kinh doanh \\(4\\).xlsx\" 2>&1)",
+      "PowerShell(python -m pip install markitdown openpyxl 2>&1)",
+      "PowerShell(Get-Command python3, py, node -ErrorAction SilentlyContinue)",
+      "PowerShell($env:NODE_PATH = \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-user-Downloads-galaxypaydashboard-update-10-7\\\\7395af49-2862-4e84-8a87-7d80c442af35\\\\scratchpad\\\\node_modules\"; node \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-user-Downloads-galaxypaydashboard-update-10-7\\\\7395af49-2862-4e84-8a87-7d80c442af35\\\\scratchpad\\\\read_excel.js\" 2>&1)",
+      "PowerShell($env:NODE_PATH = \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-user-Downloads-galaxypaydashboard-update-10-7\\\\7395af49-2862-4e84-8a87-7d80c442af35\\\\scratchpad\\\\node_modules\"; node \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-user-Downloads-galaxypaydashboard-update-10-7\\\\7395af49-2862-4e84-8a87-7d80c442af35\\\\scratchpad\\\\read_detail.js\" 2>&1)",
+      "PowerShell(7z l \"C:\\\\Users\\\\user\\\\Downloads\\\\h? sinh th�i s?n ph?m.7z\")",
+      "PowerShell(& \"C:\\\\Program Files\\\\7-Zip\\\\7z.exe\" l \"C:\\\\Users\\\\user\\\\Downloads\\\\h? sinh th�i s?n ph?m.7z\")",
+      "PowerShell(Get-ChildItem -Recurse \"C:\\\\Users\\\\user\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-user-Downloads-galaxypaydashboard-update-10-7\\\\16a9ba52-ca7a-4e3f-bf04-3edc88e5e646\\\\scratchpad\\\\hesinhthai\" | ForEach-Object { \"$\\($_.FullName\\) [$\\($_.Length\\)]\" })",
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\user\\\\Downloads\\\\galaxypaydashboard-update 10.7\\\\web\\\\app\\\\\\(dashboard\\)\\\\psp\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\user\\\\Downloads\\\\galaxypaydashboard-update 10.7\\\\web\\\\app\\\\\\(dashboard\\)\\\\doi-tac\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\user\\\\Downloads\\\\galaxypaydashboard-update 10.7\\\\web\\\\app\\\\\\(dashboard\\)\\\\quan-tri\")",
+      "PowerShell(Compress-Archive -Path \"C:\\\\Users\\\\user\\\\Downloads\\\\galaxypaydashboard-update 10.7\\\\web\" -DestinationPath \"C:\\\\Users\\\\user\\\\Downloads\\\\galaxypaydashboard-update 10.7\\\\web.zip\" -Force)",
+      "PowerShell(\\(Get-Item \"C:\\\\Users\\\\user\\\\Downloads\\\\galaxypaydashboard-update 10.7\\\\web.zip\"\\).Length / 1MB)"
+    ]
+  }
+}
