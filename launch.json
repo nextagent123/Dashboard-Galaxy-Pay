@@ -4,7 +4,7 @@
     {
       "name": "nextdev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "web"],
+      "runtimeArgs": ["run", "dev"],
       "port": 3000
     }
   ]
