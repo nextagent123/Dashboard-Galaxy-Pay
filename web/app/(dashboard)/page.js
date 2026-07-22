@@ -36,7 +36,7 @@ export default function HomePage() {
         right={
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <SegmentedTabs options={PERIOD_OPTIONS} value={period} onChange={setPeriod} />
-            <DateBadge>Số liệu đến 30/06/2026</DateBadge>
+            <DateBadge>Số liệu đến 16/07/2026</DateBadge>
           </div>
         }
       />

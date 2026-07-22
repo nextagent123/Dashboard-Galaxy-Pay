@@ -26,7 +26,7 @@ export default function ProductPage() {
         eyebrow="GALAXY PAY · BÁO CÁO SẢN PHẨM"
         title="Báo cáo hiệu quả theo sản phẩm"
         subtitle={`Lũy kế 7 tháng 2026 + so sánh ${periodLabel} · ${matchCount} / 7 dự án`}
-        right={<DateBadge>Số liệu đến 02/07/2026</DateBadge>}
+        right={<DateBadge>Số liệu đến 16/07/2026</DateBadge>}
       />
 
       <section className="grid-product-filter card" style={{ padding: "16px 18px" }}>

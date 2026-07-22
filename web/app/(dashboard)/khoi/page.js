@@ -30,7 +30,7 @@ export default function KhoiPage() {
       <PageHeader
         eyebrow="GALAXY PAY · KPI KHỐI KINH DOANH"
         title="KPI Khối Kinh doanh 2026"
-        subtitle={'Nguồn: sheet "KPI Khối Kinh doanh" · Thực đạt vs Kế hoạch theo tháng · Cập nhật đến 30/06/2026'}
+        subtitle={'Nguồn: sheet "KPI Khối Kinh doanh" · Thực đạt vs Kế hoạch theo tháng · Cập nhật đến 16/07/2026'}
         right={<DateBadge>Lũy kế T1–T6/2026</DateBadge>}
       />
 

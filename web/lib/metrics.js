@@ -27,7 +27,7 @@ const PERIOD_DEFS = (ACT, TGT, N) => ({
   month: { range: `Tháng ${N}/2026 · số liệu trong tháng`, pick: (a) => a[N - 1], tPick: (t) => t[N - 1], comp: `Hoàn thành KH tháng ${N}` },
   quarter: { range: `Quý 2/2026 · lũy kế T4–T${N}`, pick: (a) => a[3] + a[4], tPick: (t) => t[3] + t[4], comp: "Hoàn thành KH Quý 2 (LK)" },
   h1: { range: `Nửa đầu 2026 (H1) · lũy kế T1–T${N}`, pick: (a) => sum(a.slice(0, N)), tPick: (t) => sum(t.slice(0, 6)), comp: "Hoàn thành Target H1" },
-  year: { range: `Năm 2026 · lũy kế T1–T${N} (đến 30/06)`, pick: (a) => sum(a.slice(0, N)), tPick: (t) => sum(t), comp: "Hoàn thành Target năm" },
+  year: { range: `Năm 2026 · lũy kế T1–T${N} (đến 16/07)`, pick: (a) => sum(a.slice(0, N)), tPick: (t) => sum(t), comp: "Hoàn thành Target năm" },
 });
 
 const M_DEFS = [

@@ -10,6 +10,25 @@ import SegmentedTabs from "@/components/ui/SegmentedTabs";
 import SectionCard from "@/components/ui/SectionCard";
 import { PageHeader, DateBadge } from "@/components/ui/PageHeader";
 import BarTrendChart from "@/components/charts/BarTrendChart";
+import GrowthBarChart from "@/components/charts/GrowthBarChart";
+
+const GROWTH_REVENUE = {
+  title: "Doanh thu",
+  unit: "Triệu đồng",
+  years: [2022, 2023, 2024, 2025, 2026],
+  h1:       [0,     9282,  32520,  110944, 114764],
+  fullYear: [9911,  24403, 80396,  231294, 345003],
+  forecastYear: 2026,
+};
+
+const GROWTH_GMV = {
+  title: "GMV",
+  unit: "Tỷ đồng",
+  years: [2022, 2023, 2024, 2025, 2026],
+  h1:       [0,    3199, 5748, 6191,  8647],
+  fullYear: [21,   7998, 11833, 12843, 24028],
+  forecastYear: 2026,
+};
 
 const TABS = [
   { value: "gmv", label: "GMV" },
@@ -31,6 +50,16 @@ export default function CompanyPage() {
         subtitle={'Nguồn: sheet "Overall KPI Công ty" — kế hoạch tổng công ty theo 12 tháng'}
         right={<DateBadge>FY 2026 · Kế hoạch</DateBadge>}
       />
+
+      <SectionCard
+        title="Chỉ số tăng trưởng — Tăng trưởng bền vững, tạo giá trị"
+        subtitle="So sánh H1 vs Full Year qua các năm · Đường nét đứt = xu hướng đa thức (Full Year)"
+      >
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+          <GrowthBarChart {...GROWTH_REVENUE} />
+          <GrowthBarChart {...GROWTH_GMV} />
+        </div>
+      </SectionCard>
 
       <section className="grid-3">
         {companyKpi.map((k) => (

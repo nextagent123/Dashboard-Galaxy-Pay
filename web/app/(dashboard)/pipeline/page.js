@@ -17,7 +17,7 @@ export default function PipelinePage() {
         eyebrow="GALAXY PAY · STRATEGIC PIPELINE"
         title={`Chiến lược Pipeline 2026 · ${activeLabel}`}
         subtitle="3 vùng chiến lược: GMV — Doanh thu — Lợi nhuận · Runrate & dự án trọng điểm theo trạng thái go-live"
-        right={<DateBadge>Số liệu lũy kế đến 30/06/2026</DateBadge>}
+        right={<DateBadge>Số liệu lũy kế đến 16/07/2026</DateBadge>}
       />
 
       <section style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--card-bg-soft)", border: "1px solid var(--border)", borderRadius: 14, padding: 8, flexWrap: "wrap" }}>
