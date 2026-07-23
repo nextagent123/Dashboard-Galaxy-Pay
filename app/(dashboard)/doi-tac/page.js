@@ -124,8 +124,20 @@ function SelectFilter({ value, onChange, options }) {
 }
 
 function FlowDiagramSVG() {
+  const svgStr = buildFlowSvg();
+  return (
+    <div
+      className="card"
+      suppressHydrationWarning
+      style={{ padding: 0, overflowX: "auto", flexShrink: 0 }}
+      dangerouslySetInnerHTML={{ __html: svgStr }}
+    />
+  );
+}
+
+function buildFlowSvg() {
   const W = 1340, H = 1020;
-  const FONT = "var(--font-manrope), system-ui, sans-serif";
+  const FONT = "system-ui, sans-serif";
   const ink = "#EFF1F7", ink3 = "#5A6478";
   const card = "#0E1628", bdr = "rgba(255,255,255,0.07)", sf = "#070C1A";
   const chipBg = "rgba(107,156,240,0.12)", chipTxt = "#93B5F0";
@@ -290,11 +302,7 @@ function FlowDiagramSVG() {
     o += `<text x="${rx+rw/2}" y="${fy+92}" font-size="9" fill="${ink3}" text-anchor="middle" font-family="${FONT}">${r.d}</text>`;
   });
 
-  const svgStr = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${o}</svg>`;
-  return (
-    <div className="card" style={{ padding: 0, overflow: "hidden", overflowX: "auto" }}
-      dangerouslySetInnerHTML={{ __html: svgStr }} />
-  );
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">${o}</svg>`;
 }
 
 export default function DoiTacPage() {

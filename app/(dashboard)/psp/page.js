@@ -280,34 +280,6 @@ export default function PspPage() {
         </div>
 
         {/* Provider grid */}
-        <style>{`
-          .psp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-          @media (max-width: 1024px) { .psp-grid { grid-template-columns: repeat(2, 1fr); } }
-          @media (max-width: 640px)  { .psp-grid { grid-template-columns: 1fr; } }
-          .psp-card {
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            background: rgba(255,255,255,0.02);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
-            animation: pspFadeUp 0.5s ease both;
-          }
-          .psp-card:nth-child(1) { animation-delay: 0s; }
-          .psp-card:nth-child(2) { animation-delay: 0.08s; }
-          .psp-card:nth-child(3) { animation-delay: 0.16s; }
-          .psp-card:nth-child(4) { animation-delay: 0.24s; }
-          .psp-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px -8px rgba(8,145,178,0.25);
-            border-color: rgba(107,156,240,0.35);
-          }
-          @keyframes pspFadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
-          }
-        `}</style>
         <div className="psp-grid">
           {PROVIDERS.map((p) => (
             <div key={p.title} className="psp-card">
