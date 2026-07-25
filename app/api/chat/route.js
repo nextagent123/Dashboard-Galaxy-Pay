@@ -1,4 +1,5 @@
 import { buildDashboardContext } from "@/lib/chatContext";
+import { getLocalAnswer } from "@/lib/localChat";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const MODEL = process.env.CHAT_MODEL || "gemini-2.0-flash";
@@ -20,94 +21,112 @@ QUY TẮC:
 DỮ LIỆU DASHBOARD HIỆN TẠI:
 ${buildDashboardContext()}`;
 
-export async function POST(request) {
-  if (!GEMINI_API_KEY) {
-    return Response.json(
-      { error: "GEMINI_API_KEY chưa được cấu hình. Vui lòng thêm biến môi trường GEMINI_API_KEY." },
-      { status: 500 }
-    );
-  }
+async function tryGemini(messages) {
+  if (!GEMINI_API_KEY) return null;
 
+  const geminiContents = messages.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents: geminiContents,
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+    }),
+  });
+
+  if (!res.ok) return null;
+  return res;
+}
+
+function localResponse(text) {
+  const encoder = new TextEncoder();
+  const words = text.split(/(\s+)/);
+  let i = 0;
+
+  const stream = new ReadableStream({
+    async pull(controller) {
+      if (i >= words.length) {
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+        return;
+      }
+      const chunk = words.slice(i, i + 3).join("");
+      i += 3;
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`));
+      await new Promise((r) => setTimeout(r, 30));
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
+  });
+}
+
+export async function POST(request) {
   try {
     const { messages } = await request.json();
+    const recent = messages.slice(-20);
+    const lastMsg = recent[recent.length - 1]?.content || "";
 
-    const geminiContents = messages.slice(-20).map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
+    const geminiRes = await tryGemini(recent);
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: geminiContents,
-        generationConfig: {
-          maxOutputTokens: 1024,
-          temperature: 0.7,
+    if (geminiRes) {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          const reader = geminiRes.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() || "";
+              for (const line of lines) {
+                if (!line.startsWith("data: ")) continue;
+                const data = line.slice(6).trim();
+                if (!data) continue;
+                try {
+                  const evt = JSON.parse(data);
+                  const text = evt.candidates?.[0]?.content?.parts?.[0]?.text;
+                  if (text) {
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+                  }
+                } catch {}
+              }
+            }
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          } finally {
+            controller.close();
+          }
         },
-      }),
-    });
+      });
 
-    if (!res.ok) {
-      const err = await res.text();
-      return Response.json(
-        { error: `Gemini API error: ${res.status}` },
-        { status: res.status }
-      );
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
     }
 
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-
-            for (const line of lines) {
-              if (!line.startsWith("data: ")) continue;
-              const data = line.slice(6).trim();
-              if (!data) continue;
-
-              try {
-                const evt = JSON.parse(data);
-                const text = evt.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) {
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
-                }
-                const finish = evt.candidates?.[0]?.finishReason;
-                if (finish && finish !== "STOP" && finish !== "MAX_TOKENS") {
-                  // blocked or error
-                }
-              } catch {}
-            }
-          }
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        } finally {
-          controller.close();
-        }
-      },
-    });
-
-    return new Response(stream, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      },
-    });
-  } catch (err) {
+    const answer = getLocalAnswer(lastMsg);
+    return localResponse(answer);
+  } catch {
     return Response.json(
       { error: "Có lỗi xảy ra khi xử lý yêu cầu." },
       { status: 500 }
