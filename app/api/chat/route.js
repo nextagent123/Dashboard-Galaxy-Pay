@@ -1,8 +1,8 @@
 import { buildDashboardContext } from "@/lib/chatContext";
 import { getLocalAnswer } from "@/lib/localChat";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.CHAT_MODEL || "gemini-2.0-flash";
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const MODEL = process.env.CHAT_MODEL || "llama-3.1-8b-instant";
 
 const SYSTEM_PROMPT = `Bạn là trợ lý AI của Galaxy Pay Dashboard — hệ thống báo cáo kinh doanh nội bộ.
 
@@ -21,28 +21,33 @@ QUY TẮC:
 DỮ LIỆU DASHBOARD HIỆN TẠI:
 ${buildDashboardContext()}`;
 
-async function tryGemini(messages) {
-  if (!GEMINI_API_KEY) return null;
+async function tryGroq(messages) {
+  if (!GROQ_API_KEY) return null;
 
-  const geminiContents = messages.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
-  }));
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...messages,
+        ],
+        max_tokens: 1024,
+        temperature: 0.7,
+        stream: true,
+      }),
+    });
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: geminiContents,
-      generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
-    }),
-  });
-
-  if (!res.ok) return null;
-  return res;
+    if (!res.ok) return null;
+    return res;
+  } catch {
+    return null;
+  }
 }
 
 function localResponse(text) {
@@ -79,13 +84,13 @@ export async function POST(request) {
     const recent = messages.slice(-20);
     const lastMsg = recent[recent.length - 1]?.content || "";
 
-    const geminiRes = await tryGemini(recent);
+    const groqRes = await tryGroq(recent);
 
-    if (geminiRes) {
+    if (groqRes) {
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         async start(controller) {
-          const reader = geminiRes.body.getReader();
+          const reader = groqRes.body.getReader();
           const decoder = new TextDecoder();
           let buffer = "";
           try {
@@ -98,10 +103,11 @@ export async function POST(request) {
               for (const line of lines) {
                 if (!line.startsWith("data: ")) continue;
                 const data = line.slice(6).trim();
+                if (data === "[DONE]") continue;
                 if (!data) continue;
                 try {
                   const evt = JSON.parse(data);
-                  const text = evt.candidates?.[0]?.content?.parts?.[0]?.text;
+                  const text = evt.choices?.[0]?.delta?.content;
                   if (text) {
                     controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
                   }
