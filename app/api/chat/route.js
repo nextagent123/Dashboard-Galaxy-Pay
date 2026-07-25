@@ -1,7 +1,7 @@
 import { buildDashboardContext } from "@/lib/chatContext";
 
-const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const MODEL = process.env.CHAT_MODEL || "claude-sonnet-4-20250514";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const MODEL = process.env.CHAT_MODEL || "gemini-2.0-flash";
 
 const SYSTEM_PROMPT = `Bạn là trợ lý AI của Galaxy Pay Dashboard — hệ thống báo cáo kinh doanh nội bộ.
 
@@ -21,9 +21,9 @@ DỮ LIỆU DASHBOARD HIỆN TẠI:
 ${buildDashboardContext()}`;
 
 export async function POST(request) {
-  if (!ANTHROPIC_API_KEY) {
+  if (!GEMINI_API_KEY) {
     return Response.json(
-      { error: "ANTHROPIC_API_KEY chưa được cấu hình. Vui lòng thêm biến môi trường ANTHROPIC_API_KEY." },
+      { error: "GEMINI_API_KEY chưa được cấu hình. Vui lòng thêm biến môi trường GEMINI_API_KEY." },
       { status: 500 }
     );
   }
@@ -31,26 +31,30 @@ export async function POST(request) {
   try {
     const { messages } = await request.json();
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const geminiContents = messages.slice(-20).map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
+
+    const res = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 1024,
-        system: SYSTEM_PROMPT,
-        messages: messages.slice(-20),
-        stream: true,
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: geminiContents,
+        generationConfig: {
+          maxOutputTokens: 1024,
+          temperature: 0.7,
+        },
       }),
     });
 
     if (!res.ok) {
       const err = await res.text();
       return Response.json(
-        { error: `API error: ${res.status}` },
+        { error: `Gemini API error: ${res.status}` },
         { status: res.status }
       );
     }
@@ -73,20 +77,23 @@ export async function POST(request) {
 
             for (const line of lines) {
               if (!line.startsWith("data: ")) continue;
-              const data = line.slice(6);
-              if (data === "[DONE]") continue;
+              const data = line.slice(6).trim();
+              if (!data) continue;
 
               try {
                 const evt = JSON.parse(data);
-                if (evt.type === "content_block_delta" && evt.delta?.text) {
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: evt.delta.text })}\n\n`));
+                const text = evt.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
                 }
-                if (evt.type === "message_stop") {
-                  controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+                const finish = evt.candidates?.[0]?.finishReason;
+                if (finish && finish !== "STOP" && finish !== "MAX_TOKENS") {
+                  // blocked or error
                 }
               } catch {}
             }
           }
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         } finally {
           controller.close();
         }
