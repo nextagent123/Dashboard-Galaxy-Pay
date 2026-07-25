@@ -5,6 +5,7 @@ import LoginScreen from "@/components/LoginScreen";
 import Sidebar from "@/components/Sidebar";
 import UserBadge from "@/components/UserBadge";
 import UserAdminModal from "@/components/UserAdminModal";
+import ChatBot from "@/components/ChatBot";
 
 function Gate({ children }) {
   const { ready, user } = useAuth();
@@ -16,6 +17,7 @@ function Gate({ children }) {
       <UserBadge />
       <UserAdminModal />
       <main className="main-content">{children}</main>
+      <ChatBot />
     </div>
   );
 }
