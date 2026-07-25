@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 const WELCOME_MSG = {
   role: "assistant",
   content:
-    "Xin chào! Tôi là trợ lý AI của Galaxy Pay Dashboard. Bạn có thể hỏi tôi về các chỉ số kinh doanh như GMV, Doanh thu, Lợi nhuận, KPI, Sale Pipeline... hoặc bất kỳ nội dung nào liên quan đến dashboard.",
+    "Xin chào! Tôi là Khối Kinh doanh Chatbot AI. Bạn có thể hỏi tôi về các chỉ số kinh doanh như GMV, Doanh thu, Lợi nhuận, KPI, Sale Pipeline... hoặc bất kỳ nội dung nào liên quan đến dashboard.",
 };
 
 export default function ChatBot() {
@@ -133,7 +133,7 @@ export default function ChatBot() {
                 <span style={{ fontSize: 18 }}>🤖</span>
               </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700 }}>Galaxy Pay AI</div>
+                <div style={{ fontSize: 13, fontWeight: 700 }}>Khối Kinh doanh Chatbot AI</div>
                 <div style={{ fontSize: 10.5, color: "#34d399", fontWeight: 600, display: "flex", alignItems: "center", gap: 5 }}>
                   <span className="ai-live-dot" style={{ width: 5, height: 5 }} />
                   Online

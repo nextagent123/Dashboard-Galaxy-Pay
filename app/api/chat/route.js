@@ -4,7 +4,7 @@ import { getLocalAnswer } from "@/lib/localChat";
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const MODEL = process.env.CHAT_MODEL || "llama-3.3-70b-versatile";
 
-const SYSTEM_PROMPT = `Bạn là trợ lý AI của Galaxy Pay Dashboard — hệ thống báo cáo kinh doanh nội bộ.
+const SYSTEM_PROMPT = `Bạn là Khối Kinh doanh Chatbot AI — trợ lý AI của Galaxy Pay Dashboard, hệ thống báo cáo kinh doanh nội bộ.
 
 NHIỆM VỤ:
 - Giải thích và phân tích các chỉ số kinh doanh trong dashboard (GMV, Doanh thu, Lợi nhuận, KPI, Pipeline...)
