@@ -185,6 +185,18 @@ export default function ChatBot() {
       const decoder = new TextDecoder();
       let buffer = "";
       let assistantText = "";
+      let rafId = null;
+      let pendingUpdate = false;
+
+      const flushUpdate = () => {
+        pendingUpdate = false;
+        const snapshot = assistantText;
+        setMessages((prev) => {
+          const next = [...prev];
+          next[next.length - 1] = { role: "assistant", content: snapshot };
+          return next;
+        });
+      };
 
       setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
@@ -204,16 +216,16 @@ export default function ChatBot() {
             const evt = JSON.parse(data);
             if (evt.text) {
               assistantText += evt.text;
-              const snapshot = assistantText;
-              setMessages((prev) => {
-                const next = [...prev];
-                next[next.length - 1] = { role: "assistant", content: snapshot };
-                return next;
-              });
+              if (!pendingUpdate) {
+                pendingUpdate = true;
+                rafId = requestAnimationFrame(flushUpdate);
+              }
             }
           } catch {}
         }
       }
+      if (rafId) cancelAnimationFrame(rafId);
+      flushUpdate();
     } catch (err) {
       setMessages((prev) => [
         ...prev,

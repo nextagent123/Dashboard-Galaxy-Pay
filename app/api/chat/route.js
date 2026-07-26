@@ -34,39 +34,46 @@ function matchesAny(text, keys) {
 }
 
 async function fetchLiveContext(question, baseUrl) {
-  const parts = [];
-  try {
-    if (matchesAny(question, FOREX_KEYS)) {
-      const r = await fetch(`${baseUrl}/api/forex`, { signal: AbortSignal.timeout(8000) });
-      if (r.ok) {
-        const d = await r.json();
-        if (d.rates) {
-          parts.push(
+  const fetches = [];
+
+  if (matchesAny(question, FOREX_KEYS)) {
+    fetches.push(
+      fetch(`${baseUrl}/api/forex`, { signal: AbortSignal.timeout(3000) })
+        .then(async (r) => {
+          if (!r.ok) return "";
+          const d = await r.json();
+          if (!d.rates) return "";
+          return (
             `\n=== DỮ LIỆU TỶ GIÁ NGOẠI HỐI REALTIME ===\nNguồn: ${d.source || "API"} | Cập nhật: ${d.updated || "now"}\nTỷ giá VND:\n` +
             Object.entries(d.rates).map(([k, v]) => `• 1 ${k} = ${Number(v).toLocaleString("vi-VN")} VND`).join("\n")
           );
-        }
-      }
-    }
-  } catch {}
-  try {
-    if (matchesAny(question, STOCK_KEYS)) {
-      const r = await fetch(`${baseUrl}/api/stock`, { signal: AbortSignal.timeout(8000) });
-      if (r.ok) {
-        const d = await r.json();
-        const idx = (d.indices || []).map((i) => `• ${i.code}: ${i.value} (${i.change >= 0 ? "+" : ""}${i.change}, ${i.changePercent >= 0 ? "+" : ""}${i.changePercent}%)`).join("\n");
-        const gainers = (d.topGainers || []).slice(0, 5).map((s) => `• ${s.ticker}: ${s.price} (${s.changePercent >= 0 ? "+" : ""}${s.changePercent}%)`).join("\n");
-        const losers = (d.topLosers || []).slice(0, 5).map((s) => `• ${s.ticker}: ${s.price} (${s.changePercent}%)`).join("\n");
-        parts.push(
-          `\n=== DỮ LIỆU CHỨNG KHOÁN VIỆT NAM REALTIME ===\nNguồn: ${d.source || "API"} | Cập nhật: ${d.updated || "now"}\nChỉ số:\n${idx}\nTop tăng giá:\n${gainers}\nTop giảm giá:\n${losers}`
-        );
-        if (d.breadth) {
-          parts.push(`Độ rộng thị trường: Tăng ${d.breadth.advances}, Giảm ${d.breadth.declines}, Đứng ${d.breadth.unchanged} / Tổng ${d.breadth.total}`);
-        }
-      }
-    }
-  } catch {}
-  return parts.join("\n");
+        })
+        .catch(() => "")
+    );
+  }
+
+  if (matchesAny(question, STOCK_KEYS)) {
+    fetches.push(
+      fetch(`${baseUrl}/api/stock`, { signal: AbortSignal.timeout(3000) })
+        .then(async (r) => {
+          if (!r.ok) return "";
+          const d = await r.json();
+          const idx = (d.indices || []).map((i) => `• ${i.code}: ${i.value} (${i.change >= 0 ? "+" : ""}${i.change}, ${i.changePercent >= 0 ? "+" : ""}${i.changePercent}%)`).join("\n");
+          const gainers = (d.topGainers || []).slice(0, 5).map((s) => `• ${s.ticker}: ${s.price} (${s.changePercent >= 0 ? "+" : ""}${s.changePercent}%)`).join("\n");
+          const losers = (d.topLosers || []).slice(0, 5).map((s) => `• ${s.ticker}: ${s.price} (${s.changePercent}%)`).join("\n");
+          let text = `\n=== DỮ LIỆU CHỨNG KHOÁN VIỆT NAM REALTIME ===\nNguồn: ${d.source || "API"} | Cập nhật: ${d.updated || "now"}\nChỉ số:\n${idx}\nTop tăng giá:\n${gainers}\nTop giảm giá:\n${losers}`;
+          if (d.breadth) {
+            text += `\nĐộ rộng thị trường: Tăng ${d.breadth.advances}, Giảm ${d.breadth.declines}, Đứng ${d.breadth.unchanged} / Tổng ${d.breadth.total}`;
+          }
+          return text;
+        })
+        .catch(() => "")
+    );
+  }
+
+  if (fetches.length === 0) return "";
+  const results = await Promise.all(fetches);
+  return results.filter(Boolean).join("\n");
 }
 
 function buildSystemPrompt(knowledge, liveData) {
@@ -125,7 +132,7 @@ async function tryWorkersAI(messages, systemPrompt) {
 
     const response = await ai.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
       messages: aiMessages,
-      max_tokens: 2048,
+      max_tokens: 1024,
       temperature: 0.7,
       stream: true,
     });
@@ -138,7 +145,7 @@ async function tryWorkersAI(messages, systemPrompt) {
 
 async function tryGroq(messages, systemPrompt) {
   const apiKey = getEnv("GROQ_API_KEY");
-  const model = getEnv("CHAT_MODEL") || "llama-3.3-70b-versatile";
+  const model = getEnv("CHAT_MODEL") || "llama-3.1-8b-instant";
   if (!apiKey) return null;
 
   try {
@@ -155,7 +162,7 @@ async function tryGroq(messages, systemPrompt) {
           { role: "system", content: systemPrompt },
           ...messages,
         ],
-        max_tokens: 2048,
+        max_tokens: 1024,
         temperature: 0.7,
         stream: true,
       }),
@@ -188,10 +195,10 @@ function localResponse(text) {
         controller.close();
         return;
       }
-      const chunk = words.slice(i, i + 3).join("");
-      i += 3;
+      const chunk = words.slice(i, i + 6).join("");
+      i += 6;
       controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`));
-      await new Promise((r) => setTimeout(r, 30));
+      await new Promise((r) => setTimeout(r, 10));
     },
   });
 
@@ -277,20 +284,24 @@ function workersAIStreamResponse(aiStream) {
 export async function POST(request) {
   try {
     const { messages } = await request.json();
-    const recent = messages.slice(-20);
+    const recent = messages.slice(-10);
     const lastMsg = recent[recent.length - 1]?.content || "";
 
-    const knowledge = await getKnowledge();
     const baseUrl = new URL(request.url).origin;
-    const liveData = await fetchLiveContext(lastMsg, baseUrl);
+    const [knowledge, liveData] = await Promise.all([
+      getKnowledge(),
+      fetchLiveContext(lastMsg, baseUrl),
+    ]);
     const systemPrompt = buildSystemPrompt(knowledge, liveData);
 
-    const groqResult = await tryGroq(recent, systemPrompt);
+    const [groqResult, aiStream] = await Promise.all([
+      tryGroq(recent, systemPrompt),
+      tryWorkersAI(recent, systemPrompt),
+    ]);
+
     if (groqResult) {
       return groqStreamResponse(groqResult.response);
     }
-
-    const aiStream = await tryWorkersAI(recent, systemPrompt);
     if (aiStream) {
       return workersAIStreamResponse(aiStream);
     }
