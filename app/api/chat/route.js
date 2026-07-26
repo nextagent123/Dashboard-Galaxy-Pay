@@ -86,7 +86,7 @@ async function tryWorkersAI(messages, systemPrompt) {
       ...messages,
     ];
 
-    const response = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+    const response = await ai.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
       messages: aiMessages,
       max_tokens: 2048,
       temperature: 0.7,
