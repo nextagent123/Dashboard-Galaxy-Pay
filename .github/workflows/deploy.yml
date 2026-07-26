@@ -39,9 +39,9 @@ jobs:
       - name: Set Cloudflare Worker runtime secrets
         continue-on-error: true
         run: |
-          echo "$GROQ_API_KEY" | npx wrangler versions secret put GROQ_API_KEY
-          echo "$SUPABASE_URL" | npx wrangler versions secret put NEXT_PUBLIC_SUPABASE_URL
-          LAST_OUTPUT=$(echo "$SUPABASE_ANON_KEY" | npx wrangler versions secret put NEXT_PUBLIC_SUPABASE_ANON_KEY 2>&1)
+          printf '%s' "$GROQ_API_KEY" | npx wrangler versions secret put GROQ_API_KEY
+          printf '%s' "$SUPABASE_URL" | npx wrangler versions secret put NEXT_PUBLIC_SUPABASE_URL
+          LAST_OUTPUT=$(printf '%s' "$SUPABASE_ANON_KEY" | npx wrangler versions secret put NEXT_PUBLIC_SUPABASE_ANON_KEY 2>&1)
           echo "$LAST_OUTPUT"
           VERSION_ID=$(echo "$LAST_OUTPUT" | grep -oP 'Created version \K[0-9a-f-]+')
           if [ -n "$VERSION_ID" ]; then
