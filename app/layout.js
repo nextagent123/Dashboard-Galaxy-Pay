@@ -18,6 +18,13 @@ export const metadata = {
   description: "Dashboard báo cáo hoạt động kinh doanh Galaxy Pay",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  interactiveWidget: "resizes-content",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="vi" className={`${manrope.variable} ${jetbrainsMono.variable}`}>

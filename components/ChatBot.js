@@ -226,25 +226,21 @@ export default function ChatBot() {
 
   return (
     <>
-      {/* Floating button */}
-      <button
-        className="chatbot-fab"
-        onClick={() => setOpen((o) => !o)}
-        aria-label={open ? "Đóng chat" : "Mở chat AI"}
-      >
-        {open ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            <path d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        ) : (
+      {/* Floating button - hidden on mobile when chat is open */}
+      {!open && (
+        <button
+          className="chatbot-fab"
+          onClick={() => setOpen(true)}
+          aria-label="Mở chat AI"
+        >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
             <circle cx="8" cy="10" r="1" fill="currentColor" />
             <circle cx="12" cy="10" r="1" fill="currentColor" />
             <circle cx="16" cy="10" r="1" fill="currentColor" />
           </svg>
-        )}
-      </button>
+        </button>
+      )}
 
       {/* Chat panel */}
       {open && (
@@ -265,10 +261,10 @@ export default function ChatBot() {
             </div>
             <button
               onClick={() => setOpen(false)}
-              style={{ background: "none", border: "none", color: "#a7abbe", padding: 4 }}
+              style={{ background: "none", border: "none", color: "#a7abbe", padding: 8, minWidth: 36, minHeight: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
               aria-label="Đóng"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
             </button>
