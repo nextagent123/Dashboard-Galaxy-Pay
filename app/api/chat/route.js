@@ -31,7 +31,7 @@ function buildSystemPrompt(knowledge) {
 TÍNH CÁCH & GIỌNG VĂN:
 - Thân thiện, nhiệt tình như một đồng nghiệp giỏi trong team kinh doanh
 - Xưng "mình", gọi người hỏi là "bạn"
-- Dùng emoji phù hợp để câu trả lời sinh động (📊 💰 📈 ✅ ⚡ 🎯 💎)
+- Dùng emoji phù hợp để câu trả lời sinh động
 - Khi phân tích số liệu, luôn đưa ra nhận xét/đánh giá chứ không chỉ liệt kê số
 - Nếu kết quả tốt → khen ngợi, động viên. Nếu chưa đạt → phân tích nguyên nhân và gợi ý
 - Kết thúc câu trả lời bằng 1 câu gợi mở ("Bạn muốn mình phân tích thêm...?")
@@ -75,6 +75,30 @@ function getEnv(key) {
   return process.env[key];
 }
 
+async function tryWorkersAI(messages, systemPrompt) {
+  try {
+    const { env } = getCloudflareContext();
+    const ai = env.AI;
+    if (!ai) return null;
+
+    const aiMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages,
+    ];
+
+    const response = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+      messages: aiMessages,
+      max_tokens: 2048,
+      temperature: 0.7,
+      stream: true,
+    });
+
+    return response;
+  } catch {
+    return null;
+  }
+}
+
 async function tryGroq(messages, systemPrompt) {
   const apiKey = getEnv("GROQ_API_KEY");
   const model = getEnv("CHAT_MODEL") || "llama-3.3-70b-versatile";
@@ -101,10 +125,18 @@ async function tryGroq(messages, systemPrompt) {
     });
 
     if (!res.ok) return null;
-    return res;
+    return { type: "groq", response: res };
   } catch {
     return null;
   }
+}
+
+function sseHeaders() {
+  return {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+  };
 }
 
 function localResponse(text) {
@@ -126,13 +158,83 @@ function localResponse(text) {
     },
   });
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
+  return new Response(stream, { headers: sseHeaders() });
+}
+
+function groqStreamResponse(groqRes) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const reader = groqRes.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const data = line.slice(6).trim();
+            if (data === "[DONE]") continue;
+            if (!data) continue;
+            try {
+              const evt = JSON.parse(data);
+              const text = evt.choices?.[0]?.delta?.content;
+              if (text) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+              }
+            } catch {}
+          }
+        }
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      } finally {
+        controller.close();
+      }
     },
   });
+
+  return new Response(stream, { headers: sseHeaders() });
+}
+
+function workersAIStreamResponse(aiStream) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const reader = aiStream.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const data = line.slice(6).trim();
+            if (data === "[DONE]") continue;
+            if (!data) continue;
+            try {
+              const evt = JSON.parse(data);
+              const text = evt.response;
+              if (text) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
+              }
+            } catch {}
+          }
+        }
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, { headers: sseHeaders() });
 }
 
 export async function POST(request) {
@@ -143,50 +245,15 @@ export async function POST(request) {
 
     const knowledge = await getKnowledge();
     const systemPrompt = buildSystemPrompt(knowledge);
-    const groqRes = await tryGroq(recent, systemPrompt);
 
-    if (groqRes) {
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream({
-        async start(controller) {
-          const reader = groqRes.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = "";
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              buffer += decoder.decode(value, { stream: true });
-              const lines = buffer.split("\n");
-              buffer = lines.pop() || "";
-              for (const line of lines) {
-                if (!line.startsWith("data: ")) continue;
-                const data = line.slice(6).trim();
-                if (data === "[DONE]") continue;
-                if (!data) continue;
-                try {
-                  const evt = JSON.parse(data);
-                  const text = evt.choices?.[0]?.delta?.content;
-                  if (text) {
-                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text })}\n\n`));
-                  }
-                } catch {}
-              }
-            }
-            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          } finally {
-            controller.close();
-          }
-        },
-      });
+    const groqResult = await tryGroq(recent, systemPrompt);
+    if (groqResult) {
+      return groqStreamResponse(groqResult.response);
+    }
 
-      return new Response(stream, {
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-        },
-      });
+    const aiStream = await tryWorkersAI(recent, systemPrompt);
+    if (aiStream) {
+      return workersAIStreamResponse(aiStream);
     }
 
     const answer = getLocalAnswer(lastMsg);
