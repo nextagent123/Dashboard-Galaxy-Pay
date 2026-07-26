@@ -3,9 +3,6 @@ import { getLocalAnswer } from "@/lib/localChat";
 import { GALAXY_PAY_KNOWLEDGE } from "@/lib/galaxyPayKnowledge";
 import { supabase } from "@/lib/supabase";
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const MODEL = process.env.CHAT_MODEL || "llama-3.3-70b-versatile";
-
 let _knowledgeCache = null;
 
 async function getKnowledge() {
@@ -70,17 +67,19 @@ ${buildDashboardContext()}`;
 }
 
 async function tryGroq(messages, systemPrompt) {
-  if (!GROQ_API_KEY) return null;
+  const apiKey = process.env.GROQ_API_KEY;
+  const model = process.env.CHAT_MODEL || "llama-3.3-70b-versatile";
+  if (!apiKey) return null;
 
   try {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${GROQ_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
