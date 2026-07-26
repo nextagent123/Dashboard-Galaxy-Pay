@@ -2,6 +2,7 @@ import { buildDashboardContext } from "@/lib/chatContext";
 import { getLocalAnswer } from "@/lib/localChat";
 import { GALAXY_PAY_KNOWLEDGE } from "@/lib/galaxyPayKnowledge";
 import { supabase } from "@/lib/supabase";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 let _knowledgeCache = null;
 
@@ -66,9 +67,17 @@ DỮ LIỆU DASHBOARD HIỆN TẠI:
 ${buildDashboardContext()}`;
 }
 
+function getEnv(key) {
+  try {
+    const { env } = getCloudflareContext();
+    if (env[key]) return env[key];
+  } catch {}
+  return process.env[key];
+}
+
 async function tryGroq(messages, systemPrompt) {
-  const apiKey = process.env.GROQ_API_KEY;
-  const model = process.env.CHAT_MODEL || "llama-3.3-70b-versatile";
+  const apiKey = getEnv("GROQ_API_KEY");
+  const model = getEnv("CHAT_MODEL") || "llama-3.3-70b-versatile";
   if (!apiKey) return null;
 
   try {
