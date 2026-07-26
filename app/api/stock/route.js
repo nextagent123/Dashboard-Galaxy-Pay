@@ -159,8 +159,10 @@ export async function GET() {
       return Response.json(result);
     } catch (e) {
       errors.push(`${api.name}: ${e.message}`);
+      console.error(`[stock] ${api.name} failed:`, e.message);
     }
   }
+  console.error("[stock] All APIs failed:", errors);
   const fallback = {
     indices: [
       { code: "VNINDEX", value: 1285.50, change: 12.30, changePercent: 0.97, volume: 850000000, high: 1290.30, low: 1275.20, open: 1273.20 },
@@ -206,6 +208,7 @@ export async function GET() {
     breadth: { advances: 250, declines: 120, unchanged: 30, total: 400 },
     source: "Dữ liệu tham khảo",
     updated: new Date().toISOString(),
+    _errors: errors,
   };
   return Response.json(fallback);
 }

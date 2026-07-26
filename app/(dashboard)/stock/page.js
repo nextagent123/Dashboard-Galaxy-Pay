@@ -645,41 +645,48 @@ export default function StockPage() {
       {/* Hero Header */}
       <section
         style={{
-          background: "linear-gradient(135deg, rgba(124,108,255,0.18) 0%, rgba(52,211,153,0.08) 50%, rgba(245,158,11,0.08) 100%)",
+          background: "linear-gradient(135deg, rgba(15,16,28,0.9) 0%, rgba(124,108,255,0.08) 100%)",
           borderRadius: 20,
-          padding: "32px 36px",
+          padding: "28px 32px",
           marginBottom: 24,
-          border: "1px solid rgba(124,108,255,0.2)",
+          border: "1px solid rgba(124,108,255,0.15)",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: -60,
-            right: -60,
-            width: 200,
-            height: 200,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(124,108,255,0.15), transparent 70%)",
-          }}
-        />
+        <div style={{
+          position: "absolute", top: 0, right: 0, width: "50%", height: "100%",
+          background: "radial-gradient(ellipse at 80% 30%, rgba(124,108,255,0.1), transparent 70%)",
+        }}/>
         <div style={{ position: "relative" }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa", textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "#a78bfa",
+            textTransform: "uppercase", marginBottom: 8,
+            display: "flex", alignItems: "center", gap: 8,
+          }}>
+            <span style={{
+              width: 16, height: 2, borderRadius: 1,
+              background: "linear-gradient(90deg, #7c6cff, #a78bfa)",
+              display: "inline-block",
+            }}/>
             THỊ TRƯỜNG CHỨNG KHOÁN
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, color: "#fff", margin: 0, lineHeight: 1.2 }}>
+          <h1 style={{
+            fontSize: 28, fontWeight: 800, margin: 0, lineHeight: 1.2,
+            background: "linear-gradient(135deg, #ecedf5, #c0c3d4)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          }}>
             Báo cáo Thị trường Chứng khoán Việt Nam
           </h1>
-          <p style={{ fontSize: 14, color: "#9ca3af", margin: "8px 0 0", maxWidth: 600 }}>
+          <p style={{ fontSize: 13, color: "#6b6f85", margin: "8px 0 0", maxWidth: 600, lineHeight: 1.5 }}>
             Theo dõi chỉ số VN-Index, HNX, UPCOM và biến động cổ phiếu trên sàn HOSE.
             Dữ liệu tự động cập nhật mỗi 5 phút.
           </p>
           {data?.updated && (
-            <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280" }}>
+            <div style={{ marginTop: 10, fontSize: 11.5, color: "#4d5165", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", boxShadow: "0 0 6px rgba(52,211,153,0.5)", display: "inline-block" }}/>
               Cập nhật: {new Date(data.updated).toLocaleString("vi-VN")}
-              {data.source && <span> | Nguồn: {data.source}</span>}
+              {data.source && <span style={{ marginLeft: 4 }}>| Nguồn: {data.source}</span>}
             </div>
           )}
         </div>

@@ -80,8 +80,10 @@ export async function GET() {
       return Response.json(result);
     } catch (e) {
       errors.push(`${api.name}: ${e.message}`);
+      console.error(`[forex] ${api.name} failed:`, e.message);
     }
   }
+  console.error("[forex] All APIs failed:", errors);
 
   const fallback = {
     base: "VND",
@@ -92,6 +94,7 @@ export async function GET() {
     },
     updated: new Date().toISOString(),
     source: "Dữ liệu tham khảo",
+    _errors: errors,
   };
   return Response.json(fallback);
 }

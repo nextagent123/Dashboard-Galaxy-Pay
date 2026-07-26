@@ -130,8 +130,10 @@ export async function GET(request) {
       return Response.json(result);
     } catch (e) {
       errors.push(`${api.name}: ${e.message}`);
+      console.error(`[stock-detail] ${api.name} failed:`, e.message);
     }
   }
+  console.error("[stock-detail] All APIs failed:", errors);
 
   const SAMPLE_PRICES = {
     FPT: 152.80, VNM: 85.50, VCB: 98.20, HPG: 28.90, MWG: 62.30,
