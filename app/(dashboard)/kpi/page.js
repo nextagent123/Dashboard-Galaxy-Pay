@@ -5,6 +5,7 @@ import { getPersonalKpi, PERSON_PERIOD_OPTIONS } from "@/lib/metrics";
 import { MONTHS_12 } from "@/lib/data";
 import { vn } from "@/lib/format";
 import { ReportHeader } from "@/components/ui/PageHeader";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import GroupedCompareChart from "@/components/charts/GroupedCompareChart";
 import RadarHexagon from "@/components/charts/RadarHexagon";
 import PersonMonthChart from "@/components/charts/PersonMonthChart";
@@ -94,21 +95,22 @@ export default function PersonalKpiPage() {
       </section>
 
       {people.map((person) => (
-        <section key={person.name} style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01))", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 18, overflow: "hidden", position: "relative" }}>
+        <ErrorBoundary key={person.name}>
+        <section style={{ background: "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01))", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 18, overflow: "hidden", position: "relative" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 0, borderBottom: "1px solid rgba(255,255,255,0.06)" }} className="player-identity">
             <div style={{ padding: "26px 28px", display: "flex", flexDirection: "column", gap: 16, position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: -40, right: -40, width: 220, height: 220, borderRadius: "50%", background: person.accent, filter: "blur(80px)", opacity: 0.16, pointerEvents: "none" }} />
+              <div style={{ position: "absolute", top: -40, right: -40, width: 220, height: 220, borderRadius: "50%", background: person.accent || "#7c6cff", filter: "blur(80px)", opacity: 0.16, pointerEvents: "none" }} />
               <div style={{ display: "flex", alignItems: "center", gap: 16, position: "relative" }}>
-                <div style={{ width: 82, height: 82, borderRadius: 16, background: person.tier.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 26px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35)", flexShrink: 0 }}>
+                <div style={{ width: 82, height: 82, borderRadius: 16, background: person.tier?.bg || "#555", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 10px 26px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.35)", flexShrink: 0 }}>
                   <div className="mono" style={{ fontSize: 36, fontWeight: 900, color: "#0a0b12", letterSpacing: -1.2, lineHeight: 1 }}>{person.rating}</div>
                   <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 1.4, color: "#0a0b12", opacity: 0.75, marginTop: 2 }}>OVR</div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0, flex: 1 }}>
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 6, background: person.tier.bg, fontSize: 10.5, fontWeight: 900, color: "#0a0b12", letterSpacing: 1.4, alignSelf: "flex-start" }}>★ {person.tier.label}</div>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 6, background: person.tier?.bg || "#555", fontSize: 10.5, fontWeight: 900, color: "#0a0b12", letterSpacing: 1.4, alignSelf: "flex-start" }}>★ {person.tier?.label || "—"}</div>
                   <div style={{ fontSize: 22, fontWeight: 900, color: "#ecedf5", letterSpacing: -0.3, lineHeight: 1.2 }}>{person.name}</div>
-                  <div style={{ fontSize: 12.5, color: "#8a8fa6" }}>{person.role}</div>
+                  <div style={{ fontSize: 12.5, color: "#8a8fa6" }}>{person.role || ""}</div>
                 </div>
-                <div style={{ width: 64, height: 64, borderRadius: 14, border: `2px solid ${person.accent}`, background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, color: person.accent, flexShrink: 0 }} className="mono">{person.short}</div>
+                <div style={{ width: 64, height: 64, borderRadius: 14, border: `2px solid ${person.accent || "#7c6cff"}`, background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 800, color: person.accent || "#7c6cff", flexShrink: 0 }} className="mono">{person.short || "?"}</div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 4 }}>
                 <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 12px" }}>
@@ -117,7 +119,7 @@ export default function PersonalKpiPage() {
                 </div>
                 <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, padding: "10px 12px" }}>
                   <div style={{ fontSize: 10.5, color: "#8a8fa6", letterSpacing: 0.5, textTransform: "uppercase" }}>Đóng góp Khối</div>
-                  <div className="mono" style={{ fontSize: 20, fontWeight: 800, color: person.accent, marginTop: 2 }}>{person.contribAvgStr}</div>
+                  <div className="mono" style={{ fontSize: 20, fontWeight: 800, color: person.accent || "#7c6cff", marginTop: 2 }}>{person.contribAvgStr}</div>
                 </div>
               </div>
             </div>
@@ -125,7 +127,7 @@ export default function PersonalKpiPage() {
             <div style={{ padding: "20px 28px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.15)", borderLeft: "1px solid rgba(255,255,255,0.05)" }}>
               <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1.4, color: "#8a8fa6", marginBottom: 6 }}>CHỈ SỐ TỔNG QUAN · 6 TIÊU CHÍ</div>
               <div style={{ width: 220, maxWidth: "100%" }}>
-                <RadarHexagon axes={person.axes} accent={person.accent} />
+                <RadarHexagon axes={person.axes || []} accent={person.accent || "#7c6cff"} />
               </div>
             </div>
           </div>
@@ -170,6 +172,7 @@ export default function PersonalKpiPage() {
             ))}
           </div>
         </section>
+        </ErrorBoundary>
       ))}
 
       {people.length === 0 && (
