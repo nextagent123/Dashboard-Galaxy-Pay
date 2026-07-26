@@ -1,5 +1,6 @@
 import { buildDashboardContext } from "@/lib/chatContext";
 import { getLocalAnswer } from "@/lib/localChat";
+import { GALAXY_PAY_KNOWLEDGE } from "@/lib/galaxyPayKnowledge";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const MODEL = process.env.CHAT_MODEL || "llama-3.3-70b-versatile";
@@ -10,6 +11,7 @@ NHIỆM VỤ:
 - Giải thích và phân tích các chỉ số kinh doanh trong dashboard (GMV, Doanh thu, Lợi nhuận, KPI, Pipeline...)
 - Trả lời câu hỏi về xu hướng, so sánh, đánh giá tiến độ hoàn thành mục tiêu
 - Đưa ra nhận định, gợi ý dựa trên dữ liệu thực tế
+- Trả lời các câu hỏi về Galaxy Pay: công ty, sản phẩm, dịch vụ, biểu phí, đối tác, giải pháp SME in a Box, thị trường...
 - Trả lời các câu hỏi kinh doanh liên quan khác
 
 QUY TẮC:
@@ -17,6 +19,11 @@ QUY TẮC:
 - Khi trích dẫn số liệu, luôn ghi rõ đơn vị (tỷ VND, %, ...)
 - Nếu không có dữ liệu để trả lời, nói rõ thay vì bịa số
 - Giọng văn chuyên nghiệp nhưng thân thiện
+- Khi trả lời về biểu phí, luôn ghi rõ "chưa VAT" hoặc "đã gồm VAT"
+- Khi trả lời về sản phẩm/dịch vụ Galaxy Pay, ưu tiên thông tin từ kiến thức nội bộ
+
+KIẾN THỨC VỀ GALAXY PAY:
+${GALAXY_PAY_KNOWLEDGE}
 
 DỮ LIỆU DASHBOARD HIỆN TẠI:
 ${buildDashboardContext()}`;
