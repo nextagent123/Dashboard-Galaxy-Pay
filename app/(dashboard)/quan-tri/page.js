@@ -262,6 +262,62 @@ export default function QuanTriPage() {
       <div style={{ fontSize: 11, color: "#5b5f74", textAlign: "center", marginTop: 16 }}>
         Tài khoản lưu trên trình duyệt của máy này. Không đồng bộ giữa các thiết bị.
       </div>
+
+      <div
+        style={{
+          marginTop: 24,
+          padding: "14px 18px",
+          borderRadius: 12,
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid rgba(255,255,255,0.06)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: "linear-gradient(135deg, rgba(124,108,255,0.15), rgba(157,139,255,0.08))",
+              border: "1px solid rgba(124,108,255,0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4M12 8h.01" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#c3b9ff" }}>
+              Galaxy Pay Dashboard v2.0
+            </div>
+            <div style={{ fontSize: 11, color: "#5b5f74" }}>
+              Cập nhật: 26/07/2026 · Cloudflare Workers + Workers AI
+            </div>
+          </div>
+        </div>
+        <div
+          style={{
+            padding: "4px 10px",
+            borderRadius: 6,
+            fontSize: 10,
+            fontWeight: 600,
+            background: "rgba(52,211,153,0.1)",
+            color: "#34d399",
+            border: "1px solid rgba(52,211,153,0.2)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Stable
+        </div>
+      </div>
     </>
   );
 }
