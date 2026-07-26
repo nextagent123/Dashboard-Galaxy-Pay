@@ -252,7 +252,7 @@ export default function ChatBot() {
             <span className="chatbot-fab-sparkle chatbot-fab-sparkle-3">✦</span>
           </div>
           <span className="chatbot-fab-pulse" />
-          <span className="chatbot-fab-label">Hỏi AI</span>
+          <span className="chatbot-fab-label">Trợ lý Khối Kinh doanh</span>
         </button>
       )}
 
