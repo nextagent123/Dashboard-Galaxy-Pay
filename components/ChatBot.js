@@ -5,16 +5,16 @@ import { useState, useRef, useEffect, useCallback } from "react";
 const WELCOME_MSG = {
   role: "assistant",
   content:
-    "Xin chào! Tôi là Khối Kinh doanh Chatbot AI. Bạn có thể hỏi tôi về các chỉ số kinh doanh, sản phẩm Galaxy Pay, biểu phí, đối tác, SME in a Box... hoặc bất kỳ nội dung nào liên quan.",
+    "Xin chào! Mình là **Trợ lý Khối Kinh doanh** 👋\n\nMình có thể giúp bạn phân tích chỉ số kinh doanh, sản phẩm Galaxy Pay, biểu phí, đối tác, SME in a Box... hoặc bất kỳ câu hỏi nào khác!",
 };
 
 const SUGGESTIONS = [
-  "Tổng quan kinh doanh",
-  "Galaxy Pay là gì?",
-  "Biểu phí dịch vụ",
-  "SME in a Box",
-  "Tiến độ KPI",
-  "SoftPOS là gì?",
+  { icon: "📊", text: "Tổng quan kinh doanh" },
+  { icon: "🏢", text: "Galaxy Pay là gì?" },
+  { icon: "💰", text: "Biểu phí dịch vụ" },
+  { icon: "📦", text: "SME in a Box" },
+  { icon: "🎯", text: "Tiến độ KPI" },
+  { icon: "📱", text: "SoftPOS là gì?" },
 ];
 
 function renderMarkdown(text) {
@@ -226,75 +226,80 @@ export default function ChatBot() {
 
   return (
     <>
-      {/* Floating button - hidden on mobile when chat is open */}
       {!open && (
         <button
           className="chatbot-fab"
           onClick={() => setOpen(true)}
-          aria-label="Mở chat AI"
+          aria-label="Mở Trợ lý AI"
         >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
-            <circle cx="8" cy="10" r="1" fill="currentColor" />
-            <circle cx="12" cy="10" r="1" fill="currentColor" />
-            <circle cx="16" cy="10" r="1" fill="currentColor" />
-          </svg>
+          <div className="chatbot-fab-inner">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
+              <circle cx="8" cy="10" r="1" fill="currentColor" />
+              <circle cx="12" cy="10" r="1" fill="currentColor" />
+              <circle cx="16" cy="10" r="1" fill="currentColor" />
+            </svg>
+          </div>
+          <span className="chatbot-fab-pulse" />
         </button>
       )}
 
-      {/* Chat panel */}
       {open && (
         <div className="chatbot-panel">
-          {/* Header */}
           <div className="chatbot-header">
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div className="chatbot-header-avatar">
-                <span style={{ fontSize: 18 }}>🤖</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
+                </svg>
               </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700 }}>Khối Kinh doanh Chatbot AI</div>
-                <div style={{ fontSize: 10.5, color: "#34d399", fontWeight: 600, display: "flex", alignItems: "center", gap: 5 }}>
-                  <span className="ai-live-dot" style={{ width: 5, height: 5 }} />
-                  Online
+                <div className="chatbot-header-title">Trợ lý Khối Kinh doanh</div>
+                <div className="chatbot-header-status">
+                  <span className="chatbot-status-dot" />
+                  Sẵn sàng hỗ trợ
                 </div>
               </div>
             </div>
             <button
               onClick={() => setOpen(false)}
-              style={{ background: "none", border: "none", color: "#a7abbe", padding: 8, minWidth: 36, minHeight: 36, display: "flex", alignItems: "center", justifyContent: "center" }}
+              className="chatbot-close-btn"
               aria-label="Đóng"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
             </button>
           </div>
 
-          {/* Messages */}
           <div className="chatbot-messages">
             {messages.map((msg, i) => (
               <div key={i} className={`chatbot-msg chatbot-msg--${msg.role}`}>
                 {msg.role === "assistant" && (
-                  <div className="chatbot-msg-avatar">🤖</div>
+                  <div className="chatbot-msg-avatar">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
+                    </svg>
+                  </div>
                 )}
                 <div className={`chatbot-bubble chatbot-bubble--${msg.role}`}>
                   {msg.role === "assistant"
-                    ? renderMarkdown(msg.content) || (loading && i === messages.length - 1 ? "..." : "")
+                    ? renderMarkdown(msg.content) || (loading && i === messages.length - 1 ? <span className="chatbot-typing-text">Đang suy nghĩ...</span> : "")
                     : msg.content}
                 </div>
               </div>
             ))}
 
-            {/* Suggestion chips */}
             {showSuggestions && (
               <div className="chatbot-suggestions">
                 {SUGGESTIONS.map((s) => (
                   <button
-                    key={s}
+                    key={s.text}
                     className="chatbot-chip"
-                    onClick={() => handleSend(null, s)}
+                    onClick={() => handleSend(null, s.text)}
                   >
-                    {s}
+                    <span className="chatbot-chip-icon">{s.icon}</span>
+                    {s.text}
                   </button>
                 ))}
               </div>
@@ -302,7 +307,11 @@ export default function ChatBot() {
 
             {loading && messages[messages.length - 1]?.role !== "assistant" && (
               <div className="chatbot-msg chatbot-msg--assistant">
-                <div className="chatbot-msg-avatar">🤖</div>
+                <div className="chatbot-msg-avatar">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
+                  </svg>
+                </div>
                 <div className="chatbot-bubble chatbot-bubble--assistant chatbot-typing">
                   <span /><span /><span />
                 </div>
@@ -311,14 +320,13 @@ export default function ChatBot() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
           <form className="chatbot-input-bar" onSubmit={handleSend}>
             <input
               ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Hỏi về Galaxy Pay, KPI, biểu phí..."
+              placeholder="Nhập câu hỏi..."
               disabled={loading}
               className="chatbot-input"
             />
@@ -328,9 +336,8 @@ export default function ChatBot() {
               className="chatbot-send-btn"
               aria-label="Gửi"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 2 11 13" />
-                <path d="M22 2 15 22l-4-9-9-4Z" />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" />
               </svg>
             </button>
           </form>

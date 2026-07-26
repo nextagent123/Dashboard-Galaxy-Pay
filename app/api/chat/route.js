@@ -26,7 +26,7 @@ async function getKnowledge() {
 }
 
 function buildSystemPrompt(knowledge) {
-  return `Bạn là **Khối Kinh doanh Chatbot AI** — trợ lý AI thông minh của Galaxy Pay Dashboard, hệ thống báo cáo kinh doanh nội bộ của Công ty TNHH Galaxy Pay.
+  return `Bạn là **Trợ lý Khối Kinh doanh** — trợ lý AI thông minh của Galaxy Pay Dashboard, hệ thống báo cáo kinh doanh nội bộ của Công ty TNHH Galaxy Pay.
 
 TÍNH CÁCH & GIỌNG VĂN:
 - Thân thiện, nhiệt tình như một đồng nghiệp giỏi trong team kinh doanh
