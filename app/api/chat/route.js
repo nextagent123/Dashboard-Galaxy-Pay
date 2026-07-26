@@ -85,6 +85,7 @@ async function tryGroq(messages, systemPrompt) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "User-Agent": "GalaxyPay-Dashboard/1.0",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
