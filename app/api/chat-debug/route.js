@@ -15,22 +15,35 @@ export async function GET() {
   results.groqKeyFound = !!groqKey;
   results.groqKeyPreview = groqKey ? groqKey.slice(0, 8) + "..." + groqKey.slice(-4) : "NOT FOUND";
 
-  let cfContext = "unavailable";
-  try {
-    const ctx = getCloudflareContext();
-    cfContext = {
-      hasEnv: !!ctx?.env,
-      envKeys: ctx?.env ? Object.keys(ctx.env).filter(k => !k.startsWith("__")).slice(0, 20) : [],
-      groqInCf: !!ctx?.env?.GROQ_API_KEY,
-    };
-  } catch (e) {
-    cfContext = { error: e.message };
+  if (!groqKey) {
+    return Response.json(results, { headers: { "Cache-Control": "no-store" } });
   }
-  results.cloudflareContext = cfContext;
 
-  results.processEnvGroq = !!process.env.GROQ_API_KEY;
+  try {
+    const modelsRes = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: { Authorization: `Bearer ${groqKey}` },
+    });
+    results.modelsStatus = modelsRes.status;
+    if (modelsRes.ok) {
+      const modelsData = await modelsRes.json();
+      results.availableModels = (modelsData.data || []).map(m => m.id).sort();
+    } else {
+      results.modelsError = await modelsRes.text().then(t => t.slice(0, 300));
+    }
+  } catch (e) {
+    results.modelsError = e.message;
+  }
 
-  if (groqKey) {
+  const testModels = [
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+    "llama3-70b-8192",
+    "gemma2-9b-it",
+    "mixtral-8x7b-32768",
+  ];
+
+  results.modelTests = {};
+  for (const model of testModels) {
     try {
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -39,24 +52,22 @@ export async function GET() {
           Authorization: `Bearer ${groqKey}`,
         },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model,
           messages: [{ role: "user", content: "Hi" }],
-          max_tokens: 10,
+          max_tokens: 5,
         }),
       });
-      results.groqTest = {
+      results.modelTests[model] = {
         status: res.status,
-        statusText: res.statusText,
         ok: res.ok,
       };
       if (!res.ok) {
-        const body = await res.text();
-        results.groqTest.body = body.slice(0, 500);
+        results.modelTests[model].error = await res.text().then(t => t.slice(0, 200));
       } else {
-        results.groqTest.body = "SUCCESS";
+        results.modelTests[model].success = true;
       }
     } catch (e) {
-      results.groqTest = { error: e.message };
+      results.modelTests[model] = { error: e.message };
     }
   }
 
