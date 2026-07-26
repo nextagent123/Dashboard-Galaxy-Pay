@@ -29,36 +29,16 @@ export default function Sidebar() {
     <>
       {/* Logo block */}
       <div style={{
-        display: "flex", alignItems: "center", gap: 14,
-        padding: "6px 8px 24px",
+        display: "flex", flexDirection: "column", gap: 8,
+        padding: "4px 8px 20px",
         borderBottom: "1px solid rgba(124,108,255,0.12)",
         marginBottom: 8,
       }}>
+        <Image src={logo} alt="Galaxy Pay" width={160} height={40} style={{ width: 160, height: "auto", display: "block" }} priority />
         <div style={{
-          width: 42, height: 42, borderRadius: 12,
-          background: "linear-gradient(135deg, rgba(124,108,255,0.2), rgba(167,139,250,0.1))",
-          border: "1px solid rgba(124,108,255,0.25)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexShrink: 0,
-        }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5Z"/>
-            <path d="M2 17l10 5 10-5"/>
-            <path d="M2 12l10 5 10-5"/>
-          </svg>
-        </div>
-        <div style={{ minWidth: 0 }}>
-          <div style={{
-            fontSize: 15, fontWeight: 700, letterSpacing: -0.3,
-            background: "linear-gradient(135deg, #ecedf5, #a78bfa)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            lineHeight: 1.2,
-          }}>Galaxy Pay</div>
-          <div style={{
-            fontSize: 10.5, color: "#6b6f85", fontWeight: 500,
-            letterSpacing: 0.3, marginTop: 2,
-          }}>Business Dashboard</div>
-        </div>
+          fontSize: 10.5, color: "#6b6f85", fontWeight: 500,
+          letterSpacing: 0.3, paddingLeft: 2,
+        }}>Báo cáo Khối Kinh doanh</div>
       </div>
 
       {/* Nav sections */}
@@ -228,27 +208,7 @@ export default function Sidebar() {
             <path d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 8,
-        }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 7,
-            background: "linear-gradient(135deg, rgba(124,108,255,0.25), rgba(167,139,250,0.1))",
-            border: "1px solid rgba(124,108,255,0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5Z"/>
-              <path d="M2 17l10 5 10-5"/>
-              <path d="M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <span style={{
-            fontSize: 14, fontWeight: 700, letterSpacing: -0.3,
-            background: "linear-gradient(135deg, #ecedf5, #a78bfa)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          }}>Galaxy Pay</span>
-        </div>
+        <Image src={logo} alt="Galaxy Pay" width={112} height={28} style={{ width: 112, height: "auto", display: "block" }} priority />
       </div>
 
       {mobileOpen && <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
