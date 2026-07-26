@@ -1,11 +1,34 @@
 import { buildDashboardContext } from "@/lib/chatContext";
 import { getLocalAnswer } from "@/lib/localChat";
 import { GALAXY_PAY_KNOWLEDGE } from "@/lib/galaxyPayKnowledge";
+import { supabase } from "@/lib/supabase";
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const MODEL = process.env.CHAT_MODEL || "llama-3.3-70b-versatile";
 
-const SYSTEM_PROMPT = `Bạn là **Khối Kinh doanh Chatbot AI** — trợ lý AI thông minh của Galaxy Pay Dashboard, hệ thống báo cáo kinh doanh nội bộ của Công ty TNHH Galaxy Pay.
+let _knowledgeCache = null;
+
+async function getKnowledge() {
+  if (_knowledgeCache) return _knowledgeCache;
+  if (supabase) {
+    try {
+      const { data } = await supabase
+        .from("dashboard_data")
+        .select("data")
+        .eq("key", "galaxy_pay_knowledge")
+        .single();
+      if (data?.data?.text) {
+        _knowledgeCache = data.data.text;
+        return _knowledgeCache;
+      }
+    } catch {}
+  }
+  _knowledgeCache = GALAXY_PAY_KNOWLEDGE;
+  return _knowledgeCache;
+}
+
+function buildSystemPrompt(knowledge) {
+  return `Bạn là **Khối Kinh doanh Chatbot AI** — trợ lý AI thông minh của Galaxy Pay Dashboard, hệ thống báo cáo kinh doanh nội bộ của Công ty TNHH Galaxy Pay.
 
 TÍNH CÁCH & GIỌNG VĂN:
 - Thân thiện, nhiệt tình như một đồng nghiệp giỏi trong team kinh doanh
@@ -40,12 +63,13 @@ QUY TẮC:
 - Giữ câu trả lời vừa phải (không quá dài, không quá ngắn)
 
 KIẾN THỨC VỀ GALAXY PAY:
-${GALAXY_PAY_KNOWLEDGE}
+${knowledge}
 
 DỮ LIỆU DASHBOARD HIỆN TẠI:
 ${buildDashboardContext()}`;
+}
 
-async function tryGroq(messages) {
+async function tryGroq(messages, systemPrompt) {
   if (!GROQ_API_KEY) return null;
 
   try {
@@ -58,7 +82,7 @@ async function tryGroq(messages) {
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt },
           ...messages,
         ],
         max_tokens: 2048,
@@ -108,7 +132,9 @@ export async function POST(request) {
     const recent = messages.slice(-20);
     const lastMsg = recent[recent.length - 1]?.content || "";
 
-    const groqRes = await tryGroq(recent);
+    const knowledge = await getKnowledge();
+    const systemPrompt = buildSystemPrompt(knowledge);
+    const groqRes = await tryGroq(recent, systemPrompt);
 
     if (groqRes) {
       const encoder = new TextEncoder();
