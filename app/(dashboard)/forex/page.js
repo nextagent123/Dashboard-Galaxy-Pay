@@ -46,50 +46,8 @@ function fmtVND(n) {
   return n.toLocaleString("vi-VN", { maximumFractionDigits: 4 });
 }
 
-function pctChange(cur, prev) {
-  if (!prev || !cur) return null;
-  return ((cur - prev) / prev) * 100;
-}
-
-async function fetchVNDRates() {
-  const res = await fetch("https://open.er-api.com/v6/latest/VND");
-  if (!res.ok) throw new Error(`API error ${res.status}`);
-  const data = await res.json();
-  if (data.result !== "success") throw new Error(data["error-type"] || "Unknown error");
-  return data;
-}
-
-async function fetchHistoricalVND(days) {
-  const points = [];
-  const promises = [];
-  const today = new Date();
-
-  const step = days <= 7 ? 1 : days <= 30 ? 1 : days <= 90 ? 3 : days <= 180 ? 5 : 10;
-  for (let i = days; i >= 0; i -= step) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const y = d.getFullYear();
-    const m = d.getMonth() + 1;
-    const day = d.getDate();
-    const dateStr = `${y}-${String(m).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    promises.push(
-      fetch(`https://open.er-api.com/v6/latest/USD`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.result === "success" && data.rates?.VND) {
-            points.push({ date: dateStr, usdVnd: data.rates.VND, rates: data.rates });
-          }
-        })
-        .catch(() => {})
-    );
-    if (promises.length >= 1) break;
-  }
-  await Promise.all(promises);
-  return points.sort((a, b) => a.date.localeCompare(b.date));
-}
-
 export default function ForexPage() {
-  const [ratesData, setRatesData] = useState(null);
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
@@ -99,8 +57,10 @@ export default function ForexPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchVNDRates();
-      setRatesData(data);
+      const res = await fetch("/api/forex");
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+      setData(json);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -110,9 +70,8 @@ export default function ForexPage() {
 
   useEffect(() => { loadRates(); }, [loadRates]);
 
-  const rates = ratesData?.rates;
-  const updateTime = ratesData?.time_last_update_utc;
-  const nextUpdate = ratesData?.time_next_update_utc;
+  const rates = data?.rates;
+  const source = data?.source;
 
   const toVND = (code) => {
     if (!rates || !rates[code]) return null;
@@ -146,8 +105,8 @@ export default function ForexPage() {
     .filter(Boolean);
 
   const usdVnd = toVND("USD");
-  const lastUpdateStr = updateTime
-    ? new Date(updateTime).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })
+  const lastUpdateStr = data?.updated
+    ? (() => { try { return new Date(data.updated).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); } catch { return data.updated; } })()
     : null;
 
   return (
@@ -155,7 +114,7 @@ export default function ForexPage() {
       <ReportHeader
         eyebrow="GALAXY PAY · THỊ TRƯỜNG NGOẠI HỐI"
         title="Báo cáo Tỷ giá Ngoại tệ"
-        subtitle="Tỷ giá quy đổi sang VND · Nguồn: Open Exchange Rates"
+        subtitle={`Tỷ giá quy đổi sang VND${source ? ` · Nguồn: ${source}` : ""}`}
         right={
           <DateBadge>
             {lastUpdateStr ? `Cập nhật: ${lastUpdateStr}` : "Đang tải..."}
@@ -167,12 +126,14 @@ export default function ForexPage() {
         <section style={{
           background: "rgba(225,29,72,0.1)", border: "1px solid rgba(225,29,72,0.3)",
           borderRadius: 14, padding: "16px 22px", color: "#fb7185", fontSize: 13,
+          display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap",
         }}>
-          Không thể tải dữ liệu tỷ giá: {error}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fb7185" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>Không thể tải dữ liệu tỷ giá: {error}</span>
           <button
             onClick={loadRates}
             style={{
-              marginLeft: 14, padding: "6px 14px", borderRadius: 8, border: "1px solid #fb7185",
+              padding: "6px 14px", borderRadius: 8, border: "1px solid #fb7185",
               background: "transparent", color: "#fb7185", cursor: "pointer", fontSize: 12, fontWeight: 700,
             }}
           >
@@ -193,7 +154,7 @@ export default function ForexPage() {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 28, alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ minWidth: 260 }}>
             <div style={{ fontSize: 11, letterSpacing: 1.6, fontWeight: 800, color: "#b9a8ff", textTransform: "uppercase" }}>
-              \u{1F1FA}\u{1F1F8} USD / VND \u{1F1FB}\u{1F1F3}
+              {"\u{1F1FA}\u{1F1F8}"} USD / VND {"\u{1F1FB}\u{1F1F3}"}
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 10 }}>
               <span className="mono" style={{
@@ -206,7 +167,7 @@ export default function ForexPage() {
               <span style={{ fontSize: 14, color: "#8a8fa6", fontWeight: 600 }}>VND</span>
             </div>
             <div style={{ fontSize: 13, color: "#a7abbe", marginTop: 12 }}>
-              1 USD = {loading ? "..." : fmtVND(usdVnd)} VND · Tỷ giá liên ngân hàng
+              1 USD = {loading ? "..." : fmtVND(usdVnd)} VND
             </div>
           </div>
 
@@ -245,13 +206,11 @@ export default function ForexPage() {
 
       {/* Summary cards */}
       {!loading && rows.length > 0 && (
-        <section className="grid-2" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14 }}>
           {rows.slice(0, 4).map((r) => {
             const meta = CURRENCY_META[r.code] || {};
             const isSelected = selectedCcy === r.code;
-            const cardColors = {
-              USD: "#7c6cff", EUR: "#9d8bff", GBP: "#34d399", JPY: "#fbbf24",
-            };
+            const cardColors = { USD: "#7c6cff", EUR: "#9d8bff", GBP: "#34d399", JPY: "#fbbf24" };
             const accent = cardColors[r.code] || "#7c6cff";
             return (
               <div
@@ -295,12 +254,14 @@ export default function ForexPage() {
                 <th style={thStyle}>Ngoại tệ</th>
                 <th style={thStyle}>Tên</th>
                 <th style={{ ...thStyle, textAlign: "right" }}>1 đơn vị = VND</th>
-                <th style={{ ...thStyle, textAlign: "right" }}>Tỷ giá ngược (1 VND)</th>
+                <th style={{ ...thStyle, textAlign: "right" }}>Tỷ giá ngược</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "#8a8fa6" }}>Đang tải dữ liệu...</td></tr>
+              ) : rows.length === 0 ? (
+                <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "#8a8fa6" }}>Không có dữ liệu</td></tr>
               ) : rows.map((r) => {
                 const meta = CURRENCY_META[r.code] || {};
                 const isSelected = selectedCcy === r.code;
@@ -403,9 +364,9 @@ export default function ForexPage() {
         background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
         borderRadius: 14, padding: "14px 20px", fontSize: 11.5, color: "#8a8fa6", lineHeight: 1.6,
       }}>
-        <strong style={{ color: "#a7abbe" }}>Nguồn dữ liệu:</strong> Open Exchange Rates API · Tỷ giá tham chiếu cập nhật hàng ngày. Dữ liệu chỉ mang tính tham khảo, không được sử dụng cho giao dịch thực tế.
-        {nextUpdate && (
-          <span> · Lần cập nhật tiếp: {new Date(nextUpdate).toLocaleString("vi-VN")}</span>
+        <strong style={{ color: "#a7abbe" }}>Nguồn dữ liệu:</strong> {source || "Open Exchange Rates"} · Tỷ giá tham chiếu cập nhật hàng ngày. Dữ liệu chỉ mang tính tham khảo.
+        {data?.nextUpdate && (
+          <span> · Lần cập nhật tiếp: {(() => { try { return new Date(data.nextUpdate).toLocaleString("vi-VN"); } catch { return data.nextUpdate; } })()}</span>
         )}
       </section>
     </>
