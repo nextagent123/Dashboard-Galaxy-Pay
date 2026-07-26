@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 const WELCOME_MSG = {
   role: "assistant",
   content:
-    "Xin chào! Mình là **Trợ lý Khối Kinh doanh** 👋\n\nMình có thể giúp bạn phân tích chỉ số kinh doanh, sản phẩm Galaxy Pay, biểu phí, đối tác, SME in a Box... hoặc bất kỳ câu hỏi nào khác!",
+    "Chào bạn! Mình là **Trợ lý Khối Kinh doanh** 👋\n\nHỏi mình bất cứ điều gì về chỉ số kinh doanh, sản phẩm, biểu phí hay tiến độ KPI nhé!",
 };
 
 const SUGGESTIONS = [
