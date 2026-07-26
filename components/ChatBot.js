@@ -5,8 +5,129 @@ import { useState, useRef, useEffect, useCallback } from "react";
 const WELCOME_MSG = {
   role: "assistant",
   content:
-    "Xin chào! Tôi là Khối Kinh doanh Chatbot AI. Bạn có thể hỏi tôi về các chỉ số kinh doanh như GMV, Doanh thu, Lợi nhuận, KPI, Sale Pipeline... hoặc bất kỳ nội dung nào liên quan đến dashboard.",
+    "Xin chào! Tôi là Khối Kinh doanh Chatbot AI. Bạn có thể hỏi tôi về các chỉ số kinh doanh, sản phẩm Galaxy Pay, biểu phí, đối tác, SME in a Box... hoặc bất kỳ nội dung nào liên quan.",
 };
+
+const SUGGESTIONS = [
+  "Tổng quan kinh doanh",
+  "Galaxy Pay là gì?",
+  "Biểu phí dịch vụ",
+  "SME in a Box",
+  "Tiến độ KPI",
+  "SoftPOS là gì?",
+];
+
+function renderMarkdown(text) {
+  if (!text) return null;
+  const lines = text.split("\n");
+  const elements = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (/^#{1,3}\s/.test(line)) {
+      const level = line.match(/^(#{1,3})/)[1].length;
+      const content = line.replace(/^#{1,3}\s+/, "");
+      elements.push(
+        <div key={i} className={`cb-md-h${level}`}>
+          {inlineFormat(content)}
+        </div>
+      );
+    } else if (/^[•\-\*]\s/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^[•\-\*]\s/.test(lines[i])) {
+        items.push(lines[i].replace(/^[•\-\*]\s+/, ""));
+        i++;
+      }
+      elements.push(
+        <ul key={i} className="cb-md-list">
+          {items.map((item, j) => (
+            <li key={j}>{inlineFormat(item)}</li>
+          ))}
+        </ul>
+      );
+      continue;
+    } else if (/^\d+[\.\)]\s/.test(line)) {
+      const items = [];
+      while (i < lines.length && /^\d+[\.\)]\s/.test(lines[i])) {
+        items.push(lines[i].replace(/^\d+[\.\)]\s+/, ""));
+        i++;
+      }
+      elements.push(
+        <ol key={i} className="cb-md-list cb-md-ol">
+          {items.map((item, j) => (
+            <li key={j}>{inlineFormat(item)}</li>
+          ))}
+        </ol>
+      );
+      continue;
+    } else if (line.trim() === "---" || line.trim() === "—") {
+      elements.push(<hr key={i} className="cb-md-hr" />);
+    } else if (line.trim() === "") {
+      elements.push(<div key={i} className="cb-md-spacer" />);
+    } else {
+      elements.push(
+        <div key={i} className="cb-md-p">
+          {inlineFormat(line)}
+        </div>
+      );
+    }
+    i++;
+  }
+
+  return <div className="cb-md">{elements}</div>;
+}
+
+function inlineFormat(text) {
+  const parts = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining.length > 0) {
+    const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+    const italicMatch = remaining.match(/(?<!\*)\*([^*]+?)\*(?!\*)/);
+    const codeMatch = remaining.match(/`([^`]+?)`/);
+
+    let firstMatch = null;
+    let firstIdx = remaining.length;
+
+    if (boldMatch && boldMatch.index < firstIdx) {
+      firstMatch = { type: "bold", match: boldMatch };
+      firstIdx = boldMatch.index;
+    }
+    if (italicMatch && italicMatch.index < firstIdx) {
+      firstMatch = { type: "italic", match: italicMatch };
+      firstIdx = italicMatch.index;
+    }
+    if (codeMatch && codeMatch.index < firstIdx) {
+      firstMatch = { type: "code", match: codeMatch };
+      firstIdx = codeMatch.index;
+    }
+
+    if (!firstMatch) {
+      parts.push(remaining);
+      break;
+    }
+
+    if (firstIdx > 0) {
+      parts.push(remaining.slice(0, firstIdx));
+    }
+
+    const m = firstMatch.match;
+    if (firstMatch.type === "bold") {
+      parts.push(<strong key={key++}>{m[1]}</strong>);
+    } else if (firstMatch.type === "italic") {
+      parts.push(<em key={key++}>{m[1]}</em>);
+    } else if (firstMatch.type === "code") {
+      parts.push(<code key={key++} className="cb-md-code">{m[1]}</code>);
+    }
+
+    remaining = remaining.slice(firstIdx + m[0].length);
+  }
+
+  return parts;
+}
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
@@ -28,9 +149,11 @@ export default function ChatBot() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
-  async function handleSend(e) {
+  const showSuggestions = messages.length <= 1 && !loading;
+
+  async function handleSend(e, overrideText) {
     e?.preventDefault();
-    const text = input.trim();
+    const text = (overrideText || input).trim();
     if (!text || loading) return;
 
     const userMsg = { role: "user", content: text };
@@ -159,10 +282,28 @@ export default function ChatBot() {
                   <div className="chatbot-msg-avatar">🤖</div>
                 )}
                 <div className={`chatbot-bubble chatbot-bubble--${msg.role}`}>
-                  {msg.content || (loading && i === messages.length - 1 ? "..." : "")}
+                  {msg.role === "assistant"
+                    ? renderMarkdown(msg.content) || (loading && i === messages.length - 1 ? "..." : "")
+                    : msg.content}
                 </div>
               </div>
             ))}
+
+            {/* Suggestion chips */}
+            {showSuggestions && (
+              <div className="chatbot-suggestions">
+                {SUGGESTIONS.map((s) => (
+                  <button
+                    key={s}
+                    className="chatbot-chip"
+                    onClick={() => handleSend(null, s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {loading && messages[messages.length - 1]?.role !== "assistant" && (
               <div className="chatbot-msg chatbot-msg--assistant">
                 <div className="chatbot-msg-avatar">🤖</div>
@@ -181,7 +322,7 @@ export default function ChatBot() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Hỏi về chỉ số kinh doanh..."
+              placeholder="Hỏi về Galaxy Pay, KPI, biểu phí..."
               disabled={loading}
               className="chatbot-input"
             />

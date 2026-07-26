@@ -44,7 +44,7 @@ async function tryGroq(messages) {
           { role: "system", content: SYSTEM_PROMPT },
           ...messages,
         ],
-        max_tokens: 1024,
+        max_tokens: 2048,
         temperature: 0.7,
         stream: true,
       }),
