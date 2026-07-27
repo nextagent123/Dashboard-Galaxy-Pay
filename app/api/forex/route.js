@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+
 const APIS = [
   {
     name: "exchangerate-api",
@@ -53,6 +55,22 @@ const APIS = [
   },
 ];
 
+async function fetchFromSupabase() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase
+      .from("dashboard_data")
+      .select("data")
+      .eq("key", "forex_live")
+      .single();
+    if (error || !data?.data) return null;
+    if (!data.data.rates) return null;
+    return data.data;
+  } catch {
+    return null;
+  }
+}
+
 let _cache = null;
 let _cacheTime = 0;
 const CACHE_MS = 30 * 60 * 1000;
@@ -62,13 +80,24 @@ export async function GET() {
     return Response.json(_cache);
   }
 
+  // 1. Try Supabase first
+  try {
+    const sbData = await fetchFromSupabase();
+    if (sbData) {
+      _cache = sbData;
+      _cacheTime = Date.now();
+      return Response.json(sbData);
+    }
+  } catch {}
+
+  // 2. Try direct APIs in parallel
   const errors = [];
   const results = await Promise.allSettled(
     APIS.map(async (api) => {
       const res = await fetch(api.url, {
         headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
           "Accept": "application/json",
+          "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
         },
         signal: AbortSignal.timeout(8000),
       });
