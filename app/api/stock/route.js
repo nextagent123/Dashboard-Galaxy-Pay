@@ -4,7 +4,6 @@ async function tryFetch(url, timeout = 8000, extraHeaders = {}) {
   try {
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
         ...extraHeaders,
@@ -71,12 +70,16 @@ const APIS = [
       const ts = Math.floor(Date.now() / 1000);
       const B = "https://apipubaws.tcbs.com.vn/stock-insight/v2/stock/bars-long-term";
       const T = "https://apipubaws.tcbs.com.vn/stock-insight/v1/stock/top-price-change";
+      const hdrs = {
+        "Origin": "https://tcinvest.tcbs.com.vn",
+        "Referer": "https://tcinvest.tcbs.com.vn/",
+      };
 
       const [vn, hnx, up, all] = await Promise.all([
-        tryFetch(`${B}?ticker=VNINDEX&type=index&resolution=D&to=${ts}&countBack=2`),
-        tryFetch(`${B}?ticker=HNX&type=index&resolution=D&to=${ts}&countBack=2`),
-        tryFetch(`${B}?ticker=UPCOM&type=index&resolution=D&to=${ts}&countBack=2`),
-        tryFetch(`${T}?exchange=HOSE&limit=500`).catch(() => null),
+        tryFetch(`${B}?ticker=VNINDEX&type=index&resolution=D&to=${ts}&countBack=2`, 8000, hdrs),
+        tryFetch(`${B}?ticker=HNX&type=index&resolution=D&to=${ts}&countBack=2`, 8000, hdrs),
+        tryFetch(`${B}?ticker=UPCOM&type=index&resolution=D&to=${ts}&countBack=2`, 8000, hdrs),
+        tryFetch(`${T}?exchange=HOSE&limit=500`, 8000, hdrs).catch(() => null),
       ]);
 
       const indices = [
@@ -101,48 +104,80 @@ const APIS = [
     },
   },
   {
-    name: "vps",
+    name: "vci",
     run: async () => {
-      const url = "https://bgapidatafeed.vps.com.vn/getliststockdata/0";
+      const url = "https://mt.vietcap.com.vn/api/price/symbols/getAll";
       const resp = await tryFetch(url, 8000, {
-        "Origin": "https://banggia.vps.com.vn",
-        "Referer": "https://banggia.vps.com.vn/",
+        "Origin": "https://mt.vietcap.com.vn",
+        "Referer": "https://mt.vietcap.com.vn/",
       });
 
-      const items = Array.isArray(resp) ? resp : resp?.data || [];
-      if (!items.length) throw new Error("No data from VPS");
+      const items = Array.isArray(resp) ? resp : resp?.data || resp?.d || [];
+      if (!items.length) throw new Error("No data from VCI");
 
       const indices = [];
       const stocks = [];
 
       for (const s of items) {
-        const sym = s.sym || s.stock_code || s.sSN || "";
+        const sym = s.sym || s.symbol || s.stockCode || s.code || "";
         if (!sym) continue;
 
-        const lastPrice = +(s.lastPrice || s.c || s.matchPrice || 0);
-        const refPrice = +(s.r || s.refPrice || s.basicPrice || 0);
-        const price = lastPrice > 500 ? lastPrice / 1000 : lastPrice;
-        const ref = refPrice > 500 ? refPrice / 1000 : refPrice;
-        const change = ref ? +(price - ref).toFixed(2) : 0;
-        const changePct = ref ? +((price - ref) / ref * 100).toFixed(2) : 0;
-        const vol = +(s.lot || s.accumulatedVol || s.volume || 0) * 10;
+        const price = +(s.lastPrice || s.close || s.price || s.c || 0);
+        const ref = +(s.refPrice || s.ref || s.r || s.basicPrice || 0);
+        if (!price) continue;
 
-        if (["VNINDEX", "HNXINDEX", "UPCOMINDEX", "VN30", "HNX30"].includes(sym)) {
-          const code = sym.replace("INDEX", "").replace("VN30", "VN30");
-          if (["VN", "HNX", "UPCOM"].includes(code) || sym === "VNINDEX") {
-            indices.push({
-              code: sym === "VNINDEX" ? "VNINDEX" : sym === "HNXINDEX" ? "HNX" : "UPCOM",
-              value: price, change, changePercent: changePct,
-              volume: vol, high: price, low: price, open: ref || price,
-            });
-          }
-        } else if (price > 0) {
-          stocks.push({ ticker: sym, price, change, changePercent: changePct, volume: vol });
+        const change = ref ? +(price - ref).toFixed(2) : +(s.change || 0);
+        const changePct = ref ? +((price - ref) / ref * 100).toFixed(2) : +(s.changePct || s.changePercent || 0);
+        const vol = +(s.lot || s.accumulatedVol || s.volume || s.totalVolume || 0);
+
+        if (["VNINDEX", "HNXINDEX", "UPCOMINDEX", "HNX-INDEX", "UPCOM-INDEX"].includes(sym.toUpperCase())) {
+          const code = sym.toUpperCase()
+            .replace("-INDEX", "").replace("INDEX", "")
+            .replace("VN", "VNINDEX").replace("VNINDEXINDEX", "VNINDEX");
+          indices.push({
+            code: code === "VNINDEX" ? "VNINDEX" : code === "HNX" ? "HNX" : "UPCOM",
+            value: price, change, changePercent: changePct,
+            volume: vol, high: price, low: price, open: ref || price,
+          });
+        } else {
+          stocks.push({ ticker: sym.toUpperCase(), price, change, changePercent: changePct, volume: vol });
         }
       }
 
-      if (!stocks.length) throw new Error("No stock data from VPS");
-      return buildResult(stocks, indices, "VPS");
+      if (!stocks.length) throw new Error("No stock data from VCI");
+      return buildResult(stocks, indices, "VCI (Viet Capital)");
+    },
+  },
+  {
+    name: "fialda",
+    run: async () => {
+      const url = "https://fwtapi1.fialda.com/api/services/app/StockInfo/GetAllStockInfo";
+      const resp = await tryFetch(url, 8000, {
+        "Origin": "https://fialda.com",
+        "Referer": "https://fialda.com/",
+      });
+
+      const items = resp?.result || resp?.data || resp || [];
+      if (!Array.isArray(items) || !items.length) throw new Error("No data from Fialda");
+
+      const stocks = items
+        .map((s) => {
+          const ticker = s.stockCode || s.code || s.ticker || s.symbol || "";
+          const price = +(s.lastPrice || s.close || s.price || s.matchPrice || 0);
+          const ref = +(s.refPrice || s.basicPrice || s.referencePrice || 0);
+          if (!ticker || !price) return null;
+          return {
+            ticker: ticker.toUpperCase(),
+            price,
+            change: ref ? +(price - ref).toFixed(2) : +(s.change || 0),
+            changePercent: ref ? +((price - ref) / ref * 100).toFixed(2) : +(s.changePct || s.changePercent || 0),
+            volume: +(s.totalVolume || s.volume || s.matchVolume || 0),
+          };
+        })
+        .filter(Boolean);
+
+      if (!stocks.length) throw new Error("No stock data from Fialda");
+      return buildResult(stocks, [], "Fialda");
     },
   },
   {
@@ -150,7 +185,10 @@ const APIS = [
     run: async () => {
       const d = new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10);
       const url = `https://finfo-api.vndirect.com.vn/v4/stock_prices?sort=date%3Adesc&q=floor%3AHOSE~date%3Agte%3A${d}&size=500&page=1`;
-      const data = await tryFetch(url);
+      const data = await tryFetch(url, 8000, {
+        "Origin": "https://dstock.vndirect.com.vn",
+        "Referer": "https://dstock.vndirect.com.vn/",
+      });
       if (!data.data?.length) throw new Error("No data");
 
       const latest = {};
@@ -172,30 +210,36 @@ const APIS = [
     },
   },
   {
-    name: "ssi",
+    name: "simplize",
     run: async () => {
-      const url = "https://iboard-query.ssi.com.vn/v2/stock/exchange/hose";
-      const resp = await tryFetch(url);
+      const url = "https://api.simplize.vn/api/company/list/all";
+      const resp = await tryFetch(url, 8000, {
+        "Origin": "https://simplize.vn",
+        "Referer": "https://simplize.vn/",
+      });
+
       const items = resp?.data || resp || [];
-      if (!Array.isArray(items) || !items.length) throw new Error("No data");
+      if (!Array.isArray(items) || !items.length) throw new Error("No data from Simplize");
 
       const stocks = items
+        .filter((s) => (s.exchange === "HOSE" || s.san === "HOSE" || !s.exchange))
         .map((s) => {
-          const lp = s.lastPrice || s.matchPrice || s.c || 0;
-          const ref = s.refPrice || s.r || 0;
-          const price = lp > 500 ? lp / 1000 : lp;
-          const refP = ref > 500 ? ref / 1000 : ref;
+          const ticker = s.ticker || s.symbol || s.code || "";
+          const price = +(s.price || s.close || s.lastPrice || 0);
+          const ref = +(s.refPrice || s.basicPrice || 0);
+          if (!ticker || !price) return null;
           return {
-            ticker: s.stockSymbol || s.ss || s.symbol || "",
+            ticker,
             price,
-            change: refP ? +(price - refP).toFixed(2) : 0,
-            changePercent: refP ? +((price - refP) / refP * 100).toFixed(2) : 0,
-            volume: (s.matchVol || s.lot || 0) * 10,
+            change: ref ? +(price - ref).toFixed(2) : +(s.change || 0),
+            changePercent: ref ? +((price - ref) / ref * 100).toFixed(2) : +(s.changePercent || s.changePct || 0),
+            volume: +(s.volume || s.totalVolume || 0),
           };
         })
-        .filter((s) => s.ticker && s.price > 0);
+        .filter(Boolean);
 
-      return buildResult(stocks, [], "SSI");
+      if (!stocks.length) throw new Error("No stock data from Simplize");
+      return buildResult(stocks, [], "Simplize");
     },
   },
 ];
@@ -212,8 +256,6 @@ export async function GET(request) {
     return Response.json(_cache);
   }
 
-  const apiErrors = [];
-
   const results = await Promise.allSettled(
     APIS.map(async (api) => {
       const start = Date.now();
@@ -226,14 +268,15 @@ export async function GET(request) {
     })
   );
 
+  const apiErrors = [];
   let winner = null;
+
   for (const r of results) {
     if (r.status === "fulfilled" && r.value?.result) {
       if (!winner) winner = r.value;
     } else if (r.status === "rejected") {
       const info = r.reason || {};
       apiErrors.push(`${info.name}: ${info.error} (${info.ms}ms)`);
-      console.error(`[stock] ${info.name} failed (${info.ms}ms):`, info.error);
     }
   }
 
