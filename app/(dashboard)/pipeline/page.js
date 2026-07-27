@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { getPipelineGroups, PIPELINE_TABS } from "@/lib/metrics";
 import { ReportHeader, DateBadge } from "@/components/ui/PageHeader";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import PipelineLineChart from "@/components/charts/PipelineLineChart";
 import WaterfallChart from "@/components/charts/WaterfallChart";
 
@@ -45,8 +46,8 @@ export default function PipelinePage() {
       </section>
 
       {groups.map((g) => (
+        <ErrorBoundary key={g.key}>
         <section
-          key={g.key}
           style={{
             background: `${g.zoneBg}, linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005))`,
             border: `1px solid ${g.zoneBorder}`,
@@ -177,6 +178,7 @@ export default function PipelinePage() {
             </div>
           </div>
         </section>
+        </ErrorBoundary>
       ))}
     </>
   );

@@ -1,0 +1,32 @@
+name: Fetch Stock Data
+
+on:
+  schedule:
+    # Every 5 minutes during VN market hours (9:00-15:00 ICT = 2:00-8:00 UTC), Mon-Fri
+    - cron: "*/5 2-8 * * 1-5"
+    # Once at 8:30 UTC (15:30 ICT) for end-of-day snapshot
+    - cron: "30 8 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'main' || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --omit=dev
+
+      - name: Fetch stock & forex data
+        run: node scripts/fetch-stock-data.mjs
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}

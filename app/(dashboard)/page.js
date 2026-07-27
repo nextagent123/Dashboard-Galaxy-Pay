@@ -10,6 +10,7 @@ import KpiCardShell from "@/components/ui/KpiCardShell";
 import SegmentedTabs from "@/components/ui/SegmentedTabs";
 import SectionCard from "@/components/ui/SectionCard";
 import { PageHeader, DateBadge } from "@/components/ui/PageHeader";
+import { useAuth } from "@/components/AuthProvider";
 import BarTrendChart from "@/components/charts/BarTrendChart";
 
 const PERIOD_OPTIONS = [
@@ -20,6 +21,7 @@ const PERIOD_OPTIONS = [
 ];
 
 export default function HomePage() {
+  const { isAdmin } = useAuth();
   const [period, setPeriod] = useState("year");
   const data = getHome(period);
   return (
@@ -238,7 +240,7 @@ export default function HomePage() {
           <span style={{ fontSize: 12, color: "#8a8fa6" }}>Truy cập nhanh</span>
         </div>
         <div className="grid-4">
-          {FEATURES.map((f) => (
+          {FEATURES.filter((f) => !f.adminOnly || isAdmin).map((f) => (
             <Link
               key={f.href}
               href={f.href}

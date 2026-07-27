@@ -1,33 +1,86 @@
 export function Eyebrow({ children }) {
-  return <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1.6, color: "#8a7dff" }}>{children}</div>;
+  return (
+    <div style={{
+      fontSize: 11, fontWeight: 700, letterSpacing: 2,
+      color: "#a78bfa",
+      display: "flex", alignItems: "center", gap: 8,
+    }}>
+      <span style={{
+        width: 16, height: 2, borderRadius: 1,
+        background: "linear-gradient(90deg, #7c6cff, #a78bfa)",
+        display: "inline-block",
+      }}/>
+      {children}
+    </div>
+  );
 }
 
 export function EyebrowWide({ children }) {
-  return <div style={{ fontSize: 12, color: "#8a8fa6", letterSpacing: 2, fontWeight: 700 }}>{children}</div>;
+  return (
+    <div style={{
+      fontSize: 11, fontWeight: 700, letterSpacing: 2,
+      color: "#a78bfa",
+      display: "flex", alignItems: "center", gap: 8,
+    }}>
+      <span style={{
+        width: 16, height: 2, borderRadius: 1,
+        background: "linear-gradient(90deg, #7c6cff, #a78bfa)",
+        display: "inline-block",
+      }}/>
+      {children}
+    </div>
+  );
 }
 
-// Home / Company / Khối style header (h1 27px).
 export function PageHeader({ eyebrow, title, subtitle, right }) {
   return (
-    <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 20, flexWrap: "wrap" }}>
+    <header style={{
+      display: "flex", alignItems: "flex-end", justifyContent: "space-between",
+      gap: 20, flexWrap: "wrap",
+      paddingBottom: 20,
+      borderBottom: "1px solid rgba(124,108,255,0.1)",
+    }}>
       <div>
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h1 style={{ margin: "6px 0 0", fontSize: 27, fontWeight: 800, letterSpacing: -0.4 }}>{title}</h1>
-        {subtitle && <div style={{ fontSize: 13, color: "#8a8fa6", marginTop: 5 }}>{subtitle}</div>}
+        <h1 style={{
+          margin: "8px 0 0", fontSize: 28, fontWeight: 800,
+          letterSpacing: -0.5,
+          background: "linear-gradient(135deg, #ecedf5 0%, #c0c3d4 100%)",
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+        }}>{title}</h1>
+        {subtitle && (
+          <div style={{ fontSize: 13, color: "#6b6f85", marginTop: 6, lineHeight: 1.5 }}>
+            {subtitle}
+          </div>
+        )}
       </div>
       {right}
     </header>
   );
 }
 
-// Wider report-style header (h1 34px) used by OTA/Loa/Product/Personal/Pipeline.
 export function ReportHeader({ eyebrow, title, subtitle, right }) {
   return (
-    <header style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 20, flexWrap: "wrap" }}>
+    <header style={{
+      display: "flex", alignItems: "flex-end", justifyContent: "space-between",
+      gap: 20, flexWrap: "wrap",
+      paddingBottom: 20,
+      borderBottom: "1px solid rgba(124,108,255,0.1)",
+    }}>
       <div>
         <EyebrowWide>{eyebrow}</EyebrowWide>
-        <h1 style={{ fontSize: 34, margin: "6px 0 0", letterSpacing: -0.5, textWrap: "balance" }}>{title}</h1>
-        {subtitle && <div style={{ fontSize: 13, color: "#8a8fa6", marginTop: 5 }}>{subtitle}</div>}
+        <h1 style={{
+          fontSize: 32, margin: "8px 0 0",
+          letterSpacing: -0.5, textWrap: "balance",
+          fontWeight: 800,
+          background: "linear-gradient(135deg, #ecedf5 0%, #c0c3d4 100%)",
+          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+        }}>{title}</h1>
+        {subtitle && (
+          <div style={{ fontSize: 13, color: "#6b6f85", marginTop: 6, lineHeight: 1.5 }}>
+            {subtitle}
+          </div>
+        )}
       </div>
       {right}
     </header>
@@ -36,21 +89,17 @@ export function ReportHeader({ eyebrow, title, subtitle, right }) {
 
 export function DateBadge({ children }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "9px 14px",
-        background: "rgba(255,255,255,0.04)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        borderRadius: 12,
-        fontSize: 13,
-        color: "#c9cbd8",
-        whiteSpace: "nowrap",
-      }}
-    >
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a8fa6" strokeWidth="2" strokeLinecap="round">
+    <div style={{
+      display: "flex", alignItems: "center", gap: 8,
+      padding: "8px 14px",
+      background: "rgba(124,108,255,0.06)",
+      border: "1px solid rgba(124,108,255,0.15)",
+      borderRadius: 10,
+      fontSize: 12.5, fontWeight: 500,
+      color: "#b0b3c4",
+      whiteSpace: "nowrap",
+    }}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round">
         <rect x="3" y="4.5" width="18" height="16" rx="2" />
         <path d="M3 9h18M8 2.5v4M16 2.5v4" />
       </svg>
