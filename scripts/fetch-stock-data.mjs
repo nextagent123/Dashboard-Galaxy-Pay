@@ -7,6 +7,10 @@ import { createClient } from "@supabase/supabase-js";
 const URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const KEY = process.env.SUPABASE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+console.log("ENV check:");
+console.log("  SUPABASE_URL:", URL ? `${URL.slice(0, 30)}...` : "MISSING");
+console.log("  SUPABASE_KEY:", KEY ? `${KEY.slice(0, 10)}...` : "MISSING");
+
 if (!URL || !KEY) {
   console.error("Missing SUPABASE_URL / SUPABASE_KEY");
   process.exit(1);
@@ -14,10 +18,11 @@ if (!URL || !KEY) {
 
 const supabase = createClient(URL, KEY);
 
-async function tryFetch(url, timeout = 10000, headers = {}) {
+async function tryFetch(url, timeout = 12000, headers = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
   try {
+    console.log(`  Fetching: ${url.slice(0, 80)}...`);
     const res = await fetch(url, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
@@ -27,7 +32,7 @@ async function tryFetch(url, timeout = 10000, headers = {}) {
       signal: controller.signal,
     });
     clearTimeout(timer);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
     return res.json();
   } catch (e) {
     clearTimeout(timer);
@@ -81,6 +86,7 @@ function buildResult(stocks, indices, source) {
 
 // ── TCBS ──
 async function fetchTCBS() {
+  console.log("[TCBS] Fetching...");
   const ts = Math.floor(Date.now() / 1000);
   const B = "https://apipubaws.tcbs.com.vn/stock-insight/v2/stock/bars-long-term";
   const T = "https://apipubaws.tcbs.com.vn/stock-insight/v1/stock/top-price-change";
@@ -115,6 +121,7 @@ async function fetchTCBS() {
 
 // ── VNDirect ──
 async function fetchVNDirect() {
+  console.log("[VNDirect] Fetching...");
   const d = new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10);
   const url = `https://finfo-api.vndirect.com.vn/v4/stock_prices?sort=date%3Adesc&q=floor%3AHOSE~date%3Agte%3A${d}&size=500&page=1`;
   const data = await tryFetch(url);
@@ -138,40 +145,72 @@ async function fetchVNDirect() {
   return buildResult(stocks, [], "VNDirect (live)");
 }
 
+// ── SSI (with proper auth) ──
+async function fetchSSI() {
+  console.log("[SSI] Fetching...");
+  const url = "https://iboard-query.ssi.com.vn/v2/stock/exchange/hose";
+  const resp = await tryFetch(url, 12000, {
+    "Origin": "https://iboard.ssi.com.vn",
+    "Referer": "https://iboard.ssi.com.vn/",
+  });
+  const items = resp?.data || resp || [];
+  if (!Array.isArray(items) || !items.length) throw new Error("No data");
+
+  const stocks = items
+    .map((s) => {
+      const lp = s.lastPrice || s.matchPrice || s.c || 0;
+      const ref = s.refPrice || s.r || 0;
+      const price = lp > 500 ? lp / 1000 : lp;
+      const refP = ref > 500 ? ref / 1000 : ref;
+      return {
+        ticker: s.stockSymbol || s.ss || s.symbol || "",
+        price,
+        change: refP ? +(price - refP).toFixed(2) : 0,
+        changePercent: refP ? +((price - refP) / refP * 100).toFixed(2) : 0,
+        volume: (s.matchVol || s.lot || 0) * 10,
+      };
+    })
+    .filter((s) => s.ticker && s.price > 0);
+
+  return buildResult(stocks, [], "SSI (live)");
+}
+
 // ── Main ──
+const SOURCES = [
+  { name: "TCBS", fn: fetchTCBS },
+  { name: "VNDirect", fn: fetchVNDirect },
+  { name: "SSI", fn: fetchSSI },
+];
+
 async function main() {
+  console.log("=== Fetch Stock Data ===");
+  console.log(`Time: ${new Date().toISOString()}`);
+  console.log("");
+
   const errors = [];
   let result = null;
 
-  // Try TCBS first (has index data)
-  try {
-    console.log("Trying TCBS...");
-    result = await fetchTCBS();
-    console.log(`TCBS OK: ${result.breadth.total} stocks, ${result.indices.length} indices`);
-  } catch (e) {
-    errors.push(`tcbs: ${e.message}`);
-    console.error("TCBS failed:", e.message);
-  }
-
-  // Fallback to VNDirect
-  if (!result) {
+  for (const source of SOURCES) {
+    if (result) break;
     try {
-      console.log("Trying VNDirect...");
-      result = await fetchVNDirect();
-      console.log(`VNDirect OK: ${result.breadth.total} stocks`);
+      result = await source.fn();
+      console.log(`[${source.name}] OK: ${result.breadth.total} stocks, ${result.indices.length} indices`);
     } catch (e) {
-      errors.push(`vndirect: ${e.message}`);
-      console.error("VNDirect failed:", e.message);
+      const msg = `${source.name}: ${e.message}`;
+      errors.push(msg);
+      console.error(`[${source.name}] FAILED: ${e.message}`);
     }
   }
 
   if (!result) {
-    console.error("All APIs failed:", errors);
+    console.error("\nAll APIs failed:");
+    errors.forEach((e) => console.error(`  - ${e}`));
+    console.error("\nStock data NOT updated.");
     process.exit(1);
   }
 
   // Save to Supabase
-  console.log(`Saving to Supabase... (source: ${result.source})`);
+  console.log(`\nSaving to Supabase... (source: ${result.source})`);
   const { error } = await supabase
     .from("dashboard_data")
     .upsert(
@@ -184,38 +223,68 @@ async function main() {
     );
 
   if (error) {
-    console.error("Supabase save failed:", error.message);
+    console.error("Supabase upsert FAILED:", error.message, error.details, error.hint);
     process.exit(1);
   }
+  console.log("Stock data saved to Supabase OK.");
 
-  console.log("Done! Stock data saved to Supabase.");
+  // Verify the save
+  const { data: verify } = await supabase
+    .from("dashboard_data")
+    .select("key, data")
+    .eq("key", "stock_live")
+    .single();
+  if (verify?.data?.source) {
+    console.log(`Verified: source=${verify.data.source}, updated=${verify.data.updated}`);
+  } else {
+    console.error("Verification FAILED: could not read back data");
+  }
 
   // Also fetch and save forex
-  try {
-    console.log("Fetching forex...");
-    const forexRes = await tryFetch("https://open.er-api.com/v6/latest/VND");
-    if (forexRes.result === "success") {
-      const forexData = {
-        base: "VND",
-        rates: forexRes.rates,
-        updated: forexRes.time_last_update_utc,
-        source: "ExchangeRate-API (live)",
-      };
-      await supabase
-        .from("dashboard_data")
-        .upsert(
-          {
-            key: "forex_live",
-            description: "Live forex rates (auto-updated by GitHub Actions)",
-            data: forexData,
-          },
-          { onConflict: "key" }
-        );
-      console.log("Forex data saved to Supabase.");
+  console.log("\n--- Forex ---");
+  const forexAPIs = [
+    {
+      name: "ExchangeRate-API",
+      url: "https://open.er-api.com/v6/latest/VND",
+      parse: (d) => d.result === "success" ? { base: "VND", rates: d.rates, updated: d.time_last_update_utc, source: "ExchangeRate-API (live)" } : null,
+    },
+    {
+      name: "Currency-API",
+      url: "https://latest.currency-api.pages.dev/v1/currencies/usd.json",
+      parse: (d) => {
+        if (!d.usd?.vnd) return null;
+        const vndPerUsd = d.usd.vnd;
+        const rates = { VND: 1 };
+        for (const [code, rate] of Object.entries(d.usd)) {
+          if (code === "vnd") continue;
+          rates[code.toUpperCase()] = rate / vndPerUsd;
+        }
+        return { base: "VND", rates, updated: d.date || new Date().toISOString(), source: "Currency-API (live)" };
+      },
+    },
+  ];
+
+  for (const api of forexAPIs) {
+    try {
+      console.log(`[${api.name}] Fetching...`);
+      const data = await tryFetch(api.url);
+      const parsed = api.parse(data);
+      if (parsed) {
+        await supabase
+          .from("dashboard_data")
+          .upsert(
+            { key: "forex_live", description: "Live forex rates (auto-updated)", data: parsed },
+            { onConflict: "key" }
+          );
+        console.log(`[${api.name}] Forex saved to Supabase OK.`);
+        break;
+      }
+    } catch (e) {
+      console.error(`[${api.name}] FAILED: ${e.message}`);
     }
-  } catch (e) {
-    console.error("Forex fetch failed:", e.message);
   }
+
+  console.log("\n=== Done ===");
 }
 
 main();
