@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - claude/dashboard-custom-hosting-ow4qhx
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -28,6 +29,14 @@ jobs:
 
       - run: node scripts/seed-supabase.mjs
         continue-on-error: true
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+
+      - name: Fetch live stock & forex data
+        continue-on-error: true
+        run: node scripts/fetch-stock-data.mjs
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
