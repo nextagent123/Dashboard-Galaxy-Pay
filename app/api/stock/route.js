@@ -1,15 +1,23 @@
-async function tryFetch(url, timeout = 10000, extraHeaders = {}) {
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-      "Accept": "application/json",
-      "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
-      ...extraHeaders,
-    },
-    signal: AbortSignal.timeout(timeout),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+async function tryFetch(url, timeout = 8000, extraHeaders = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+        ...extraHeaders,
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    return res.json();
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
 }
 
 function parseIndexBars(code, resp) {
@@ -58,43 +66,6 @@ function buildResult(stocks, indices, source) {
 
 const APIS = [
   {
-    name: "wichart",
-    run: async () => {
-      const [indexRes, stockRes] = await Promise.all([
-        tryFetch("https://wichart.vn/api/indexes/list"),
-        tryFetch("https://wichart.vn/api/thong-ke-thi-truong/bien-dong-gia?san=HOSE"),
-      ]);
-
-      const indexData = indexRes?.data || indexRes || [];
-      const indices = (Array.isArray(indexData) ? indexData : [])
-        .filter((i) => ["VNINDEX", "HNX", "UPCOM"].includes(i.indexCode || i.code))
-        .map((i) => ({
-          code: i.indexCode || i.code,
-          value: +(i.indexValue || i.value || 0),
-          change: +(i.change || 0),
-          changePercent: +(i.changePercent || i.pctChange || 0),
-          volume: i.totalVolume || i.volume || 0,
-          high: +(i.highIndex || i.high || i.indexValue || 0),
-          low: +(i.lowIndex || i.low || i.indexValue || 0),
-          open: +(i.openIndex || i.open || i.indexValue || 0),
-        }));
-
-      const stockData = stockRes?.data || stockRes || [];
-      const stocks = (Array.isArray(stockData) ? stockData : [])
-        .map((s) => ({
-          ticker: s.code || s.ticker || s.symbol || "",
-          price: +(s.price || s.close || s.matchPrice || 0),
-          change: +(s.change || s.priceChange || 0),
-          changePercent: +(s.changePercent || s.pctChange || 0),
-          volume: s.volume || s.totalVolume || 0,
-        }))
-        .filter((s) => s.ticker && s.price > 0);
-
-      if (!stocks.length && !indices.length) throw new Error("No data");
-      return buildResult(stocks, indices, "WiChart");
-    },
-  },
-  {
     name: "tcbs",
     run: async () => {
       const ts = Math.floor(Date.now() / 1000);
@@ -127,6 +98,51 @@ const APIS = [
         .filter((s) => s.ticker);
 
       return buildResult(stocks, indices, "TCBS");
+    },
+  },
+  {
+    name: "vps",
+    run: async () => {
+      const url = "https://bgapidatafeed.vps.com.vn/getliststockdata/0";
+      const resp = await tryFetch(url, 8000, {
+        "Origin": "https://banggia.vps.com.vn",
+        "Referer": "https://banggia.vps.com.vn/",
+      });
+
+      const items = Array.isArray(resp) ? resp : resp?.data || [];
+      if (!items.length) throw new Error("No data from VPS");
+
+      const indices = [];
+      const stocks = [];
+
+      for (const s of items) {
+        const sym = s.sym || s.stock_code || s.sSN || "";
+        if (!sym) continue;
+
+        const lastPrice = +(s.lastPrice || s.c || s.matchPrice || 0);
+        const refPrice = +(s.r || s.refPrice || s.basicPrice || 0);
+        const price = lastPrice > 500 ? lastPrice / 1000 : lastPrice;
+        const ref = refPrice > 500 ? refPrice / 1000 : refPrice;
+        const change = ref ? +(price - ref).toFixed(2) : 0;
+        const changePct = ref ? +((price - ref) / ref * 100).toFixed(2) : 0;
+        const vol = +(s.lot || s.accumulatedVol || s.volume || 0) * 10;
+
+        if (["VNINDEX", "HNXINDEX", "UPCOMINDEX", "VN30", "HNX30"].includes(sym)) {
+          const code = sym.replace("INDEX", "").replace("VN30", "VN30");
+          if (["VN", "HNX", "UPCOM"].includes(code) || sym === "VNINDEX") {
+            indices.push({
+              code: sym === "VNINDEX" ? "VNINDEX" : sym === "HNXINDEX" ? "HNX" : "UPCOM",
+              value: price, change, changePercent: changePct,
+              volume: vol, high: price, low: price, open: ref || price,
+            });
+          }
+        } else if (price > 0) {
+          stocks.push({ ticker: sym, price, change, changePercent: changePct, volume: vol });
+        }
+      }
+
+      if (!stocks.length) throw new Error("No stock data from VPS");
+      return buildResult(stocks, indices, "VPS");
     },
   },
   {
@@ -182,84 +198,65 @@ const APIS = [
       return buildResult(stocks, [], "SSI");
     },
   },
-  {
-    name: "cafef",
-    run: async () => {
-      const url = "https://s.cafef.vn/ajax/marketoverview.ashx";
-      const resp = await tryFetch(url, 10000, {
-        "Referer": "https://cafef.vn/",
-      });
-      const items = resp?.Data || resp?.data || resp || [];
-      if (!Array.isArray(items) || !items.length) throw new Error("No data");
-
-      const indices = [];
-      const stocks = [];
-      for (const s of items) {
-        const code = s.a || s.Symbol || s.code || "";
-        const price = +(s.b || s.Price || s.close || 0);
-        const change = +(s.c || s.Change || 0);
-        const changePct = +(s.d || s.PerChange || 0);
-        const vol = +(s.g || s.Volume || 0);
-        if (!code || !price) continue;
-        if (["VNINDEX", "HNX-INDEX", "UPCOM-INDEX", "HNX", "UPCOM"].includes(code.toUpperCase())) {
-          const normalized = code.toUpperCase().replace("-INDEX", "");
-          indices.push({
-            code: normalized, value: price, change, changePercent: changePct,
-            volume: vol, high: price, low: price, open: price,
-          });
-        } else {
-          stocks.push({ ticker: code, price, change, changePercent: changePct, volume: vol });
-        }
-      }
-
-      if (!stocks.length) throw new Error("No stock data");
-      return buildResult(stocks, indices, "CafeF");
-    },
-  },
 ];
 
 let _cache = null;
 let _cacheTime = 0;
 const CACHE_MS = 5 * 60 * 1000;
 
-export async function GET() {
-  if (_cache && Date.now() - _cacheTime < CACHE_MS) {
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const debug = searchParams.get("debug") === "1";
+
+  if (_cache && Date.now() - _cacheTime < CACHE_MS && !debug) {
     return Response.json(_cache);
   }
 
-  const errors = [];
+  const apiErrors = [];
 
-  const raceResults = await Promise.allSettled(
-    APIS.slice(0, 3).map((api) =>
-      api.run().then((r) => ({ ...r, _apiName: api.name }))
-    )
+  const results = await Promise.allSettled(
+    APIS.map(async (api) => {
+      const start = Date.now();
+      try {
+        const result = await api.run();
+        return { name: api.name, result, ms: Date.now() - start };
+      } catch (e) {
+        throw { name: api.name, error: e.message || String(e), ms: Date.now() - start };
+      }
+    })
   );
 
-  for (const r of raceResults) {
-    if (r.status === "fulfilled" && r.value) {
-      const result = r.value;
-      delete result._apiName;
-      _cache = result;
-      _cacheTime = Date.now();
-      return Response.json(result);
-    }
-    if (r.status === "rejected") {
-      errors.push(r.reason?.message || "Unknown error");
+  let winner = null;
+  for (const r of results) {
+    if (r.status === "fulfilled" && r.value?.result) {
+      if (!winner) winner = r.value;
+    } else if (r.status === "rejected") {
+      const info = r.reason || {};
+      apiErrors.push(`${info.name}: ${info.error} (${info.ms}ms)`);
+      console.error(`[stock] ${info.name} failed (${info.ms}ms):`, info.error);
     }
   }
 
-  for (const api of APIS.slice(3)) {
-    try {
-      const result = await api.run();
-      _cache = result;
-      _cacheTime = Date.now();
-      return Response.json(result);
-    } catch (e) {
-      errors.push(`${api.name}: ${e.message}`);
-      console.error(`[stock] ${api.name} failed:`, e.message);
+  if (winner) {
+    const data = winner.result;
+    if (debug) {
+      data._debug = {
+        winner: winner.name,
+        winnerMs: winner.ms,
+        errors: apiErrors,
+        allResults: results.map((r) =>
+          r.status === "fulfilled"
+            ? { name: r.value.name, status: "ok", ms: r.value.ms, stocks: r.value.result?.breadth?.total }
+            : { name: r.reason?.name, status: "fail", ms: r.reason?.ms, error: r.reason?.error }
+        ),
+      };
     }
+    _cache = data;
+    _cacheTime = Date.now();
+    return Response.json(data);
   }
-  console.error("[stock] All APIs failed:", errors);
+
+  console.error("[stock] All APIs failed:", apiErrors);
   const fallback = {
     indices: [
       { code: "VNINDEX", value: 1285.50, change: 12.30, changePercent: 0.97, volume: 850000000, high: 1290.30, low: 1275.20, open: 1273.20 },
@@ -305,7 +302,7 @@ export async function GET() {
     breadth: { advances: 250, declines: 120, unchanged: 30, total: 400 },
     source: "Dữ liệu tham khảo",
     updated: new Date().toISOString(),
-    _errors: errors,
+    _errors: apiErrors,
   };
   return Response.json(fallback);
 }

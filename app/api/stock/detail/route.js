@@ -1,14 +1,23 @@
-async function tryFetch(url, timeout = 10000) {
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-      "Accept": "application/json",
-      "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
-    },
-    signal: AbortSignal.timeout(timeout),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+async function tryFetch(url, timeout = 8000, extraHeaders = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+        ...extraHeaders,
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    return res.json();
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
 }
 
 const APIS = [
@@ -119,6 +128,7 @@ const APIS = [
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const ticker = (searchParams.get("ticker") || "").toUpperCase().trim();
+  const debug = searchParams.get("debug") === "1";
 
   if (!ticker || ticker.length < 2 || ticker.length > 10) {
     return Response.json(
@@ -127,18 +137,38 @@ export async function GET(request) {
     );
   }
 
-  const errors = [];
-  const results = await Promise.allSettled(APIS.map((api) => api.run(ticker)));
+  const apiErrors = [];
+  const results = await Promise.allSettled(
+    APIS.map(async (api) => {
+      const start = Date.now();
+      try {
+        const result = await api.run(ticker);
+        return { name: api.name, result, ms: Date.now() - start };
+      } catch (e) {
+        throw { name: api.name, error: e.message || String(e), ms: Date.now() - start };
+      }
+    })
+  );
+
   for (const r of results) {
-    if (r.status === "fulfilled" && r.value) {
-      return Response.json(r.value);
+    if (r.status === "fulfilled" && r.value?.result) {
+      const data = r.value.result;
+      if (debug) {
+        data._debug = {
+          winner: r.value.name,
+          winnerMs: r.value.ms,
+          errors: apiErrors,
+        };
+      }
+      return Response.json(data);
     }
     if (r.status === "rejected") {
-      errors.push(r.reason?.message || "Unknown error");
-      console.error(`[stock-detail] API failed:`, r.reason?.message);
+      const info = r.reason || {};
+      apiErrors.push(`${info.name}: ${info.error} (${info.ms}ms)`);
+      console.error(`[stock-detail] ${info.name} failed (${info.ms}ms):`, info.error);
     }
   }
-  console.error("[stock-detail] All APIs failed:", errors);
+  console.error("[stock-detail] All APIs failed:", apiErrors);
 
   const SAMPLE_PRICES = {
     FPT: 152.80, VNM: 85.50, VCB: 98.20, HPG: 28.90, MWG: 62.30,
@@ -185,5 +215,6 @@ export async function GET(request) {
     history,
     source: "Dữ liệu tham khảo",
     updated: new Date().toISOString(),
+    _errors: apiErrors,
   });
 }
