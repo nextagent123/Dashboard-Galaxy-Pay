@@ -52,14 +52,18 @@ export default function QuanTriPage() {
     setSuccess(res.message);
   }
 
-  async function handleReset(u) {
-    const p = window.prompt("Nhập mật khẩu mới cho @" + u + " (tối thiểu 6 ký tự):");
-    if (p == null) return;
-    if (p.length < 6) { alert("Mật khẩu phải tối thiểu 6 ký tự."); return; }
-    const p2 = window.prompt("Nhập lại mật khẩu mới:");
-    if (p !== p2) { alert("Mật khẩu nhập lại không khớp."); return; }
-    await resetPassword(u, p);
-    alert("Đã đổi mật khẩu cho @" + u);
+  const [resetTarget, setResetTarget] = useState(null);
+  const [resetPw, setResetPw] = useState("");
+  const [resetPw2, setResetPw2] = useState("");
+  const [resetErr, setResetErr] = useState("");
+
+  async function handleResetSubmit(e) {
+    e.preventDefault();
+    if (resetPw.length < 6) { setResetErr("Mật khẩu phải tối thiểu 6 ký tự."); return; }
+    if (resetPw !== resetPw2) { setResetErr("Mật khẩu nhập lại không khớp."); return; }
+    await resetPassword(resetTarget, resetPw);
+    setResetTarget(null); setResetPw(""); setResetPw2(""); setResetErr("");
+    setSuccess("Đã đổi mật khẩu cho @" + resetTarget);
   }
 
   function handleDelete(u) {
@@ -188,7 +192,7 @@ export default function QuanTriPage() {
                     </td>
                     <td style={{ ...TD, textAlign: "right" }}>
                       <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                        <button onClick={() => handleReset(u.u)} style={BTN_EDIT}>
+                        <button onClick={() => { setResetTarget(u.u); setResetPw(""); setResetPw2(""); setResetErr(""); }} style={BTN_EDIT}>
                           Đổi MK
                         </button>
                         {!isDefault && (
@@ -212,6 +216,31 @@ export default function QuanTriPage() {
           </table>
         </div>
       </div>
+
+      {resetTarget && (
+        <div className="card" style={{ padding: "20px", marginBottom: 24 }}>
+          <form onSubmit={handleResetSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#c3b9ff" }}>
+              Đổi mật khẩu cho @{resetTarget}
+            </div>
+            <input type="password" value={resetPw} onChange={(e) => setResetPw(e.target.value)} placeholder="Mật khẩu mới (≥6 ký tự)" style={{ ...INPUT, letterSpacing: 2 }} autoFocus />
+            <input type="password" value={resetPw2} onChange={(e) => setResetPw2(e.target.value)} placeholder="Nhập lại mật khẩu mới" style={{ ...INPUT, letterSpacing: 2 }} />
+            {resetErr && <div style={{ fontSize: 12, color: "#fb7185" }}>{resetErr}</div>}
+            <div style={{ display: "flex", gap: 8 }}>
+              <button type="submit" style={{
+                padding: "8px 16px", border: "none", borderRadius: 8,
+                background: "linear-gradient(135deg,#7c6cff,#9d8bff)", color: "#fff",
+                fontSize: 12.5, fontWeight: 700, cursor: "pointer",
+              }}>Xác nhận</button>
+              <button type="button" onClick={() => setResetTarget(null)} style={{
+                padding: "8px 16px", border: "1px solid rgba(255,255,255,0.1)",
+                background: "transparent", color: "#8a8fa6", borderRadius: 8,
+                fontSize: 12.5, fontWeight: 600, cursor: "pointer",
+              }}>Hủy</button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Create new user */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>

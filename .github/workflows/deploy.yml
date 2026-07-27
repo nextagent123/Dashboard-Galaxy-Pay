@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/dashboard-custom-hosting-ow4qhx
   workflow_dispatch:
 
 jobs:

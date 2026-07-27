@@ -373,7 +373,10 @@ function workersAIStreamResponse(aiStream) {
 export async function POST(request) {
   try {
     const { messages } = await request.json();
-    const recent = messages.slice(-10);
+    const sanitized = (Array.isArray(messages) ? messages : [])
+      .filter((m) => m && typeof m.content === "string" && m.content.trim())
+      .map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content.slice(0, 4000) }));
+    const recent = sanitized.slice(-10);
     const lastMsg = recent[recent.length - 1]?.content || "";
 
     const baseUrl = new URL(request.url).origin;

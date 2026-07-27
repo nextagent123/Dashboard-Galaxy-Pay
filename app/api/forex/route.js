@@ -132,7 +132,6 @@ export async function GET() {
     },
     updated: new Date().toISOString(),
     source: "Dữ liệu tham khảo",
-    _errors: errors,
   };
   return Response.json(fallback);
 }
