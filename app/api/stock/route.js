@@ -83,6 +83,70 @@ async function fetchFromSupabase() {
   }
 }
 
+// TradingView Scanner (international, works from Cloudflare Workers)
+async function fetchFromTradingView() {
+  const scanUrl = "https://scanner.tradingview.com/vietnam/scan";
+  const post = async (body) => {
+    const res = await fetch(scanUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    return res.json();
+  };
+
+  const [indexResp, stockResp] = await Promise.all([
+    post({
+      symbols: { tickers: ["HOSE:VNINDEX", "HNX:HNXINDEX", "UPCOM:UPCOMINDEX"] },
+      columns: ["close", "change", "open", "high", "low", "volume"],
+    }).catch(() => null),
+    post({
+      filter: [{ left: "exchange", operation: "equal", right: "HOSE" }],
+      symbols: { query: { types: ["stock"] } },
+      columns: ["close", "change", "volume"],
+      sort: { sortBy: "volume", sortOrder: "desc" },
+      range: [0, 500],
+    }),
+  ]);
+
+  const indices = [];
+  const indexMap = { VNINDEX: "VNINDEX", HNXINDEX: "HNX", UPCOMINDEX: "UPCOM" };
+  if (indexResp?.data) {
+    for (const item of indexResp.data) {
+      const [close, changePct, open, high, low, volume] = item.d;
+      if (!close) continue;
+      const sym = item.s.split(":")[1];
+      const code = indexMap[sym] || sym;
+      indices.push({
+        code, value: +close.toFixed(2),
+        change: +(close * changePct / 100).toFixed(2),
+        changePercent: +changePct.toFixed(2),
+        volume: volume || 0, high: high || close, low: low || close, open: open || close,
+      });
+    }
+  }
+
+  const stocks = [];
+  if (stockResp?.data) {
+    for (const item of stockResp.data) {
+      const [close, changePct, volume] = item.d;
+      const ticker = item.s.split(":")[1];
+      if (!close || !ticker) continue;
+      stocks.push({
+        ticker, price: +close.toFixed(2),
+        change: +(close * changePct / 100).toFixed(2),
+        changePercent: +changePct.toFixed(2),
+        volume: volume || 0,
+      });
+    }
+  }
+
+  if (!stocks.length) throw new Error("No data");
+  return buildResult(stocks, indices, "TradingView");
+}
+
 // Direct API calls (fallback — may be blocked from Cloudflare Workers)
 async function fetchFromTCBS() {
   const ts = Math.floor(Date.now() / 1000);
@@ -226,8 +290,9 @@ export async function GET(request) {
     log.push({ source: "supabase", status: "fail", error: e.message });
   }
 
-  // 2. Try direct APIs (may be blocked from Cloudflare Workers)
+  // 2. Try direct APIs
   const directAPIs = [
+    { name: "tradingview", fn: fetchFromTradingView },
     { name: "tcbs", fn: fetchFromTCBS },
     { name: "vndirect", fn: fetchFromVNDirect },
   ];

@@ -18,17 +18,35 @@ if (!URL || !KEY) {
 
 const supabase = createClient(URL, KEY);
 
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
 async function tryFetch(url, timeout = 12000, headers = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
   try {
     console.log(`  Fetching: ${url.slice(0, 80)}...`);
     const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-        "Accept": "application/json",
-        ...headers,
-      },
+      headers: { "User-Agent": UA, "Accept": "application/json", ...headers },
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    return res.json();
+  } catch (e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+async function tryPost(url, body, timeout = 15000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    console.log(`  POST: ${url.slice(0, 80)}...`);
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "User-Agent": UA, "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(body),
       signal: controller.signal,
     });
     clearTimeout(timer);
@@ -84,6 +102,70 @@ function buildResult(stocks, indices, source) {
   };
 }
 
+// ── TradingView Scanner (international, not blocked by VN firewalls) ──
+async function fetchTradingView() {
+  console.log("[TradingView] Fetching...");
+  const scanUrl = "https://scanner.tradingview.com/vietnam/scan";
+
+  const [indexResp, stockResp] = await Promise.all([
+    tryPost(scanUrl, {
+      symbols: { tickers: ["HOSE:VNINDEX", "HNX:HNXINDEX", "UPCOM:UPCOMINDEX"] },
+      columns: ["close", "change", "open", "high", "low", "volume"],
+    }).catch((e) => { console.log(`  Index scan failed: ${e.message}`); return null; }),
+    tryPost(scanUrl, {
+      filter: [{ left: "exchange", operation: "equal", right: "HOSE" }],
+      symbols: { query: { types: ["stock"] } },
+      columns: ["close", "change", "volume"],
+      sort: { sortBy: "volume", sortOrder: "desc" },
+      range: [0, 500],
+    }),
+  ]);
+
+  const indices = [];
+  const indexMap = { VNINDEX: "VNINDEX", HNXINDEX: "HNX", UPCOMINDEX: "UPCOM" };
+  if (indexResp?.data) {
+    for (const item of indexResp.data) {
+      const [close, changePct, open, high, low, volume] = item.d;
+      if (!close) continue;
+      const sym = item.s.split(":")[1];
+      const code = indexMap[sym] || sym;
+      const pct = Math.abs(changePct) > 1000 ? changePct : changePct;
+      const absChange = +(close * pct / 100).toFixed(2);
+      indices.push({
+        code,
+        value: +close.toFixed(2),
+        change: absChange,
+        changePercent: +pct.toFixed(2),
+        volume: volume || 0,
+        high: high || close,
+        low: low || close,
+        open: open || close,
+      });
+    }
+  }
+
+  const stocks = [];
+  if (stockResp?.data) {
+    for (const item of stockResp.data) {
+      const [close, changePct, volume] = item.d;
+      const ticker = item.s.split(":")[1];
+      if (!close || !ticker) continue;
+      const absChange = +(close * changePct / 100).toFixed(2);
+      stocks.push({
+        ticker,
+        price: +close.toFixed(2),
+        change: absChange,
+        changePercent: +(changePct).toFixed(2),
+        volume: volume || 0,
+      });
+    }
+  }
+
+  if (!stocks.length) throw new Error("No stock data from TradingView");
+  console.log(`[TradingView] Got ${stocks.length} stocks, ${indices.length} indices`);
+  return buildResult(stocks, indices, "TradingView (live)");
+}
+
 // ── TCBS ──
 async function fetchTCBS() {
   console.log("[TCBS] Fetching...");
@@ -91,11 +173,12 @@ async function fetchTCBS() {
   const B = "https://apipubaws.tcbs.com.vn/stock-insight/v2/stock/bars-long-term";
   const T = "https://apipubaws.tcbs.com.vn/stock-insight/v1/stock/top-price-change";
 
+  const hdrs = { "Origin": "https://tcinvest.tcbs.com.vn", "Referer": "https://tcinvest.tcbs.com.vn/" };
   const [vn, hnx, up, all] = await Promise.all([
-    tryFetch(`${B}?ticker=VNINDEX&type=index&resolution=D&to=${ts}&countBack=2`),
-    tryFetch(`${B}?ticker=HNX&type=index&resolution=D&to=${ts}&countBack=2`),
-    tryFetch(`${B}?ticker=UPCOM&type=index&resolution=D&to=${ts}&countBack=2`),
-    tryFetch(`${T}?exchange=HOSE&limit=500`).catch(() => null),
+    tryFetch(`${B}?ticker=VNINDEX&type=index&resolution=D&to=${ts}&countBack=2`, 12000, hdrs),
+    tryFetch(`${B}?ticker=HNX&type=index&resolution=D&to=${ts}&countBack=2`, 12000, hdrs),
+    tryFetch(`${B}?ticker=UPCOM&type=index&resolution=D&to=${ts}&countBack=2`, 12000, hdrs),
+    tryFetch(`${T}?exchange=HOSE&limit=500`, 12000, hdrs).catch(() => null),
   ]);
 
   const indices = [
@@ -177,6 +260,7 @@ async function fetchSSI() {
 
 // ── Main ──
 const SOURCES = [
+  { name: "TradingView", fn: fetchTradingView },
   { name: "TCBS", fn: fetchTCBS },
   { name: "VNDirect", fn: fetchVNDirect },
   { name: "SSI", fn: fetchSSI },
