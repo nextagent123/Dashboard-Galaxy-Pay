@@ -91,6 +91,7 @@ function buildResult(stocks, indices, source) {
     topGainers: desc.filter((s) => s.changePercent > 0).slice(0, 10),
     topLosers: asc.filter((s) => s.changePercent < 0).slice(0, 10),
     blueChips: stocks.filter((s) => BLUE.has(s.ticker)),
+    allStocks: stocks.map((s) => ({ t: s.ticker, p: s.price, c: s.changePercent, v: s.volume })),
     breadth: {
       advances: stocks.filter((s) => s.changePercent > 0).length,
       declines: stocks.filter((s) => s.changePercent < 0).length,

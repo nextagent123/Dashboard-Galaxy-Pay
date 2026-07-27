@@ -26,11 +26,99 @@ async function getKnowledge() {
 }
 
 const FOREX_KEYS = ["tỷ giá", "ngoại hối", "forex", "usd", "eur", "gbp", "jpy", "cny", "sgd", "thb", "krw", "ngoại tệ", "exchange rate"];
-const STOCK_KEYS = ["chứng khoán", "cổ phiếu", "vn-index", "vnindex", "stock", "hose", "hnx", "upcom", "fpt", "vnm", "vcb", "hpg", "mwg", "vhm", "vic", "msn", "mbb", "tcb", "acb", "vpb", "bid", "ctg", "ssi"];
+const STOCK_KEYS = [
+  "chứng khoán", "cổ phiếu", "vn-index", "vnindex", "stock", "hose", "hnx", "upcom",
+  "thị trường", "blue chip", "bluechip", "giá cổ", "mã cổ",
+];
+const STOCK_CONTEXT = ["giá", "bao nhiêu", "tăng", "giảm", "mua", "bán", "cổ phiếu", "chứng khoán", "thế nào", "ra sao"];
+const COMMON_WORDS = new Set([
+  "THE", "AND", "FOR", "NOT", "BUT", "ARE", "WAS", "HAS", "HAD", "CAN", "MAY", "YOU", "ALL",
+  "USD", "EUR", "GBP", "JPY", "CNY", "SGD", "THB", "KRW", "VND", "AUD", "CAD", "CHF", "HKD",
+  "GMV", "KPI", "BDM", "CTV", "OTA", "PSP", "SME", "API", "BOX", "TOP", "VAT", "HOW", "WHY",
+  "WHO", "PAY", "WEB", "APP", "PDF", "FAQ", "CEO", "CFO", "COO", "CTO",
+]);
 
 function matchesAny(text, keys) {
   const t = text.toLowerCase().normalize("NFC");
   return keys.some((k) => t.includes(k));
+}
+
+function extractTickers(text) {
+  const matches = text.toUpperCase().match(/\b[A-Z]{3,4}\b/g) || [];
+  return [...new Set(matches.filter((m) => !COMMON_WORDS.has(m)))];
+}
+
+function shouldFetchStock(text) {
+  if (matchesAny(text, STOCK_KEYS)) return true;
+  const tickers = extractTickers(text);
+  if (tickers.length > 0 && STOCK_CONTEXT.some((w) => text.toLowerCase().includes(w))) return true;
+  return false;
+}
+
+async function fetchStockFromSupabase() {
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase
+      .from("dashboard_data")
+      .select("data")
+      .eq("key", "stock_live")
+      .single();
+    return data?.data || null;
+  } catch {
+    return null;
+  }
+}
+
+function formatStockContext(d, requestedTickers) {
+  const parts = [];
+  parts.push(`\n=== DỮ LIỆU CHỨNG KHOÁN VIỆT NAM REALTIME ===`);
+  parts.push(`Nguồn: ${d.source || "API"} | Cập nhật: ${d.updated || "now"}`);
+
+  if (d.indices?.length) {
+    parts.push("Chỉ số:");
+    for (const i of d.indices) {
+      parts.push(`• ${i.code}: ${i.value} (${i.change >= 0 ? "+" : ""}${i.change}, ${i.changePercent >= 0 ? "+" : ""}${i.changePercent}%)`);
+    }
+  }
+
+  if (requestedTickers.length > 0 && d.allStocks?.length) {
+    const tickerSet = new Set(requestedTickers);
+    const found = d.allStocks.filter((s) => tickerSet.has(s.t));
+    if (found.length > 0) {
+      parts.push(`\nCHI TIẾT MÃ CỔ PHIẾU ĐƯỢC HỎI:`);
+      for (const s of found) {
+        parts.push(`• ${s.t}: ${(s.p * 1000).toLocaleString("vi-VN")} VND | Thay đổi: ${s.c >= 0 ? "+" : ""}${s.c}% | KL: ${(s.v || 0).toLocaleString("vi-VN")}`);
+      }
+    } else {
+      const notFound = requestedTickers.filter((t) => !d.allStocks.some((s) => s.t === t));
+      if (notFound.length) {
+        parts.push(`\nKhông tìm thấy mã: ${notFound.join(", ")} trên sàn HOSE.`);
+      }
+    }
+  }
+
+  const gainers = (d.topGainers || []).slice(0, 5);
+  const losers = (d.topLosers || []).slice(0, 5);
+  if (gainers.length) {
+    parts.push("\nTop tăng giá:");
+    for (const s of gainers) parts.push(`• ${s.ticker}: ${s.price} (+${s.changePercent}%)`);
+  }
+  if (losers.length) {
+    parts.push("Top giảm giá:");
+    for (const s of losers) parts.push(`• ${s.ticker}: ${s.price} (${s.changePercent}%)`);
+  }
+  if (d.breadth) {
+    parts.push(`Độ rộng: Tăng ${d.breadth.advances}, Giảm ${d.breadth.declines}, Đứng ${d.breadth.unchanged} / Tổng ${d.breadth.total}`);
+  }
+
+  if (d.blueChips?.length && requestedTickers.length === 0) {
+    parts.push("\nBlue Chips:");
+    for (const s of d.blueChips) {
+      parts.push(`• ${s.ticker}: ${s.price} (${s.changePercent >= 0 ? "+" : ""}${s.changePercent}%)`);
+    }
+  }
+
+  return parts.join("\n");
 }
 
 async function fetchLiveContext(question, baseUrl) {
@@ -52,20 +140,19 @@ async function fetchLiveContext(question, baseUrl) {
     );
   }
 
-  if (matchesAny(question, STOCK_KEYS)) {
+  if (shouldFetchStock(question)) {
+    const tickers = extractTickers(question);
     fetches.push(
-      fetch(`${baseUrl}/api/stock`, { signal: AbortSignal.timeout(3000) })
-        .then(async (r) => {
-          if (!r.ok) return "";
-          const d = await r.json();
-          const idx = (d.indices || []).map((i) => `• ${i.code}: ${i.value} (${i.change >= 0 ? "+" : ""}${i.change}, ${i.changePercent >= 0 ? "+" : ""}${i.changePercent}%)`).join("\n");
-          const gainers = (d.topGainers || []).slice(0, 5).map((s) => `• ${s.ticker}: ${s.price} (${s.changePercent >= 0 ? "+" : ""}${s.changePercent}%)`).join("\n");
-          const losers = (d.topLosers || []).slice(0, 5).map((s) => `• ${s.ticker}: ${s.price} (${s.changePercent}%)`).join("\n");
-          let text = `\n=== DỮ LIỆU CHỨNG KHOÁN VIỆT NAM REALTIME ===\nNguồn: ${d.source || "API"} | Cập nhật: ${d.updated || "now"}\nChỉ số:\n${idx}\nTop tăng giá:\n${gainers}\nTop giảm giá:\n${losers}`;
-          if (d.breadth) {
-            text += `\nĐộ rộng thị trường: Tăng ${d.breadth.advances}, Giảm ${d.breadth.declines}, Đứng ${d.breadth.unchanged} / Tổng ${d.breadth.total}`;
-          }
-          return text;
+      fetchStockFromSupabase()
+        .then((d) => {
+          if (d) return formatStockContext(d, tickers);
+          return fetch(`${baseUrl}/api/stock`, { signal: AbortSignal.timeout(3000) })
+            .then(async (r) => {
+              if (!r.ok) return "";
+              const data = await r.json();
+              return formatStockContext(data, tickers);
+            })
+            .catch(() => "");
         })
         .catch(() => "")
     );
@@ -94,6 +181,7 @@ NHIỆM VỤ:
 - Trả lời về Galaxy Pay: sản phẩm, biểu phí, đối tác, SME in a Box
 - Khi được hỏi "tại sao" → phân tích dựa trên dữ liệu tháng biến động
 - Trả lời về tỷ giá ngoại hối và chứng khoán dựa trên dữ liệu realtime
+- Tra cứu giá từng mã cổ phiếu cụ thể (VD: FPT, VCB, HPG...) — nêu giá, % thay đổi, khối lượng
 - Sale Pipeline: dự án, tiến độ, status (On Processing/Risk/Miss Deadline)
 - KPI Cá nhân BDM, Kênh bán, CTV, OTA, Loa thanh toán, Sản phẩm
 
@@ -103,6 +191,7 @@ QUY TẮC:
 - Không bịa số — nếu không có dữ liệu thì nói rõ
 - Biểu phí ghi rõ "chưa VAT" hay "đã gồm VAT"
 - Khi hỏi tỷ giá hoặc chứng khoán: dùng DỮ LIỆU REALTIME bên dưới, ghi rõ nguồn và thời gian cập nhật
+- Khi hỏi mã cổ phiếu cụ thể: nêu giá (đơn vị VND), biến động %, khối lượng giao dịch. Giá trong dữ liệu đã nhân 1000.
 
 KIẾN THỨC VỀ GALAXY PAY:
 ${knowledge}
