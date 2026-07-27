@@ -80,7 +80,7 @@ export default function Sidebar() {
                 maxHeight: isCollapsed ? 0 : 500,
                 transition: "max-height 0.3s ease",
               }}>
-                {section.items.map((item) => {
+                {section.items.filter((item) => !item.adminOnly || isAdmin).map((item) => {
                   const active = pathname === item.href;
                   return (
                     <Link

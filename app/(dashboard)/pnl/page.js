@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import { getPnlReport } from "@/lib/metrics";
 import { ReportHeader, DateBadge } from "@/components/ui/PageHeader";
 import { vn, vnLoc } from "@/lib/format";
@@ -521,9 +522,25 @@ const TH = {
 const TD = { padding: "9px 12px" };
 
 export default function PnlPage() {
+  const { isAdmin } = useAuth();
   const [view, setView] = useState("overview");
   const data = getPnlReport();
   const selectedProduct = view !== "overview" ? data.products.find((p) => p.key === view) : null;
+
+  if (!isAdmin) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}>
+        <div className="card" style={{ padding: "40px 48px", textAlign: "center", maxWidth: 400 }}>
+          <div style={{ fontSize: 36, marginBottom: 16 }}>&#128274;</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "#ecedf5", marginBottom: 8 }}>Không có quyền truy cập</div>
+          <div style={{ fontSize: 13, color: "#8a8fa6", lineHeight: 1.6 }}>
+            Trang Phân tích P&amp;L chỉ dành cho tài khoản Admin.<br />
+            Vui lòng liên hệ quản trị viên để được cấp quyền.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
