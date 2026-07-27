@@ -1,6 +1,11 @@
-async function tryFetch(url, timeout = 10000) {
+async function tryFetch(url, timeout = 10000, extraHeaders = {}) {
   const res = await fetch(url, {
-    headers: { "User-Agent": "GalaxyPay-Dashboard/1.0" },
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      "Accept": "application/json",
+      "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
+      ...extraHeaders,
+    },
     signal: AbortSignal.timeout(timeout),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -52,6 +57,43 @@ function buildResult(stocks, indices, source) {
 }
 
 const APIS = [
+  {
+    name: "wichart",
+    run: async () => {
+      const [indexRes, stockRes] = await Promise.all([
+        tryFetch("https://wichart.vn/api/indexes/list"),
+        tryFetch("https://wichart.vn/api/thong-ke-thi-truong/bien-dong-gia?san=HOSE"),
+      ]);
+
+      const indexData = indexRes?.data || indexRes || [];
+      const indices = (Array.isArray(indexData) ? indexData : [])
+        .filter((i) => ["VNINDEX", "HNX", "UPCOM"].includes(i.indexCode || i.code))
+        .map((i) => ({
+          code: i.indexCode || i.code,
+          value: +(i.indexValue || i.value || 0),
+          change: +(i.change || 0),
+          changePercent: +(i.changePercent || i.pctChange || 0),
+          volume: i.totalVolume || i.volume || 0,
+          high: +(i.highIndex || i.high || i.indexValue || 0),
+          low: +(i.lowIndex || i.low || i.indexValue || 0),
+          open: +(i.openIndex || i.open || i.indexValue || 0),
+        }));
+
+      const stockData = stockRes?.data || stockRes || [];
+      const stocks = (Array.isArray(stockData) ? stockData : [])
+        .map((s) => ({
+          ticker: s.code || s.ticker || s.symbol || "",
+          price: +(s.price || s.close || s.matchPrice || 0),
+          change: +(s.change || s.priceChange || 0),
+          changePercent: +(s.changePercent || s.pctChange || 0),
+          volume: s.volume || s.totalVolume || 0,
+        }))
+        .filter((s) => s.ticker && s.price > 0);
+
+      if (!stocks.length && !indices.length) throw new Error("No data");
+      return buildResult(stocks, indices, "WiChart");
+    },
+  },
   {
     name: "tcbs",
     run: async () => {
@@ -140,6 +182,40 @@ const APIS = [
       return buildResult(stocks, [], "SSI");
     },
   },
+  {
+    name: "cafef",
+    run: async () => {
+      const url = "https://s.cafef.vn/ajax/marketoverview.ashx";
+      const resp = await tryFetch(url, 10000, {
+        "Referer": "https://cafef.vn/",
+      });
+      const items = resp?.Data || resp?.data || resp || [];
+      if (!Array.isArray(items) || !items.length) throw new Error("No data");
+
+      const indices = [];
+      const stocks = [];
+      for (const s of items) {
+        const code = s.a || s.Symbol || s.code || "";
+        const price = +(s.b || s.Price || s.close || 0);
+        const change = +(s.c || s.Change || 0);
+        const changePct = +(s.d || s.PerChange || 0);
+        const vol = +(s.g || s.Volume || 0);
+        if (!code || !price) continue;
+        if (["VNINDEX", "HNX-INDEX", "UPCOM-INDEX", "HNX", "UPCOM"].includes(code.toUpperCase())) {
+          const normalized = code.toUpperCase().replace("-INDEX", "");
+          indices.push({
+            code: normalized, value: price, change, changePercent: changePct,
+            volume: vol, high: price, low: price, open: price,
+          });
+        } else {
+          stocks.push({ ticker: code, price, change, changePercent: changePct, volume: vol });
+        }
+      }
+
+      if (!stocks.length) throw new Error("No stock data");
+      return buildResult(stocks, indices, "CafeF");
+    },
+  },
 ];
 
 let _cache = null;
@@ -150,8 +226,29 @@ export async function GET() {
   if (_cache && Date.now() - _cacheTime < CACHE_MS) {
     return Response.json(_cache);
   }
+
   const errors = [];
-  for (const api of APIS) {
+
+  const raceResults = await Promise.allSettled(
+    APIS.slice(0, 3).map((api) =>
+      api.run().then((r) => ({ ...r, _apiName: api.name }))
+    )
+  );
+
+  for (const r of raceResults) {
+    if (r.status === "fulfilled" && r.value) {
+      const result = r.value;
+      delete result._apiName;
+      _cache = result;
+      _cacheTime = Date.now();
+      return Response.json(result);
+    }
+    if (r.status === "rejected") {
+      errors.push(r.reason?.message || "Unknown error");
+    }
+  }
+
+  for (const api of APIS.slice(3)) {
     try {
       const result = await api.run();
       _cache = result;

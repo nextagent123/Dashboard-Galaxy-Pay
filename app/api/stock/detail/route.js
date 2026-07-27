@@ -1,6 +1,10 @@
 async function tryFetch(url, timeout = 10000) {
   const res = await fetch(url, {
-    headers: { "User-Agent": "GalaxyPay-Dashboard/1.0" },
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      "Accept": "application/json",
+      "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
+    },
     signal: AbortSignal.timeout(timeout),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -124,13 +128,14 @@ export async function GET(request) {
   }
 
   const errors = [];
-  for (const api of APIS) {
-    try {
-      const result = await api.run(ticker);
-      return Response.json(result);
-    } catch (e) {
-      errors.push(`${api.name}: ${e.message}`);
-      console.error(`[stock-detail] ${api.name} failed:`, e.message);
+  const results = await Promise.allSettled(APIS.map((api) => api.run(ticker)));
+  for (const r of results) {
+    if (r.status === "fulfilled" && r.value) {
+      return Response.json(r.value);
+    }
+    if (r.status === "rejected") {
+      errors.push(r.reason?.message || "Unknown error");
+      console.error(`[stock-detail] API failed:`, r.reason?.message);
     }
   }
   console.error("[stock-detail] All APIs failed:", errors);

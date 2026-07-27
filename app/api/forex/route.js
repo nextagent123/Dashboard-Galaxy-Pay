@@ -63,24 +63,33 @@ export async function GET() {
   }
 
   const errors = [];
-  for (const api of APIS) {
-    try {
+  const results = await Promise.allSettled(
+    APIS.map(async (api) => {
       const res = await fetch(api.url, {
-        headers: { "User-Agent": "GalaxyPay-Dashboard/1.0" },
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+          "Accept": "application/json",
+        },
         signal: AbortSignal.timeout(8000),
       });
-      if (!res.ok) {
-        errors.push(`${api.name}: HTTP ${res.status}`);
-        continue;
-      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const result = api.parse(data);
-      _cache = result;
+      return api.parse(data);
+    })
+  );
+
+  for (const r of results) {
+    if (r.status === "fulfilled" && r.value) {
+      _cache = r.value;
       _cacheTime = Date.now();
-      return Response.json(result);
-    } catch (e) {
-      errors.push(`${api.name}: ${e.message}`);
-      console.error(`[forex] ${api.name} failed:`, e.message);
+      return Response.json(r.value);
+    }
+  }
+
+  for (const r of results) {
+    if (r.status === "rejected") {
+      errors.push(r.reason?.message || "Unknown error");
+      console.error(`[forex] API failed:`, r.reason?.message);
     }
   }
   console.error("[forex] All APIs failed:", errors);
