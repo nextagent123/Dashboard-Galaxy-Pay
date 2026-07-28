@@ -9,7 +9,7 @@ import Icon from "./ui/Icon";
 import { useAuth } from "./AuthProvider";
 import logo from "../public/galaxy-pay-logo.webp";
 
-export default function Sidebar() {
+export default function Sidebar({ desktopHidden, onDesktopToggle }) {
   const pathname = usePathname();
   const { isAdmin, openUserAdmin } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -34,7 +34,28 @@ export default function Sidebar() {
         borderBottom: "1px solid rgba(124,108,255,0.12)",
         marginBottom: 8,
       }}>
-        <Image src={logo} alt="Galaxy Pay" width={160} height={40} style={{ width: 160, height: "auto", display: "block" }} priority />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Image src={logo} alt="Galaxy Pay" width={160} height={40} style={{ width: 160, height: "auto", display: "block" }} priority />
+          <button
+            onClick={onDesktopToggle}
+            className="sidebar-desktop-toggle"
+            aria-label="Ẩn sidebar"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 6, width: 28, height: 28,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", color: "#6b6f85",
+              transition: "all 0.18s", flexShrink: 0,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,108,255,0.15)"; e.currentTarget.style.color = "#a78bfa"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "#6b6f85"; }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 19l-7-7 7-7" /><path d="M18 19V5" />
+            </svg>
+          </button>
+        </div>
         <div style={{
           fontSize: 10.5, color: "#6b6f85", fontWeight: 500,
           letterSpacing: 0.3, paddingLeft: 2,
@@ -213,6 +234,30 @@ export default function Sidebar() {
 
       {mobileOpen && <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
 
+      {desktopHidden && (
+        <button
+          onClick={onDesktopToggle}
+          className="sidebar-reopen-btn"
+          aria-label="Mở sidebar"
+          style={{
+            position: "fixed", top: 16, left: 16, zIndex: 200,
+            width: 36, height: 36, borderRadius: 10,
+            background: "rgba(15,16,28,0.95)",
+            border: "1px solid rgba(124,108,255,0.25)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", color: "#a78bfa",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.4)",
+            transition: "all 0.18s",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,108,255,0.18)"; e.currentTarget.style.borderColor = "rgba(124,108,255,0.5)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15,16,28,0.95)"; e.currentTarget.style.borderColor = "rgba(124,108,255,0.25)"; }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M13 5l7 7-7 7" /><path d="M6 5v14" />
+          </svg>
+        </button>
+      )}
+
       <aside
         style={{
           width: 260,
@@ -225,6 +270,8 @@ export default function Sidebar() {
           gap: 0,
           height: "100vh",
           overflowY: "auto",
+          transform: desktopHidden ? "translateX(-100%)" : "translateX(0)",
+          transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
         className={mobileOpen ? "sidebar sidebar--open" : "sidebar"}
       >

@@ -300,6 +300,13 @@ button {
 
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 1024px) {
+  .sidebar-desktop-toggle,
+  .sidebar-reopen-btn {
+    display: none !important;
+  }
+  .main-content {
+    margin-left: 0 !important;
+  }
   .app-shell {
     flex-direction: column;
   }
