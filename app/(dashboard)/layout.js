@@ -29,6 +29,7 @@ function Gate({ children }) {
   const { ready, user } = useAuth();
   const [dataReady, setDataReady] = useState(false);
   const [syncError, setSyncError] = useState(false);
+  const [sidebarHidden, setSidebarHidden] = useState(false);
 
   useEffect(() => {
     syncDashboardData()
@@ -43,10 +44,10 @@ function Gate({ children }) {
   if (!user) return <LoginScreen />;
   return (
     <div className="app-shell">
-      <Sidebar />
+      <Sidebar desktopHidden={sidebarHidden} onDesktopToggle={() => setSidebarHidden((v) => !v)} />
       <UserBadge />
       <UserAdminModal />
-      <main className="main-content">
+      <main className="main-content" style={sidebarHidden ? { marginLeft: 0, transition: "margin-left 0.3s cubic-bezier(0.4,0,0.2,1)" } : { transition: "margin-left 0.3s cubic-bezier(0.4,0,0.2,1)" }}>
         {syncError && (
           <div style={{
             padding: "10px 16px", margin: "0 0 12px", borderRadius: 8,
