@@ -13,7 +13,7 @@ function LoadingSpinner() {
   return (
     <div style={{
       display: "flex", alignItems: "center", justifyContent: "center",
-      height: "100vh", background: "#0a0b12",
+      height: "100vh", background: "var(--bg)",
     }}>
       <div style={{
         width: 40, height: 40, border: "3px solid rgba(124,108,255,0.2)",

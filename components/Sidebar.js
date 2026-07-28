@@ -242,7 +242,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
           style={{
             position: "fixed", top: 16, left: 16, zIndex: 200,
             width: 36, height: 36, borderRadius: 10,
-            background: "rgba(15,16,28,0.95)",
+            background: "var(--bg)",
             border: "1px solid rgba(124,108,255,0.25)",
             display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", color: "#a78bfa",
@@ -250,7 +250,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
             transition: "all 0.18s",
           }}
           onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,108,255,0.18)"; e.currentTarget.style.borderColor = "rgba(124,108,255,0.5)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(15,16,28,0.95)"; e.currentTarget.style.borderColor = "rgba(124,108,255,0.25)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "var(--bg)"; e.currentTarget.style.borderColor = "rgba(124,108,255,0.25)"; }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M13 5l7 7-7 7" /><path d="M6 5v14" />
@@ -263,7 +263,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
           width: 260,
           flexShrink: 0,
           borderRight: "1px solid rgba(124,108,255,0.08)",
-          background: "linear-gradient(180deg, rgba(15,16,28,0.98), rgba(10,11,18,0.99))",
+          background: "var(--sidebar-bg)",
           padding: "20px 14px",
           display: "flex",
           flexDirection: "column",

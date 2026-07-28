@@ -1,5 +1,8 @@
 :root {
   --bg: #0a0b12;
+  --bg-body: radial-gradient(1200px 700px at 12% -8%, rgba(124, 108, 255, 0.14), transparent 55%),
+    radial-gradient(900px 600px at 100% 0%, rgba(157, 123, 255, 0.08), transparent 50%),
+    var(--bg);
   --text: #ecedf5;
   --text-dim: #8a8fa6;
   --text-dimmer: #a7abbe;
@@ -16,6 +19,35 @@
   --green: #34d399;
   --amber: #fbbf24;
   --red: #fb7185;
+  --sidebar-bg: linear-gradient(180deg, rgba(15,16,28,0.98), rgba(10,11,18,0.99));
+  --badge-bg: rgba(20,22,36,0.85);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.09);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg: #f0f1f7;
+  --bg-body: linear-gradient(135deg, #f0f1f7 0%, #e8e5f5 50%, #f0f1f7 100%);
+  --text: #1a1b2e;
+  --text-dim: #5b5f74;
+  --text-dimmer: #4d5165;
+  --text-faint: #8a8fa6;
+  --text-faintest: #a7abbe;
+  --accent: #6354e0;
+  --accent-2: #7c6cff;
+  --accent-light: #4a3fc0;
+  --border: rgba(0, 0, 0, 0.09);
+  --border-soft: rgba(0, 0, 0, 0.07);
+  --border-faint: rgba(0, 0, 0, 0.04);
+  --card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.6));
+  --card-bg-soft: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.5));
+  --green: #059669;
+  --amber: #d97706;
+  --red: #e11d48;
+  --sidebar-bg: linear-gradient(180deg, #ffffff, #f8f7fc);
+  --badge-bg: rgba(255, 255, 255, 0.9);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.12);
+  color-scheme: light;
 }
 
 * {
@@ -30,16 +62,9 @@ body {
   overflow-x: hidden;
 }
 
-html {
-  color-scheme: dark;
-}
-
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(1200px 700px at 12% -8%, rgba(124, 108, 255, 0.14), transparent 55%),
-    radial-gradient(900px 600px at 100% 0%, rgba(157, 123, 255, 0.08), transparent 50%),
-    var(--bg);
+  background: var(--bg-body);
   color: var(--text);
   font-family: var(--font-manrope), "Manrope", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -78,7 +103,7 @@ button {
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.09);
+  background: var(--scrollbar-thumb);
   border-radius: 8px;
 }
 ::-webkit-scrollbar-track {
@@ -98,6 +123,31 @@ button {
 
 .rise {
   animation: gpRise 0.5s ease both;
+}
+
+/* ===================== LIGHT THEME OVERRIDES ===================== */
+[data-theme="light"] body {
+  -webkit-font-smoothing: auto;
+}
+[data-theme="light"] .sidebar {
+  background: var(--sidebar-bg) !important;
+  border-right-color: var(--border) !important;
+}
+[data-theme="light"] .card,
+[data-theme="light"] .kpi-card {
+  background: var(--card-bg);
+  border-color: var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .seg-tab.active {
+  color: #fff;
+}
+[data-theme="light"] .mobile-topbar {
+  background: rgba(240, 241, 247, 0.92) !important;
+  border-bottom-color: var(--border) !important;
+}
+[data-theme="light"] .sidebar-backdrop {
+  background: rgba(0, 0, 0, 0.2) !important;
 }
 
 /* ===================== APP SHELL ===================== */
