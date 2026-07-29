@@ -11,7 +11,7 @@ import logo from "../public/galaxy-pay-logo.webp";
 
 export default function Sidebar({ desktopHidden, onDesktopToggle }) {
   const pathname = usePathname();
-  const { isAdmin, openUserAdmin } = useAuth();
+  const { isAdmin, allowedRoutes } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [prevPathname, setPrevPathname] = useState(pathname);
   const [collapsed, setCollapsed] = useState({});
@@ -65,8 +65,14 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
       {/* Nav sections */}
       <div style={{ flex: 1, overflowY: "auto", padding: "4px 0" }}>
         {NAV_SECTIONS.map((section) => {
+          const visibleItems = section.items.filter((item) => {
+            if (item.adminOnly && !isAdmin) return false;
+            if (allowedRoutes && !allowedRoutes.includes(item.href)) return false;
+            return true;
+          });
+          if (visibleItems.length === 0) return null;
           const isCollapsed = collapsed[section.header];
-          const hasActive = section.items.some((item) => pathname === item.href);
+          const hasActive = visibleItems.some((item) => pathname === item.href);
           return (
             <div key={section.header} style={{ marginBottom: 4 }}>
               <button
@@ -101,7 +107,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
                 maxHeight: isCollapsed ? 0 : 500,
                 transition: "max-height 0.3s ease",
               }}>
-                {section.items.filter((item) => !item.adminOnly || isAdmin).map((item) => {
+                {visibleItems.map((item) => {
                   const active = pathname === item.href;
                   return (
                     <Link

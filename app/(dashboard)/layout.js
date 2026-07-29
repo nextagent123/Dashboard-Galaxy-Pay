@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { AuthProvider, useAuth } from "@/components/AuthProvider";
 import LoginScreen from "@/components/LoginScreen";
 import Sidebar from "@/components/Sidebar";
@@ -26,10 +27,12 @@ function LoadingSpinner() {
 }
 
 function Gate({ children }) {
-  const { ready, user } = useAuth();
+  const { ready, user, allowedRoutes } = useAuth();
   const [dataReady, setDataReady] = useState(false);
   const [syncError, setSyncError] = useState(false);
   const [sidebarHidden, setSidebarHidden] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     syncDashboardData()
@@ -40,8 +43,15 @@ function Gate({ children }) {
       });
   }, []);
 
+  useEffect(() => {
+    if (ready && user && allowedRoutes && !allowedRoutes.includes(pathname)) {
+      router.replace(allowedRoutes[0]);
+    }
+  }, [ready, user, allowedRoutes, pathname, router]);
+
   if (!ready || !dataReady) return <LoadingSpinner />;
   if (!user) return <LoginScreen />;
+  if (allowedRoutes && !allowedRoutes.includes(pathname)) return <LoadingSpinner />;
   return (
     <div className="app-shell">
       <Sidebar desktopHidden={sidebarHidden} onDesktopToggle={() => setSidebarHidden((v) => !v)} />
