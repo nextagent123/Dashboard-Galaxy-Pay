@@ -21,7 +21,7 @@ const PERIOD_OPTIONS = [
 ];
 
 export default function HomePage() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, allowedRoutes } = useAuth();
   const [period, setPeriod] = useState("year");
   const data = getHome(period);
   return (
@@ -240,7 +240,11 @@ export default function HomePage() {
           <span style={{ fontSize: 12, color: "#8a8fa6" }}>Truy cập nhanh</span>
         </div>
         <div className="grid-4">
-          {FEATURES.filter((f) => !f.adminOnly || isAdmin).map((f) => (
+          {FEATURES.filter((f) => {
+            if (f.adminOnly && !isAdmin) return false;
+            if (allowedRoutes && !allowedRoutes.includes(f.href)) return false;
+            return true;
+          }).map((f) => (
             <Link
               key={f.href}
               href={f.href}

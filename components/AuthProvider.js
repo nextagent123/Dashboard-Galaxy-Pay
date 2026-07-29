@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   ADMIN_USERS,
+  RESTRICTED_USERS,
   clearSession,
   getAllUsers,
   initialsFromName,
@@ -64,6 +65,7 @@ export function AuthProvider({ children }) {
 
   const allUsers = useMemo(() => getAllUsers(extraUsers, overrides), [extraUsers, overrides]);
   const isAdmin = !!(user && ADMIN_USERS.indexOf(user.u) >= 0);
+  const allowedRoutes = user && RESTRICTED_USERS[user.u] ? RESTRICTED_USERS[user.u] : null;
 
   async function login(username, password) {
     const u = (username || "").trim().toLowerCase();
@@ -129,6 +131,7 @@ export function AuthProvider({ children }) {
     ready,
     user,
     isAdmin,
+    allowedRoutes,
     allUsers,
     login,
     logout,
