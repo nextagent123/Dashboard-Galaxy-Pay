@@ -1,11 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useAuth } from "./AuthProvider";
 
 const WELCOME_MSG = {
   role: "assistant",
   content:
     "Chào bạn! Mình là **Trợ lý Khối Kinh doanh** 👋\n\nHỏi mình bất cứ điều gì về chỉ số kinh doanh, sản phẩm, biểu phí hay tiến độ KPI nhé!",
+};
+
+const WELCOME_MSG_RESTRICTED = {
+  role: "assistant",
+  content:
+    "Chào bạn! Mình là **Trợ lý AI** 👋\n\nMình có thể hỗ trợ bạn trả lời các câu hỏi chung. Hãy hỏi mình bất cứ điều gì nhé!",
 };
 
 const SUGGESTIONS = [
@@ -130,8 +137,10 @@ function inlineFormat(text) {
 }
 
 export default function ChatBot() {
+  const { allowedRoutes } = useAuth();
+  const restricted = !!allowedRoutes;
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([WELCOME_MSG]);
+  const [messages, setMessages] = useState([restricted ? WELCOME_MSG_RESTRICTED : WELCOME_MSG]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
@@ -149,7 +158,7 @@ export default function ChatBot() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
-  const showSuggestions = messages.length <= 1 && !loading;
+  const showSuggestions = messages.length <= 1 && !loading && !restricted;
 
   async function handleSend(e, overrideText) {
     e?.preventDefault();
@@ -173,7 +182,7 @@ export default function ChatBot() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({ messages: apiMessages, restricted }),
       });
 
       if (!res.ok) {

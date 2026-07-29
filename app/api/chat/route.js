@@ -163,6 +163,21 @@ async function fetchLiveContext(question, baseUrl) {
   return results.filter(Boolean).join("\n");
 }
 
+const RESTRICTED_SYSTEM_PROMPT = `Bạn là một trợ lý AI thông minh, thân thiện.
+
+PHONG CÁCH TRẢ LỜI:
+- Ngắn gọn, súc tích, đi thẳng vào trọng tâm
+- Mềm mại, chuyên nghiệp, giọng thân thiện
+- Xưng "mình", gọi "bạn"
+- Trả lời bằng tiếng Việt
+- Dùng emoji vừa phải
+
+QUY TẮC:
+- Trả lời các câu hỏi chung dựa trên kiến thức của bạn
+- KHÔNG cung cấp bất kỳ thông tin nội bộ nào về Galaxy Pay, bao gồm: sản phẩm, biểu phí, đối tác, chỉ số kinh doanh, KPI, doanh thu, lợi nhuận, nhân sự, quy trình nội bộ
+- Nếu được hỏi về Galaxy Pay hoặc thông tin kinh doanh nội bộ, lịch sự từ chối: "Mình không có quyền truy cập thông tin này. Vui lòng liên hệ quản trị viên nếu cần hỗ trợ thêm nhé!"
+- Có thể trả lời các câu hỏi chung về kinh tế, tài chính, công nghệ, hoặc bất kỳ chủ đề nào khác`;
+
 function buildSystemPrompt(knowledge, liveData) {
   return `Bạn là **Trợ lý Khối Kinh doanh** — trợ lý AI của Galaxy Pay Dashboard, hệ thống báo cáo kinh doanh nội bộ Công ty TNHH Galaxy Pay.
 
@@ -372,19 +387,24 @@ function workersAIStreamResponse(aiStream) {
 
 export async function POST(request) {
   try {
-    const { messages } = await request.json();
+    const { messages, restricted } = await request.json();
     const sanitized = (Array.isArray(messages) ? messages : [])
       .filter((m) => m && typeof m.content === "string" && m.content.trim())
       .map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.content.slice(0, 4000) }));
     const recent = sanitized.slice(-10);
     const lastMsg = recent[recent.length - 1]?.content || "";
 
-    const baseUrl = new URL(request.url).origin;
-    const [knowledge, liveData] = await Promise.all([
-      getKnowledge(),
-      fetchLiveContext(lastMsg, baseUrl),
-    ]);
-    const systemPrompt = buildSystemPrompt(knowledge, liveData);
+    let systemPrompt;
+    if (restricted) {
+      systemPrompt = RESTRICTED_SYSTEM_PROMPT;
+    } else {
+      const baseUrl = new URL(request.url).origin;
+      const [knowledge, liveData] = await Promise.all([
+        getKnowledge(),
+        fetchLiveContext(lastMsg, baseUrl),
+      ]);
+      systemPrompt = buildSystemPrompt(knowledge, liveData);
+    }
 
     const [groqResult, aiStream] = await Promise.all([
       tryGroq(recent, systemPrompt),
