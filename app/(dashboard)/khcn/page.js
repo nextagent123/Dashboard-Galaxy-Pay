@@ -47,7 +47,7 @@ export default function KhcnPage() {
           </div>
 
           <div style={{ flex: 1, minWidth: 260 }}>
-            <div style={{ fontSize: 11, letterSpacing: 1.6, fontWeight: 800, color: "#b9a8ff", textTransform: "uppercase" }}>
+            <div style={{ fontSize: 11, letterSpacing: 1.6, fontWeight: 800, color: "var(--accent-light)", textTransform: "uppercase" }}>
               Tổng doanh thu KHCN
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 10 }}>

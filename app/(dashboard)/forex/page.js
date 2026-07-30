@@ -159,7 +159,7 @@ export default function ForexPage() {
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 10 }}>
               <span className="mono" style={{
                 fontSize: 46, fontWeight: 800, letterSpacing: -1.5, lineHeight: 1,
-                background: "linear-gradient(120deg,#fff,#c3b9ff)", WebkitBackgroundClip: "text",
+                background: "linear-gradient(120deg,var(--text),#c3b9ff)", WebkitBackgroundClip: "text",
                 backgroundClip: "text", WebkitTextFillColor: "transparent",
               }}>
                 {loading ? "—" : fmtVND(usdVnd)}

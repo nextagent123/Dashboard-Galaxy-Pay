@@ -279,7 +279,7 @@ export default function PlanningPage() {
         subtitle="Phân bổ theo nhóm sản phẩm"
         right={
           <Legend items={[
-            { name: "Chi phí biến đổi", color: "#6b6f85" },
+            { name: "Chi phí biến đổi", color: "var(--text-faint)" },
             { name: "Lợi nhuận gộp", color: "#3987e5" },
           ]} />
         }
@@ -621,7 +621,7 @@ function PnLStructure() {
                     <div style={{
                       height: 32, display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: 11, fontWeight: 600, color: "#fff",
-                      background: "#6b6f85",
+                      background: "var(--text-faint)",
                       width: `${costPct.toFixed(1)}%`,
                     }}>
                       {costPct > 15 && wTotal > 20 ? `${fv(g.cost)}` : ""}
@@ -641,7 +641,7 @@ function PnLStructure() {
                 </div>
                 <div style={{ display: "flex", gap: 16, fontSize: 10.5, color: "var(--text-dimmer)", marginTop: 4 }}>
                   <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: 2, background: "#6b6f85" }} />CP: {fv(g.cost)} tỷ ({fv(costPct)}%)
+                    <span style={{ width: 8, height: 8, borderRadius: 2, background: "var(--text-faint)" }} />CP: {fv(g.cost)} tỷ ({fv(costPct)}%)
                   </span>
                   <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <span style={{ width: 8, height: 8, borderRadius: 2, background: g.color }} />LN: {fv(g.gp)} tỷ ({fv(gpPct)}%)
