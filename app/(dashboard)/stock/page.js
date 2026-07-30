@@ -86,8 +86,21 @@ const fmtVol = (v) => {
   if (v >= 1e3) return (v / 1e3).toFixed(0) + "K";
   return String(v);
 };
-const chgColor = (v) => (v > 0 ? "#34d399" : v < 0 ? "#ef4444" : "#9ca3af");
+const chgColor = (v) => {
+  if (v > 6) return "#a78bfa";
+  if (v > 0) return "#34d399";
+  if (v < -6) return "#67e8f9";
+  if (v < 0) return "#ef4444";
+  return "#f59e0b";
+};
 const chgSign = (v) => (v > 0 ? "+" : "");
+const chgBg = (v) => {
+  if (v > 6) return "rgba(167,139,250,0.25)";
+  if (v > 0) return "rgba(34,197,94,0.2)";
+  if (v < -6) return "rgba(103,232,249,0.2)";
+  if (v < 0) return "rgba(239,68,68,0.2)";
+  return "rgba(245,158,11,0.2)";
+};
 const chgArrow = (v) => (v > 0 ? "▲" : v < 0 ? "▼" : "—");
 
 const CARD = {
@@ -247,7 +260,7 @@ function StockTable({ title, icon, stocks, accentColor, onTickerClick }) {
                         fontSize: 12,
                         fontWeight: 700,
                         color: "#fff",
-                        background: s.changePercent > 0 ? "rgba(34,197,94,0.2)" : s.changePercent < 0 ? "rgba(239,68,68,0.2)" : "rgba(107,114,128,0.2)",
+                        background: chgBg(s.changePercent),
                       }}
                     >
                       {chgSign(s.changePercent)}{fmtNum(s.changePercent)}%
@@ -484,7 +497,7 @@ function BlueChipSection({ stocks, onTickerClick }) {
                         fontSize: 12,
                         fontWeight: 700,
                         color: "#fff",
-                        background: s.changePercent > 0 ? "rgba(34,197,94,0.2)" : s.changePercent < 0 ? "rgba(239,68,68,0.2)" : "rgba(107,114,128,0.2)",
+                        background: chgBg(s.changePercent),
                       }}
                     >
                       {chgSign(s.changePercent)}{fmtNum(s.changePercent)}%
