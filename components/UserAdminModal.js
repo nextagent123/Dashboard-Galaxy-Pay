@@ -5,7 +5,7 @@ import { useAuth } from "./AuthProvider";
 import { USERS } from "@/lib/auth";
 
 export default function UserAdminModal() {
-  const { showUserAdmin, closeUserAdmin, allUsers, deleteExtraUser, resetPassword, signup } = useAuth();
+  const { showUserAdmin, closeUserAdmin, allUsers, deleteUser, resetPassword, signup } = useAuth();
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [username, setUsername] = useState("");
@@ -43,9 +43,9 @@ export default function UserAdminModal() {
     setSuccess("Đã đổi mật khẩu cho @" + resetTarget);
   }
 
-  function handleDelete(u) {
+  async function handleDelete(u) {
     if (!confirm("Xóa tài khoản @" + u + "?")) return;
-    deleteExtraUser(u);
+    await deleteUser(u);
   }
 
   return (
@@ -261,7 +261,7 @@ export default function UserAdminModal() {
           </form>
 
           <div style={{ fontSize: 11, color: "#5b5f74", textAlign: "center", paddingTop: 4 }}>
-            Tài khoản lưu trên trình duyệt của máy này. Không đồng bộ giữa các thiết bị.
+            Tài khoản được lưu trên Supabase và đồng bộ trên mọi thiết bị.
           </div>
         </div>
       </div>
