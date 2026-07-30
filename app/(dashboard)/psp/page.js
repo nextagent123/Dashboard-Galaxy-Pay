@@ -157,7 +157,7 @@ function Chip({ children, large, style }) {
         padding: large ? "8px 12px" : "6px 10px",
         borderRadius: 8,
         border: "1px solid var(--border)",
-        background: "rgba(255,255,255,0.04)",
+        background: "var(--surface-soft)",
         fontSize: large ? 13 : 12,
         fontWeight: 600,
         whiteSpace: "nowrap",
@@ -205,7 +205,7 @@ function CurrencyDot({ children }) {
         fontSize: 11,
         fontWeight: 600,
         color: "var(--text-dim)",
-        background: "rgba(255,255,255,0.03)",
+        background: "var(--surface-hover)",
       }}
     >
       {children}
@@ -261,7 +261,7 @@ export default function PspPage() {
                 padding: "5px 12px",
                 borderRadius: 7,
                 border: "1px solid var(--border)",
-                background: "rgba(255,255,255,0.03)",
+                background: "var(--surface-hover)",
                 fontSize: 12,
                 fontWeight: 600,
               }}
@@ -335,7 +335,7 @@ export default function PspPage() {
                 padding: 14,
                 borderRadius: 10,
                 border: "1px solid var(--border)",
-                background: "rgba(255,255,255,0.02)",
+                background: "var(--surface-hover)",
                 display: "flex",
                 flexDirection: "column",
                 gap: 5,

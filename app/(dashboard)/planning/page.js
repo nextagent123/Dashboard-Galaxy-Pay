@@ -316,7 +316,7 @@ function DonutChart({ data, size = 100 }) {
   return (
     <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: "block", transform: "rotate(-90deg)" }}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border-soft)" strokeWidth={stroke} />
         {data.map((d) => {
           const pct = d.total / total;
           const dashLen = c * pct - 2;
@@ -380,11 +380,11 @@ function KpiCard({ label, value, unit, data, color, sub, h1, h2 }) {
         <circle cx={pts[pts.length - 1].x} cy={pts[pts.length - 1].y} r={3} fill={color} />
       </svg>
       <div style={{ display: "flex", gap: 8, marginTop: 10, fontSize: 10.5 }}>
-        <div style={{ flex: 1, padding: "5px 8px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-soft)" }}>
+        <div style={{ flex: 1, padding: "5px 8px", borderRadius: 6, background: "var(--surface-soft)", border: "1px solid var(--border-soft)" }}>
           <span style={{ color: "var(--text-dim)" }}>H1 </span>
           <span className="mono" style={{ fontWeight: 700, color: "var(--text)" }}>{h1}</span>
         </div>
-        <div style={{ flex: 1, padding: "5px 8px", borderRadius: 6, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-soft)" }}>
+        <div style={{ flex: 1, padding: "5px 8px", borderRadius: 6, background: "var(--surface-soft)", border: "1px solid var(--border-soft)" }}>
           <span style={{ color: "var(--text-dim)" }}>H2 </span>
           <span className="mono" style={{ fontWeight: 700, color: "var(--text)" }}>{h2}</span>
         </div>
@@ -536,7 +536,7 @@ function ProductTable() {
     <div className="table-wrap" style={{ border: "1px solid var(--border)", borderRadius: 12 }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, minWidth: 560 }}>
         <thead>
-          <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.6, background: "rgba(255,255,255,0.03)" }}>
+          <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.6, background: "var(--surface-hover)" }}>
             <th style={TH}>Sản phẩm</th>
             <th style={{ ...TH, textAlign: "right" }}>Doanh thu (tỷ)</th>
             <th style={{ ...TH, textAlign: "right" }}>LN gộp (tỷ)</th>
@@ -667,7 +667,7 @@ function MonthlyDetailTable() {
     <div className="table-wrap" style={{ marginTop: 14, border: "1px solid var(--border)", borderRadius: 12 }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, minWidth: 780 }}>
         <thead>
-          <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.5, background: "rgba(255,255,255,0.03)" }}>
+          <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.5, background: "var(--surface-hover)" }}>
             <th style={TH}>Tháng</th>
             <th style={{ ...TH, textAlign: "right" }}>DT (tỷ)</th>
             <th style={{ ...TH, textAlign: "right" }}>CP BĐ (tỷ)</th>
@@ -766,7 +766,7 @@ function MerchantTable() {
     <div className="table-wrap" style={{ marginTop: 14, border: "1px solid var(--border)", borderRadius: 12 }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 700 }}>
         <thead>
-          <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.5, background: "rgba(255,255,255,0.03)" }}>
+          <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.5, background: "var(--surface-hover)" }}>
             <th style={TH}>Merchant</th>
             <th style={{ ...TH, textAlign: "right" }}>Doanh thu (tỷ)</th>
             <th style={{ ...TH, textAlign: "right" }}>Chi phí BĐ (tỷ)</th>
@@ -783,7 +783,7 @@ function MerchantTable() {
             const gCost = items.reduce((s, m) => s + m.cost, 0);
             const gGP = gRev - gCost;
             return [
-              <tr key={`h-${g.key}`} style={{ background: "rgba(255,255,255,0.02)" }}>
+              <tr key={`h-${g.key}`} style={{ background: "var(--surface-hover)" }}>
                 <td colSpan={7} style={{ padding: "8px 12px", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: 0.5, color: "var(--text-dim)", borderBottom: "1.5px solid var(--border)" }}>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
                     <span style={{ width: 8, height: 8, borderRadius: 2, background: g.color }} />
@@ -815,7 +815,7 @@ function MerchantTable() {
                   </tr>
                 );
               }),
-              <tr key={`s-${g.key}`} style={{ borderTop: "1.5px solid var(--border)", background: "rgba(255,255,255,0.015)" }}>
+              <tr key={`s-${g.key}`} style={{ borderTop: "1.5px solid var(--border)", background: "var(--surface-hover)" }}>
                 <td style={{ ...TD, fontWeight: 700, color: g.color }}>Subtotal {g.label}</td>
                 <td className="mono" style={{ ...TD, textAlign: "right", fontWeight: 700 }}>{fv(gRev)}</td>
                 <td className="mono" style={{ ...TD, textAlign: "right", fontWeight: 700 }}>{fv(gCost)}</td>

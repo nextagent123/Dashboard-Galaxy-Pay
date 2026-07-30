@@ -112,7 +112,7 @@ export default function KhcnPage() {
         <div className="table-wrap" style={{ marginTop: 14, border: "1px solid var(--border)", borderRadius: 12 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 520 }}>
             <thead>
-              <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "rgba(255,255,255,0.03)" }}>
+              <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "var(--surface-hover)" }}>
                 <th style={TH}>#</th>
                 <th style={TH}>Khách hàng</th>
                 <th style={{ ...TH, textAlign: "right" }}>SL</th>
@@ -152,14 +152,14 @@ export default function KhcnPage() {
           <input
             type="text" value={query} onChange={(e) => setQuery(e.target.value)}
             placeholder="Tìm khách hàng..."
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", borderRadius: 10, padding: "9px 12px", fontSize: 12.5, color: "var(--text)", outline: "none", minWidth: 180 }}
+            style={{ background: "var(--surface-soft)", border: "1px solid var(--border)", borderRadius: 10, padding: "9px 12px", fontSize: 12.5, color: "var(--text)", outline: "none", minWidth: 180 }}
           />
         }
       >
         <div className="table-wrap" style={{ marginTop: 14, border: "1px solid var(--border)", borderRadius: 12 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 520 }}>
             <thead>
-              <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "rgba(255,255,255,0.03)" }}>
+              <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "var(--surface-hover)" }}>
                 <th style={TH}>Khách hàng</th>
                 <th style={TH}>Tháng</th>
                 <th style={{ ...TH, textAlign: "right" }}>SL</th>
