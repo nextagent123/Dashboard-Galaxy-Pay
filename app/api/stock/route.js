@@ -102,7 +102,11 @@ async function fetchFromTradingView() {
     return res.json();
   };
 
-  const [indexResp, stockResp] = await Promise.all([
+  const watchlistTickers = [...BLUE].flatMap((t) => [
+    `HOSE:${t}`, `HNX:${t}`, `UPCOM:${t}`,
+  ]);
+
+  const [indexResp, stockResp, watchResp] = await Promise.all([
     post({
       symbols: { tickers: ["HOSE:VNINDEX", "HNX:HNXINDEX", "UPCOM:UPCOMINDEX"] },
       columns: ["close", "change", "open", "high", "low", "volume"],
@@ -114,6 +118,10 @@ async function fetchFromTradingView() {
       sort: { sortBy: "volume", sortOrder: "desc" },
       range: [0, 500],
     }),
+    post({
+      symbols: { tickers: watchlistTickers },
+      columns: ["close", "change", "volume"],
+    }).catch(() => null),
   ]);
 
   const indices = [];
@@ -133,20 +141,24 @@ async function fetchFromTradingView() {
     }
   }
 
-  const stocks = [];
-  if (stockResp?.data) {
-    for (const item of stockResp.data) {
+  const stockMap = new Map();
+  const parseStockItems = (items) => {
+    if (!items) return;
+    for (const item of items) {
       const [close, changePct, volume] = item.d;
       const ticker = item.s.split(":")[1];
-      if (!close || !ticker) continue;
-      stocks.push({
+      if (!close || !ticker || stockMap.has(ticker)) continue;
+      stockMap.set(ticker, {
         ticker, price: +close.toFixed(2),
         change: +(close * changePct / 100).toFixed(2),
         changePercent: +changePct.toFixed(2),
         volume: volume || 0,
       });
     }
-  }
+  };
+  parseStockItems(stockResp?.data);
+  parseStockItems(watchResp?.data);
+  const stocks = Array.from(stockMap.values());
 
   if (!stocks.length) throw new Error("No data");
   return buildResult(stocks, indices, "TradingView");
