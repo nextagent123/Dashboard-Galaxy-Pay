@@ -16,20 +16,20 @@ const VIEWS = [
 function StatTile({ label, value, sub, accent, trend, trendColor }) {
   return (
     <div className="card" style={{ padding: "18px 20px" }}>
-      <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 0.8, color: "#8a8fa6", textTransform: "uppercase", marginBottom: 8 }}>
+      <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 0.8, color: "var(--text-dim)", textTransform: "uppercase", marginBottom: 8 }}>
         {label}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-        <span style={{ fontSize: 26, fontWeight: 800, color: accent || "#ecedf5", fontVariantNumeric: "tabular-nums" }}>
+        <span style={{ fontSize: 26, fontWeight: 800, color: accent || "var(--text-strong)", fontVariantNumeric: "tabular-nums" }}>
           {value}
         </span>
         {trend != null && (
-          <span style={{ fontSize: 12, fontWeight: 700, color: trendColor || "#8a8fa6" }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: trendColor || "var(--text-dim)" }}>
             {trend >= 0 ? "+" : ""}{vn(trend, 1)}%
           </span>
         )}
       </div>
-      {sub && <div style={{ fontSize: 11.5, color: "#6b6f85", marginTop: 4 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 11.5, color: "var(--text-faint)", marginTop: 4 }}>{sub}</div>}
     </div>
   );
 }
@@ -39,10 +39,10 @@ function ProgressBar({ pct, color, label }) {
   return (
     <div style={{ marginBottom: 12 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-        <span style={{ fontSize: 12, color: "#8a8fa6" }}>{label}</span>
+        <span style={{ fontSize: 12, color: "var(--text-dim)" }}>{label}</span>
         <span style={{ fontSize: 12, fontWeight: 700, color: pct >= 50 ? color : "#fb7185", fontVariantNumeric: "tabular-nums" }}>{vn(pct, 1)}%</span>
       </div>
-      <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3 }}>
+      <div style={{ height: 6, background: "var(--surface-raised)", borderRadius: 3 }}>
         <div style={{ height: "100%", width: w + "%", background: color, borderRadius: 3, transition: "width 0.5s ease" }} />
       </div>
     </div>
@@ -65,11 +65,11 @@ function MiniBar({ data, labels, color, height = 120 }) {
         return (
           <g key={i}>
             <rect x={x} y={y} width={barW} height={Math.max(barH, 2)} fill={v < 0 ? "#fb7185" : color} rx={3} opacity={0.85} />
-            <text x={x + barW / 2} y={y - 4} fontSize="9" fill="#8a8fa6" textAnchor="middle" fontWeight="600" className="mono">
+            <text x={x + barW / 2} y={y - 4} fontSize="9" fill="var(--text-dim)" textAnchor="middle" fontWeight="600" className="mono">
               {v < 0 ? "" : ""}{vnLoc(v, v < 10 && v > -10 ? 2 : 1)}
             </text>
             {labels && (
-              <text x={x + barW / 2} y={height + 14} fontSize="9" fill="#6b6f85" textAnchor="middle">
+              <text x={x + barW / 2} y={height + 14} fontSize="9" fill="var(--text-faint)" textAnchor="middle">
                 {labels[i]}
               </text>
             )}
@@ -117,20 +117,20 @@ function WaterfallPnL({ waterfall, accent }) {
           return (
             <g key={i}>
               <rect x={x(i)} y={w.value >= 0 ? barTop : y(0)} width={barW} height={Math.max(barH, 2)} fill={fill} rx={3} />
-              <text x={x(i) + barW / 2} y={(w.value >= 0 ? barTop : y(0) + barH) - 5} fontSize="10" fill="#ecedf5" fontWeight="700" textAnchor="middle" className="mono">
+              <text x={x(i) + barW / 2} y={(w.value >= 0 ? barTop : y(0) + barH) - 5} fontSize="10" fill="var(--text-strong)" fontWeight="700" textAnchor="middle" className="mono">
                 {vnLoc(w.value, 1)}
               </text>
-              <text x={x(i) + barW / 2} y={H - 8} fontSize="9" fill="#8a8fa6" textAnchor="middle" fontWeight="600">{w.label}</text>
+              <text x={x(i) + barW / 2} y={H - 8} fontSize="9" fill="var(--text-dim)" textAnchor="middle" fontWeight="600">{w.label}</text>
             </g>
           );
         }
         return (
           <g key={i}>
             <rect x={x(i)} y={Math.min(barTop, barBot)} width={barW} height={Math.max(Math.abs(barBot - barTop), 2)} fill={fill} rx={3} />
-            <text x={x(i) + barW / 2} y={Math.min(barTop, barBot) - 5} fontSize="10" fill="#ecedf5" fontWeight="700" textAnchor="middle" className="mono">
+            <text x={x(i) + barW / 2} y={Math.min(barTop, barBot) - 5} fontSize="10" fill="var(--text-strong)" fontWeight="700" textAnchor="middle" className="mono">
               {w.value < 0 ? "" : ""}{vnLoc(Math.abs(w.value), 1)}
             </text>
-            <text x={x(i) + barW / 2} y={H - 8} fontSize="9" fill="#8a8fa6" textAnchor="middle" fontWeight="600">{w.label}</text>
+            <text x={x(i) + barW / 2} y={H - 8} fontSize="9" fill="var(--text-dim)" textAnchor="middle" fontWeight="600">{w.label}</text>
             {i < waterfall.length - 1 && (
               <line x1={x(i) + barW} x2={x(i + 1)} y1={y(running)} y2={y(running)} stroke="#5b5f74" strokeWidth="1" strokeDasharray="3,3" />
             )}
@@ -161,7 +161,7 @@ function PnlTable({ product }) {
           <tr>
             <th style={{ ...TH, minWidth: 140, textAlign: "left" }}>Chỉ tiêu</th>
             {labels.map((l) => <th key={l} style={{ ...TH, textAlign: "right", minWidth: 70 }}>{l}</th>)}
-            <th style={{ ...TH, textAlign: "right", minWidth: 90, color: "#c3b9ff" }}>Lũy kế</th>
+            <th style={{ ...TH, textAlign: "right", minWidth: 90, color: "var(--accent-light)" }}>Lũy kế</th>
           </tr>
         </thead>
         <tbody>
@@ -170,16 +170,16 @@ function PnlTable({ product }) {
               ? pnlMarginCalc(row.label.includes("gộp") ? product.totalGrossProfit : product.totalNetProfit, product.totalRevenue)
               : row.data.reduce((a, b) => a + b, 0);
             return (
-              <tr key={row.label} style={{ borderTop: row.border ? "2px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.04)" }}>
-                <td style={{ ...TD, fontWeight: row.bold ? 700 : 500, color: row.bold ? "#ecedf5" : "#8a8fa6" }}>
+              <tr key={row.label} style={{ borderTop: row.border ? "2px solid var(--border)" : "1px solid var(--border-faint)" }}>
+                <td style={{ ...TD, fontWeight: row.bold ? 700 : 500, color: row.bold ? "var(--text-strong)" : "var(--text-dim)" }}>
                   {row.label}
                 </td>
                 {row.data.map((v, i) => (
-                  <td key={i} style={{ ...TD, textAlign: "right", color: row.isPct ? row.color : v < 0 ? "#fb7185" : "#c8ccd9", fontWeight: row.bold ? 700 : 400 }}>
+                  <td key={i} style={{ ...TD, textAlign: "right", color: row.isPct ? row.color : v < 0 ? "#fb7185" : "var(--text)", fontWeight: row.bold ? 700 : 400 }}>
                     {row.isPct ? vn(v, 1) + "%" : vnLoc(Math.abs(v), v < 10 && v > -10 ? 2 : 1)}
                   </td>
                 ))}
-                <td style={{ ...TD, textAlign: "right", fontWeight: 800, color: row.isPct ? row.color : total < 0 ? "#fb7185" : row.color || "#ecedf5" }}>
+                <td style={{ ...TD, textAlign: "right", fontWeight: 800, color: row.isPct ? row.color : total < 0 ? "#fb7185" : row.color || "var(--text-strong)" }}>
                   {row.isPct ? vn(total, 1) + "%" : vnLoc(Math.abs(total), 1)}
                 </td>
               </tr>
@@ -242,8 +242,8 @@ function ProductDetail({ product }) {
         {product.targets.netProfit !== 0 && (
           <ProgressBar pct={product.npPct} color="#34d399" label="Lợi nhuận ròng" />
         )}
-        <div style={{ fontSize: 11, color: "#6b6f85", marginTop: 8 }}>
-          Runrate doanh thu: <strong style={{ color: "#c8ccd9" }}>{vnLoc(product.revRunrate, 0)} triệu/năm</strong>
+        <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 8 }}>
+          Runrate doanh thu: <strong style={{ color: "var(--text)" }}>{vnLoc(product.revRunrate, 0)} triệu/năm</strong>
           {product.targets.revenue > 0 && (
             <> · {product.revRunrate >= product.targets.revenue
               ? <span style={{ color: "#34d399" }}>Vượt target</span>
@@ -256,25 +256,25 @@ function ProductDetail({ product }) {
       {/* Waterfall P&L */}
       <div className="card" style={{ padding: "18px 20px" }}>
         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>P&L Waterfall (triệu VND)</div>
-        <div style={{ fontSize: 11, color: "#6b6f85", marginBottom: 14 }}>Doanh thu &rarr; COGS &rarr; LN gộp &rarr; OPEX &rarr; LN ròng</div>
+        <div style={{ fontSize: 11, color: "var(--text-faint)", marginBottom: 14 }}>Doanh thu &rarr; COGS &rarr; LN gộp &rarr; OPEX &rarr; LN ròng</div>
         <WaterfallPnL waterfall={product.waterfall} accent={product.accent} />
       </div>
 
       {/* Revenue trend chart */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <div className="card" style={{ padding: "18px 20px" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#8a8fa6", marginBottom: 10 }}>DOANH THU THEO THÁNG</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-dim)", marginBottom: 10 }}>DOANH THU THEO THÁNG</div>
           <MiniBar data={product.monthly.revenue} labels={product.labels} color={product.accent} />
         </div>
         <div className="card" style={{ padding: "18px 20px" }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#8a8fa6", marginBottom: 10 }}>LỢI NHUẬN RÒNG THEO THÁNG</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-dim)", marginBottom: 10 }}>LỢI NHUẬN RÒNG THEO THÁNG</div>
           <MiniBar data={product.monthly.netProfit} labels={product.labels} color="#34d399" />
         </div>
       </div>
 
       {/* P&L Table */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", fontSize: 13, fontWeight: 700 }}>
+        <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border-soft)", fontSize: 13, fontWeight: 700 }}>
           Bảng P&L chi tiết — {product.name}
         </div>
         <div style={{ padding: "0 4px 8px" }}>
@@ -302,16 +302,16 @@ function CostPie({ label, pct, color }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
       <svg width="80" height="80" viewBox="0 0 80 80">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border-soft)" strokeWidth={stroke} />
         <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={stroke}
           strokeDasharray={circ} strokeDashoffset={offset}
           strokeLinecap="round" transform={`rotate(-90 ${cx} ${cy})`}
           style={{ transition: "stroke-dashoffset 0.6s ease" }} />
-        <text x={cx} y={cy + 4} fontSize="14" fontWeight="800" fill="#ecedf5" textAnchor="middle" className="mono">
+        <text x={cx} y={cy + 4} fontSize="14" fontWeight="800" fill="var(--text-strong)" textAnchor="middle" className="mono">
           {vn(pct, 1)}%
         </text>
       </svg>
-      <div style={{ fontSize: 10.5, color: "#8a8fa6", textAlign: "center" }}>{label}</div>
+      <div style={{ fontSize: 10.5, color: "var(--text-dim)", textAlign: "center" }}>{label}</div>
     </div>
   );
 }
@@ -347,26 +347,26 @@ function OverviewView({ data }) {
               </div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700 }}>{p.name}</div>
-                <div style={{ fontSize: 11, color: "#6b6f85" }}>{p.description.split("—")[0]}</div>
+                <div style={{ fontSize: 11, color: "var(--text-faint)" }}>{p.description.split("—")[0]}</div>
               </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
               <div>
-                <div style={{ fontSize: 10, color: "#6b6f85", textTransform: "uppercase", letterSpacing: 0.5 }}>Doanh thu</div>
+                <div style={{ fontSize: 10, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5 }}>Doanh thu</div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: p.accent, fontVariantNumeric: "tabular-nums" }}>{p.totalRevenueStr}</div>
-                <div style={{ fontSize: 10, color: "#6b6f85" }}>triệu VND</div>
+                <div style={{ fontSize: 10, color: "var(--text-faint)" }}>triệu VND</div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: "#6b6f85", textTransform: "uppercase", letterSpacing: 0.5 }}>LN ròng</div>
+                <div style={{ fontSize: 10, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5 }}>LN ròng</div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: p.totalNetProfit >= 0 ? "#34d399" : "#fb7185", fontVariantNumeric: "tabular-nums" }}>
                   {p.totalNetProfitStr}
                 </div>
-                <div style={{ fontSize: 10, color: "#6b6f85" }}>triệu VND</div>
+                <div style={{ fontSize: 10, color: "var(--text-faint)" }}>triệu VND</div>
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 12, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ display: "flex", gap: 12, paddingTop: 10, borderTop: "1px solid var(--border-soft)" }}>
               <MiniMetric label="Biên LN gộp" value={p.grossMarginStr} color="#fbbf24" />
               <MiniMetric label="Biên LN ròng" value={p.netMarginStr} color={p.totalNetProfit >= 0 ? "#34d399" : "#fb7185"} />
               <MiniMetric label="KH" value={String(p.totalMerchants)} color="#60a5fa" />
@@ -384,11 +384,11 @@ function OverviewView({ data }) {
             <div key={p.key} style={{ marginBottom: 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                 <span style={{ fontSize: 12.5, fontWeight: 600, color: p.accent }}>{p.name}</span>
-                <span style={{ fontSize: 12, color: "#c8ccd9", fontVariantNumeric: "tabular-nums" }}>
+                <span style={{ fontSize: 12, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>
                   {p.totalRevenueStr} tr · <strong>{vn(share, 1)}%</strong>
                 </span>
               </div>
-              <div style={{ height: 8, background: "rgba(255,255,255,0.06)", borderRadius: 4 }}>
+              <div style={{ height: 8, background: "var(--surface-raised)", borderRadius: 4 }}>
                 <div style={{ height: "100%", width: Math.min(share, 100) + "%", background: `linear-gradient(90deg, ${p.accent}, ${p.accent}aa)`, borderRadius: 4, transition: "width 0.5s" }} />
               </div>
             </div>
@@ -407,10 +407,10 @@ function OverviewView({ data }) {
             return (
               <g key={i}>
                 <rect x={x} y={110 - barH} width={28} height={barH} fill="#7c6cff" rx={3} opacity={0.7} />
-                <text x={x + 14} y={110 - barH - 5} fontSize="9" fill="#c8ccd9" textAnchor="middle" fontWeight="600" className="mono">
+                <text x={x + 14} y={110 - barH - 5} fontSize="9" fill="var(--text)" textAnchor="middle" fontWeight="600" className="mono">
                   {vnLoc(m.revenue, 0)}
                 </text>
-                <text x={x + 14} y={128} fontSize="9" fill="#6b6f85" textAnchor="middle">{m.label}</text>
+                <text x={x + 14} y={128} fontSize="9" fill="var(--text-faint)" textAnchor="middle">{m.label}</text>
               </g>
             );
           })}
@@ -432,10 +432,10 @@ function OverviewView({ data }) {
           })}
         </svg>
         <div style={{ display: "flex", gap: 20, justifyContent: "center", marginTop: 8 }}>
-          <span style={{ fontSize: 11, color: "#8a8fa6", display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 11, color: "var(--text-dim)", display: "flex", alignItems: "center", gap: 4 }}>
             <span style={{ width: 10, height: 10, borderRadius: 2, background: "#7c6cff", display: "inline-block" }} /> Doanh thu
           </span>
-          <span style={{ fontSize: 11, color: "#8a8fa6", display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 11, color: "var(--text-dim)", display: "flex", alignItems: "center", gap: 4 }}>
             <span style={{ width: 10, height: 2, background: "#34d399", display: "inline-block" }} /> LN ròng
           </span>
         </div>
@@ -443,7 +443,7 @@ function OverviewView({ data }) {
 
       {/* P&L summary table */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "14px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", fontSize: 13, fontWeight: 700 }}>
+        <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border-soft)", fontSize: 13, fontWeight: 700 }}>
           Bảng P&L hợp nhất (triệu VND)
         </div>
         <div style={{ overflowX: "auto", padding: "0 4px 8px" }}>
@@ -454,7 +454,7 @@ function OverviewView({ data }) {
                 {products.map((p) => (
                   <th key={p.key} style={{ ...TH, textAlign: "right", minWidth: 100, color: p.accent }}>{p.shortName}</th>
                 ))}
-                <th style={{ ...TH, textAlign: "right", minWidth: 100, color: "#c3b9ff" }}>Tổng</th>
+                <th style={{ ...TH, textAlign: "right", minWidth: 100, color: "var(--accent-light)" }}>Tổng</th>
               </tr>
             </thead>
             <tbody>
@@ -467,30 +467,30 @@ function OverviewView({ data }) {
               ].map((row) => {
                 const total = products.reduce((a, p) => a + p[row.key], 0);
                 return (
-                  <tr key={row.key} style={{ borderTop: row.border ? "2px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.04)" }}>
-                    <td style={{ ...TD, fontWeight: row.bold ? 700 : 500, color: row.bold ? "#ecedf5" : "#8a8fa6" }}>{row.label}</td>
+                  <tr key={row.key} style={{ borderTop: row.border ? "2px solid var(--border)" : "1px solid var(--border-faint)" }}>
+                    <td style={{ ...TD, fontWeight: row.bold ? 700 : 500, color: row.bold ? "var(--text-strong)" : "var(--text-dim)" }}>{row.label}</td>
                     {products.map((p) => {
                       const v = row.neg ? -p[row.key] : p[row.key];
                       return (
-                        <td key={p.key} style={{ ...TD, textAlign: "right", color: v < 0 ? "#fb7185" : row.bold ? "#ecedf5" : "#c8ccd9", fontWeight: row.bold ? 700 : 400 }}>
+                        <td key={p.key} style={{ ...TD, textAlign: "right", color: v < 0 ? "#fb7185" : row.bold ? "var(--text-strong)" : "var(--text)", fontWeight: row.bold ? 700 : 400 }}>
                           {vnLoc(Math.abs(p[row.key]), 1)}
                         </td>
                       );
                     })}
-                    <td style={{ ...TD, textAlign: "right", fontWeight: 800, color: (row.neg ? -total : total) < 0 ? "#fb7185" : "#c3b9ff" }}>
+                    <td style={{ ...TD, textAlign: "right", fontWeight: 800, color: (row.neg ? -total : total) < 0 ? "#fb7185" : "var(--accent-light)" }}>
                       {vnLoc(Math.abs(total), 1)}
                     </td>
                   </tr>
                 );
               })}
-              <tr style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <tr style={{ borderTop: "1px solid var(--border-soft)" }}>
                 <td style={{ ...TD, fontWeight: 600, color: "#fbbf24" }}>Biên LN gộp</td>
                 {products.map((p) => (
                   <td key={p.key} style={{ ...TD, textAlign: "right", color: "#fbbf24" }}>{p.grossMarginStr}</td>
                 ))}
                 <td style={{ ...TD, textAlign: "right", color: "#fbbf24", fontWeight: 700 }}>{data.consolidatedGrossMarginStr}</td>
               </tr>
-              <tr style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+              <tr style={{ borderTop: "1px solid var(--border-faint)" }}>
                 <td style={{ ...TD, fontWeight: 600, color: "#34d399" }}>Biên LN ròng</td>
                 {products.map((p) => (
                   <td key={p.key} style={{ ...TD, textAlign: "right", color: p.totalNetProfit >= 0 ? "#34d399" : "#fb7185" }}>{p.netMarginStr}</td>
@@ -508,16 +508,16 @@ function OverviewView({ data }) {
 function MiniMetric({ label, value, color }) {
   return (
     <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 9.5, color: "#6b6f85", textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</div>
+      <div style={{ fontSize: 9.5, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5 }}>{label}</div>
       <div style={{ fontSize: 13, fontWeight: 700, color, fontVariantNumeric: "tabular-nums" }}>{value}</div>
     </div>
   );
 }
 
 const TH = {
-  padding: "10px 12px", fontSize: 10.5, fontWeight: 700, color: "#8a8fa6",
+  padding: "10px 12px", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)",
   textTransform: "uppercase", letterSpacing: 0.8,
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid var(--border)",
 };
 const TD = { padding: "9px 12px" };
 
@@ -532,8 +532,8 @@ export default function PnlPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}>
         <div className="card" style={{ padding: "40px 48px", textAlign: "center", maxWidth: 400 }}>
           <div style={{ fontSize: 36, marginBottom: 16 }}>&#128274;</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#ecedf5", marginBottom: 8 }}>Không có quyền truy cập</div>
-          <div style={{ fontSize: 13, color: "#8a8fa6", lineHeight: 1.6 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-strong)", marginBottom: 8 }}>Không có quyền truy cập</div>
+          <div style={{ fontSize: 13, color: "var(--text-dim)", lineHeight: 1.6 }}>
             Trang Phân tích P&amp;L chỉ dành cho tài khoản Admin.<br />
             Vui lòng liên hệ quản trị viên để được cấp quyền.
           </div>
@@ -554,8 +554,8 @@ export default function PnlPage() {
       {/* View tabs */}
       <div style={{
         display: "flex", gap: 4, marginTop: 20, padding: 4,
-        background: "rgba(255,255,255,0.03)", borderRadius: 12,
-        border: "1px solid rgba(255,255,255,0.06)", width: "fit-content",
+        background: "var(--surface-hover)", borderRadius: 12,
+        border: "1px solid var(--border-soft)", width: "fit-content",
       }}>
         {VIEWS.map((v) => (
           <button
@@ -564,7 +564,7 @@ export default function PnlPage() {
             style={{
               padding: "8px 16px", border: "none", borderRadius: 9,
               background: view === v.value ? "rgba(124,108,255,0.15)" : "transparent",
-              color: view === v.value ? "#c3b9ff" : "#6b6f85",
+              color: view === v.value ? "var(--accent-light)" : "var(--text-faint)",
               fontSize: 12.5, fontWeight: view === v.value ? 700 : 500,
               cursor: "pointer", transition: "all 0.2s",
               borderWidth: 1, borderStyle: "solid",

@@ -36,8 +36,8 @@ export default function ComingSoon({ eyebrow, title, subtitle, icon }) {
           <Icon paths={icon} size={30} strokeWidth={1.6} />
         </div>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#ecedf5" }}>Phân hệ đang được xây dựng</div>
-          <div style={{ fontSize: 13.5, color: "#8a8fa6", marginTop: 8, maxWidth: 420, lineHeight: 1.6 }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text-strong)" }}>Phân hệ đang được xây dựng</div>
+          <div style={{ fontSize: 13.5, color: "var(--text-dim)", marginTop: 8, maxWidth: 420, lineHeight: 1.6 }}>
             Nội dung báo cáo này chưa được thiết kế. Khi có số liệu và yêu cầu cụ thể, phân hệ sẽ được bổ sung vào đây.
           </div>
         </div>

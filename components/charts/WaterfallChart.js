@@ -61,13 +61,13 @@ export default function WaterfallChart({ runrate, target, projects, unit, barCol
       <rect key={"bar" + i} x={bx} y={barTop} width={wfBarW} height={Math.max(2, barBot - barTop)} fill={barCol_} opacity={s.type === "step" ? (hover === i ? 1 : 0.92) : 1} rx={4} style={{ transition: "opacity 0.15s" }} />
     );
     labelsTop.push(
-      <text key={"lt" + i} x={bx + wfBarW / 2} y={barTop - 8} fontSize={13} fill="#ecedf5" fontWeight={700} textAnchor="middle" className="mono">
+      <text key={"lt" + i} x={bx + wfBarW / 2} y={barTop - 8} fontSize={13} fill="var(--text-strong)" fontWeight={700} textAnchor="middle" className="mono">
         {s.type === "step" ? `+${vnTy(s.value)}` : vnTy(s.value)}
       </text>
     );
     if (s.type === "step") {
       labelsTop.push(
-        <text key={"lr" + i} x={bx + wfBarW / 2} y={barTop - 24} fontSize={10.5} fill="#8a8fa6" textAnchor="middle" className="mono">
+        <text key={"lr" + i} x={bx + wfBarW / 2} y={barTop - 24} fontSize={10.5} fill="var(--text-dim)" textAnchor="middle" className="mono">
           Σ {vnTy(s.running)}
         </text>
       );
@@ -79,7 +79,7 @@ export default function WaterfallChart({ runrate, target, projects, unit, barCol
         x={bx + wfBarW / 2}
         y={wfPadT + wfInnerH + 22}
         fontSize={11.5}
-        fill={s.type === "base" ? "#a7abbe" : s.type === "total" ? (wfFinalReached ? "#34d399" : "#fb7185") : "#c8ccd9"}
+        fill={s.type === "base" ? "var(--text-dim)" : s.type === "total" ? (wfFinalReached ? "#34d399" : "#fb7185") : "var(--text)"}
         textAnchor="middle"
         fontWeight={s.type === "step" ? 500 : 700}
       >
@@ -119,7 +119,7 @@ export default function WaterfallChart({ runrate, target, projects, unit, barCol
         {bars}
         {labelsTop}
         {labelsBot}
-        <text x={wfPadL - 8} y={wfPadT - 20} fontSize={11} fill="#8a8fa6" textAnchor="start">
+        <text x={wfPadL - 8} y={wfPadT - 20} fontSize={11} fill="var(--text-dim)" textAnchor="start">
           Đơn vị: {unit} VND
         </text>
         {hitRects}

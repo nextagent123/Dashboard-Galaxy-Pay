@@ -25,7 +25,7 @@ export default function RadarHexagon({ axes, accent }) {
           <polygon
             key={"g" + gi}
             fill="none"
-            stroke="rgba(255,255,255,0.06)"
+            stroke="var(--border-soft)"
             strokeWidth={0.8}
             points={axPts.map((p) => `${hcx + hR * k * Math.cos(p.angle)},${hcy + hR * k * Math.sin(p.angle)}`).join(" ")}
           />
@@ -38,7 +38,7 @@ export default function RadarHexagon({ axes, accent }) {
           <circle key={"d" + i} cx={p.inner.x} cy={p.inner.y} r={hover === i ? 5 : 2.8} fill={accent} style={{ transition: "r 0.15s" }} />
         ))}
         {axPts.map((p, i) => (
-          <text key={"lb" + i} x={p.labelPos.x} y={p.labelPos.y + 4} fontSize={10.5} fill="#a7abbe" textAnchor="middle" fontWeight={600}>
+          <text key={"lb" + i} x={p.labelPos.x} y={p.labelPos.y + 4} fontSize={10.5} fill="var(--text-dim)" textAnchor="middle" fontWeight={600}>
             {p.label}
           </text>
         ))}

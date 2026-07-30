@@ -153,7 +153,7 @@ export default function ForexPage() {
       >
         <div style={{ display: "flex", flexWrap: "wrap", gap: 28, alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ minWidth: 260 }}>
-            <div style={{ fontSize: 11, letterSpacing: 1.6, fontWeight: 800, color: "#b9a8ff", textTransform: "uppercase" }}>
+            <div style={{ fontSize: 11, letterSpacing: 1.6, fontWeight: 800, color: "var(--accent-light)", textTransform: "uppercase" }}>
               {"\u{1F1FA}\u{1F1F8}"} USD / VND {"\u{1F1FB}\u{1F1F3}"}
             </div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 10 }}>
@@ -164,9 +164,9 @@ export default function ForexPage() {
               }}>
                 {loading ? "—" : fmtVND(usdVnd)}
               </span>
-              <span style={{ fontSize: 14, color: "#8a8fa6", fontWeight: 600 }}>VND</span>
+              <span style={{ fontSize: 14, color: "var(--text-dim)", fontWeight: 600 }}>VND</span>
             </div>
-            <div style={{ fontSize: 13, color: "#a7abbe", marginTop: 12 }}>
+            <div style={{ fontSize: 13, color: "var(--text-dim)", marginTop: 12 }}>
               1 USD = {loading ? "..." : fmtVND(usdVnd)} VND
             </div>
           </div>
@@ -186,15 +186,15 @@ export default function ForexPage() {
                   onClick={() => setSelectedCcy(code)}
                   style={{
                     background: selectedCcy === code ? `linear-gradient(135deg,${color}22,${color}08)` : "rgba(0,0,0,0.35)",
-                    border: selectedCcy === code ? `1px solid ${color}66` : "1px solid rgba(255,255,255,0.06)",
+                    border: selectedCcy === code ? `1px solid ${color}66` : "1px solid var(--border-soft)",
                     borderRadius: 12, padding: "12px 16px", minWidth: 120, cursor: "pointer",
                     transition: "border-color 0.18s",
                   }}
                 >
-                  <div style={{ fontSize: 10, color: "#8a8fa6", letterSpacing: 0.8 }}>
+                  <div style={{ fontSize: 10, color: "var(--text-dim)", letterSpacing: 0.8 }}>
                     {meta?.flag} {code}/VND
                   </div>
-                  <div className="mono" style={{ fontSize: 16, fontWeight: 800, color: "#ecedf5", marginTop: 4 }}>
+                  <div className="mono" style={{ fontSize: 16, fontWeight: 800, color: "var(--text-strong)", marginTop: 4 }}>
                     {loading || !row ? "—" : fmtVND(row.vnd)}
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default function ForexPage() {
                 style={{
                   position: "relative", overflow: "hidden", cursor: "pointer",
                   borderRadius: 16, padding: "20px 22px",
-                  border: `1px solid ${isSelected ? accent + "66" : "rgba(255,255,255,0.09)"}`,
+                  border: `1px solid ${isSelected ? accent + "66" : "var(--border)"}`,
                   background: `linear-gradient(165deg, ${accent}1c, rgba(255,255,255,0.012))`,
                   transition: "border-color 0.18s",
                 }}
@@ -229,11 +229,11 @@ export default function ForexPage() {
                   <span style={{ fontSize: 28 }}>{meta.flag || "\u{1F3F3}"}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, color: accent }}>{r.code}</div>
-                    <div style={{ fontSize: 13, color: "#a7abbe", marginTop: 2 }}>{meta.name || r.code}</div>
+                    <div style={{ fontSize: 13, color: "var(--text-dim)", marginTop: 2 }}>{meta.name || r.code}</div>
                   </div>
                   <div style={{ textAlign: "right" }}>
-                    <div className="mono" style={{ fontSize: 20, fontWeight: 800, color: "#ecedf5" }}>{fmtVND(r.vnd)}</div>
-                    <div style={{ fontSize: 10.5, color: "#8a8fa6", marginTop: 2 }}>VND</div>
+                    <div className="mono" style={{ fontSize: 20, fontWeight: 800, color: "var(--text-strong)" }}>{fmtVND(r.vnd)}</div>
+                    <div style={{ fontSize: 10.5, color: "var(--text-dim)", marginTop: 2 }}>VND</div>
                   </div>
                 </div>
               </div>
@@ -247,10 +247,10 @@ export default function ForexPage() {
         title="Tỷ giá các ngoại tệ chính"
         subtitle={`${rows.length} loại tiền tệ chủ chốt · Quy đổi sang VND`}
       >
-        <div className="table-wrap" style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12 }}>
+        <div className="table-wrap" style={{ border: "1px solid var(--border-soft)", borderRadius: 12 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 500 }}>
             <thead>
-              <tr style={{ textAlign: "left", color: "#8a8fa6", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "rgba(255,255,255,0.03)" }}>
+              <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "var(--surface-hover)" }}>
                 <th style={thStyle}>Ngoại tệ</th>
                 <th style={thStyle}>Tên</th>
                 <th style={{ ...thStyle, textAlign: "right" }}>1 đơn vị = VND</th>
@@ -259,9 +259,9 @@ export default function ForexPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "#8a8fa6" }}>Đang tải dữ liệu...</td></tr>
+                <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "var(--text-dim)" }}>Đang tải dữ liệu...</td></tr>
               ) : rows.length === 0 ? (
-                <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "#8a8fa6" }}>Không có dữ liệu</td></tr>
+                <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "var(--text-dim)" }}>Không có dữ liệu</td></tr>
               ) : rows.map((r) => {
                 const meta = CURRENCY_META[r.code] || {};
                 const isSelected = selectedCcy === r.code;
@@ -271,20 +271,20 @@ export default function ForexPage() {
                     key={r.code}
                     onClick={() => setSelectedCcy(r.code)}
                     style={{
-                      borderTop: "1px solid rgba(255,255,255,0.055)", cursor: "pointer",
+                      borderTop: "1px solid var(--border-soft)", cursor: "pointer",
                       background: isSelected ? "rgba(124,108,255,0.08)" : undefined,
                       transition: "background 0.15s",
                     }}
                   >
-                    <td style={{ ...tdStyle, fontWeight: 700, color: "#ecedf5" }}>
+                    <td style={{ ...tdStyle, fontWeight: 700, color: "var(--text-strong)" }}>
                       <span style={{ marginRight: 8, fontSize: 16 }}>{meta.flag || "\u{1F3F3}"}</span>
                       {r.code}
                     </td>
-                    <td style={{ ...tdStyle, color: "#a7abbe" }}>{meta.name || r.code}</td>
-                    <td className="mono" style={{ ...tdStyle, textAlign: "right", fontWeight: 800, color: "#ecedf5", fontSize: 14 }}>
+                    <td style={{ ...tdStyle, color: "var(--text-dim)" }}>{meta.name || r.code}</td>
+                    <td className="mono" style={{ ...tdStyle, textAlign: "right", fontWeight: 800, color: "var(--text-strong)", fontSize: 14 }}>
                       {fmtVND(r.vnd)}
                     </td>
-                    <td className="mono" style={{ ...tdStyle, textAlign: "right", color: "#8a8fa6" }}>
+                    <td className="mono" style={{ ...tdStyle, textAlign: "right", color: "var(--text-dim)" }}>
                       {inverse != null ? inverse.toLocaleString("vi-VN", { maximumFractionDigits: 6 }) : "—"}
                     </td>
                   </tr>
@@ -309,17 +309,17 @@ export default function ForexPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Tìm ngoại tệ (VD: EUR, Bảng Anh)..."
             style={{
-              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 10, padding: "9px 14px", fontSize: 12.5, color: "#ecedf5",
+              background: "var(--surface-soft)", border: "1px solid var(--border)",
+              borderRadius: 10, padding: "9px 14px", fontSize: 12.5, color: "var(--text-strong)",
               outline: "none", minWidth: 220,
             }}
           />
         }
       >
-        <div className="table-wrap" style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12, maxHeight: 520, overflowY: "auto" }}>
+        <div className="table-wrap" style={{ border: "1px solid var(--border-soft)", borderRadius: 12, maxHeight: 520, overflowY: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 500 }}>
             <thead style={{ position: "sticky", top: 0, zIndex: 2 }}>
-              <tr style={{ textAlign: "left", color: "#8a8fa6", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "var(--card-bg, #14151f)" }}>
+              <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "var(--card-bg, #14151f)" }}>
                 <th style={thStyle}>Mã</th>
                 <th style={thStyle}>Tên</th>
                 <th style={{ ...thStyle, textAlign: "right" }}>1 đơn vị = VND</th>
@@ -328,7 +328,7 @@ export default function ForexPage() {
             </thead>
             <tbody>
               {filteredAll.length === 0 ? (
-                <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "#8a8fa6" }}>Không tìm thấy ngoại tệ phù hợp.</td></tr>
+                <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "var(--text-dim)" }}>Không tìm thấy ngoại tệ phù hợp.</td></tr>
               ) : filteredAll.map((r) => {
                 const meta = CURRENCY_META[r.code] || {};
                 const inverse = rates[r.code];
@@ -337,19 +337,19 @@ export default function ForexPage() {
                     key={r.code}
                     onClick={() => setSelectedCcy(r.code)}
                     style={{
-                      borderTop: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      borderTop: "1px solid var(--border-faint)", cursor: "pointer",
                       background: selectedCcy === r.code ? "rgba(124,108,255,0.08)" : undefined,
                     }}
                   >
-                    <td style={{ ...tdStyle, fontWeight: 700, color: "#ecedf5" }}>
+                    <td style={{ ...tdStyle, fontWeight: 700, color: "var(--text-strong)" }}>
                       {meta.flag && <span style={{ marginRight: 6 }}>{meta.flag}</span>}
                       {r.code}
                     </td>
-                    <td style={{ ...tdStyle, color: "#a7abbe" }}>{meta.name || r.code}</td>
-                    <td className="mono" style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "#ecedf5" }}>
+                    <td style={{ ...tdStyle, color: "var(--text-dim)" }}>{meta.name || r.code}</td>
+                    <td className="mono" style={{ ...tdStyle, textAlign: "right", fontWeight: 700, color: "var(--text-strong)" }}>
                       {fmtVND(r.vnd)}
                     </td>
-                    <td className="mono" style={{ ...tdStyle, textAlign: "right", color: "#8a8fa6" }}>
+                    <td className="mono" style={{ ...tdStyle, textAlign: "right", color: "var(--text-dim)" }}>
                       {inverse != null ? inverse.toLocaleString("vi-VN", { maximumFractionDigits: 6 }) : "—"}
                     </td>
                   </tr>
@@ -361,10 +361,10 @@ export default function ForexPage() {
       </SectionCard>
 
       <section style={{
-        background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
-        borderRadius: 14, padding: "14px 20px", fontSize: 11.5, color: "#8a8fa6", lineHeight: 1.6,
+        background: "var(--surface-hover)", border: "1px solid var(--border-soft)",
+        borderRadius: 14, padding: "14px 20px", fontSize: 11.5, color: "var(--text-dim)", lineHeight: 1.6,
       }}>
-        <strong style={{ color: "#a7abbe" }}>Nguồn dữ liệu:</strong> {source || "Open Exchange Rates"} · Tỷ giá tham chiếu cập nhật hàng ngày. Dữ liệu chỉ mang tính tham khảo.
+        <strong style={{ color: "var(--text-dim)" }}>Nguồn dữ liệu:</strong> {source || "Open Exchange Rates"} · Tỷ giá tham chiếu cập nhật hàng ngày. Dữ liệu chỉ mang tính tham khảo.
         {data?.nextUpdate && (
           <span> · Lần cập nhật tiếp: {(() => { try { return new Date(data.nextUpdate).toLocaleString("vi-VN"); } catch { return data.nextUpdate; } })()}</span>
         )}
@@ -390,26 +390,26 @@ function ConverterCard({ rates, toVND }) {
     >
       <div style={{ display: "flex", flexWrap: "wrap", gap: 14, alignItems: "flex-end" }}>
         <div style={{ flex: "1 1 180px" }}>
-          <label style={{ display: "block", fontSize: 10.5, color: "#8a8fa6", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>Số tiền</label>
+          <label style={{ display: "block", fontSize: 10.5, color: "var(--text-dim)", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>Số tiền</label>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             style={{
-              width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 10, padding: "12px 14px", fontSize: 18, fontWeight: 700, color: "#ecedf5",
+              width: "100%", background: "var(--surface-soft)", border: "1px solid var(--border)",
+              borderRadius: 10, padding: "12px 14px", fontSize: 18, fontWeight: 700, color: "var(--text-strong)",
               outline: "none", fontFamily: "var(--font-mono)",
             }}
           />
         </div>
         <div style={{ flex: "0 0 140px" }}>
-          <label style={{ display: "block", fontSize: 10.5, color: "#8a8fa6", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>Ngoại tệ</label>
+          <label style={{ display: "block", fontSize: 10.5, color: "var(--text-dim)", letterSpacing: 0.6, textTransform: "uppercase", marginBottom: 6 }}>Ngoại tệ</label>
           <select
             value={fromCcy}
             onChange={(e) => setFromCcy(e.target.value)}
             style={{
-              width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 10, padding: "12px 14px", fontSize: 14, color: "#ecedf5",
+              width: "100%", background: "var(--surface-soft)", border: "1px solid var(--border)",
+              borderRadius: 10, padding: "12px 14px", fontSize: 14, color: "var(--text-strong)",
               outline: "none", cursor: "pointer",
             }}
           >
@@ -422,12 +422,12 @@ function ConverterCard({ rates, toVND }) {
           flex: "1 1 220px", background: "linear-gradient(135deg,rgba(124,108,255,0.15),rgba(52,211,153,0.08))",
           border: "1px solid rgba(124,108,255,0.25)", borderRadius: 14, padding: "14px 18px",
         }}>
-          <div style={{ fontSize: 10.5, color: "#8a8fa6", letterSpacing: 0.6, textTransform: "uppercase" }}>Kết quả (VND)</div>
-          <div className="mono" style={{ fontSize: 26, fontWeight: 800, color: "#ecedf5", marginTop: 4 }}>
+          <div style={{ fontSize: 10.5, color: "var(--text-dim)", letterSpacing: 0.6, textTransform: "uppercase" }}>Kết quả (VND)</div>
+          <div className="mono" style={{ fontSize: 26, fontWeight: 800, color: "var(--text-strong)", marginTop: 4 }}>
             {result != null ? fmtVND(result) : "—"}
           </div>
           {vndPerUnit && (
-            <div style={{ fontSize: 11, color: "#a7abbe", marginTop: 4 }}>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>
               1 {fromCcy} = {fmtVND(vndPerUnit)} VND
             </div>
           )}
@@ -438,4 +438,4 @@ function ConverterCard({ rates, toVND }) {
 }
 
 const thStyle = { padding: "10px 12px" };
-const tdStyle = { padding: "10px 12px", color: "#c9cbd8" };
+const tdStyle = { padding: "10px 12px", color: "var(--text)" };

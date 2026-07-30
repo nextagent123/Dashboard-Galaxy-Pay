@@ -60,7 +60,7 @@ export default function AiInsightPanel({ insights }) {
               fontSize: 15.5,
               fontWeight: 650,
               lineHeight: 1.55,
-              color: "#ecedf5",
+              color: "var(--text-strong)",
               opacity: visible ? 1 : 0,
               transform: visible ? "translateY(0)" : "translateY(6px)",
               transition: "all 0.28s ease",

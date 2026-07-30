@@ -71,21 +71,21 @@ export default function ChannelReportPage() {
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 13, color: "#a7abbe", marginTop: 12, display: "flex", flexWrap: "wrap", gap: "6px 18px" }}>
+            <div style={{ fontSize: 13, color: "var(--text-dim)", marginTop: 12, display: "flex", flexWrap: "wrap", gap: "6px 18px" }}>
               <span>{totalUniqueCustomers} khách hàng</span>
-              <span style={{ color: "#5b5f74" }}>•</span>
+              <span style={{ color: "var(--text-faint)" }}>•</span>
               <span>{totalQuantity.toLocaleString("vi-VN")} thiết bị</span>
-              <span style={{ color: "#5b5f74" }}>•</span>
+              <span style={{ color: "var(--text-faint)" }}>•</span>
               <span>Lợi nhuận <b style={{ color: "#34d399" }}>{totalProfitStr}</b> · biên {totalMarginStr}</span>
             </div>
           </div>
 
           {/* Thanh phân bổ đóng góp KHCN / KHDN */}
           <div style={{ flex: 1, minWidth: 280, maxWidth: 460 }}>
-            <div style={{ fontSize: 11, color: "#8a8fa6", fontWeight: 700, letterSpacing: 0.6, marginBottom: 10, textTransform: "uppercase" }}>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", fontWeight: 700, letterSpacing: 0.6, marginBottom: 10, textTransform: "uppercase" }}>
               Tỷ trọng đóng góp doanh thu
             </div>
-            <div style={{ display: "flex", height: 34, borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ display: "flex", height: 34, borderRadius: 10, overflow: "hidden", border: "1px solid var(--border)" }}>
               {channels.map((c) => (
                 <div
                   key={c.key}
@@ -105,7 +105,7 @@ export default function ChannelReportPage() {
               {channels.map((c) => (
                 <div key={c.key} style={{ display: "flex", alignItems: "center", gap: 7 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 3, background: c.color }} />
-                  <span style={{ fontSize: 11.5, color: "#a7abbe" }}>{c.key} · <b style={{ color: "#ecedf5" }}>{c.revenueStr}</b></span>
+                  <span style={{ fontSize: 11.5, color: "var(--text-dim)" }}>{c.key} · <b style={{ color: "var(--text-strong)" }}>{c.revenueStr}</b></span>
                 </div>
               ))}
             </div>
@@ -127,7 +127,7 @@ export default function ChannelReportPage() {
                 cursor: "pointer",
                 borderRadius: 18,
                 padding: "24px 26px",
-                border: `1px solid ${isSelected ? c.color + "88" : "rgba(255,255,255,0.09)"}`,
+                border: `1px solid ${isSelected ? c.color + "88" : "var(--border)"}`,
                 background: `linear-gradient(165deg, ${c.color}1c, rgba(255,255,255,0.012))`,
                 transition: "border-color 0.18s, transform 0.18s",
               }}
@@ -143,10 +143,10 @@ export default function ChannelReportPage() {
                     </span>
                     <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, color: c.color }}>{c.key}</span>
                   </div>
-                  <div style={{ fontSize: 14.5, fontWeight: 700, color: "#ecedf5", lineHeight: 1.35 }}>{c.label}</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 700, color: "var(--text-strong)", lineHeight: 1.35 }}>{c.label}</div>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
-                    <span className="mono" style={{ fontSize: 26, fontWeight: 800, color: "#ecedf5", letterSpacing: -0.5 }}>{c.revenueStr}</span>
-                    <span style={{ fontSize: 11.5, color: "#8a8fa6" }}>doanh thu</span>
+                    <span className="mono" style={{ fontSize: 26, fontWeight: 800, color: "var(--text-strong)", letterSpacing: -0.5 }}>{c.revenueStr}</span>
+                    <span style={{ fontSize: 11.5, color: "var(--text-dim)" }}>doanh thu</span>
                   </div>
                 </div>
               </div>
@@ -158,14 +158,14 @@ export default function ChannelReportPage() {
                   { k: "Lợi nhuận", v: c.profitStr, accent: "#34d399" },
                   { k: "Biên LN", v: c.marginStr, accent: c.color },
                 ].map((s) => (
-                  <div key={s.k} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 11, padding: "10px 12px" }}>
-                    <div style={{ fontSize: 10, color: "#8a8fa6", textTransform: "uppercase", letterSpacing: 0.4 }}>{s.k}</div>
-                    <div className="mono" style={{ fontSize: 15, fontWeight: 800, color: s.accent || "#ecedf5", marginTop: 4 }}>{s.v}</div>
+                  <div key={s.k} style={{ background: "var(--surface-hover)", border: "1px solid var(--border-soft)", borderRadius: 11, padding: "10px 12px" }}>
+                    <div style={{ fontSize: 10, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: 0.4 }}>{s.k}</div>
+                    <div className="mono" style={{ fontSize: 15, fontWeight: 800, color: s.accent || "var(--text-strong)", marginTop: 4 }}>{s.v}</div>
                   </div>
                 ))}
               </div>
 
-              <div style={{ fontSize: 11, color: "#8a8fa6", marginTop: 14, position: "relative", display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 14, position: "relative", display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ width: 5, height: 5, borderRadius: "50%", background: c.color }} />
                 Phát sinh {c.activeMonths} tháng ({c.firstMonthLabel} → {c.lastMonthLabel}) · nhấn để lọc chi tiết
               </div>
@@ -179,7 +179,7 @@ export default function ChannelReportPage() {
         title="Xu hướng doanh thu theo tháng"
         subtitle={`Đỉnh cao rơi vào ${peakMonthLabel} · dẫn dắt bởi ${leadChannelLabel} (${leadChannelShareStr})`}
         right={
-          <div style={{ display: "flex", gap: 14, fontSize: 11.5, color: "#a7abbe" }}>
+          <div style={{ display: "flex", gap: 14, fontSize: 11.5, color: "var(--text-dim)" }}>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 10, height: 10, borderRadius: 3, background: "#7c6cff" }} />KHCN
             </span>
@@ -215,15 +215,15 @@ export default function ChannelReportPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Tìm khách hàng..."
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "9px 12px", fontSize: 12.5, color: "#ecedf5", outline: "none", minWidth: 180 }}
+              style={{ background: "var(--surface-soft)", border: "1px solid var(--border)", borderRadius: 10, padding: "9px 12px", fontSize: 12.5, color: "var(--text-strong)", outline: "none", minWidth: 180 }}
             />
           </div>
         }
       >
-        <div className="table-wrap" style={{ marginTop: 14, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12 }}>
+        <div className="table-wrap" style={{ marginTop: 14, border: "1px solid var(--border-soft)", borderRadius: 12 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 720 }}>
             <thead>
-              <tr style={{ textAlign: "left", color: "#8a8fa6", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "rgba(255,255,255,0.03)" }}>
+              <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "var(--surface-hover)" }}>
                 <th style={thStyle}>Khách hàng</th>
                 <th style={thStyle}>Kênh</th>
                 <th style={thStyle}>Tháng</th>
@@ -235,22 +235,22 @@ export default function ChannelReportPage() {
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}>
-                  <td style={{ ...tdStyle, fontWeight: 600, color: "#ecedf5" }}>{r.khachHang}</td>
+                <tr key={i} style={{ borderTop: "1px solid var(--border-soft)" }}>
+                  <td style={{ ...tdStyle, fontWeight: 600, color: "var(--text-strong)" }}>{r.khachHang}</td>
                   <td style={tdStyle}>
                     <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 6, color: r.kenhColor, background: `${r.kenhColor}1f` }}>{r.kenh}</span>
                   </td>
                   <td style={tdStyle}>{r.thang}</td>
                   <td className="mono" style={{ ...tdStyle, textAlign: "right" }}>{r.soLuongStr}</td>
                   <td className="mono" style={{ ...tdStyle, textAlign: "right", fontWeight: 700 }}>{r.doanhThuStr}</td>
-                  <td className="mono" style={{ ...tdStyle, textAlign: "right", color: "#8a8fa6" }}>{r.hoaHongStr}</td>
+                  <td className="mono" style={{ ...tdStyle, textAlign: "right", color: "var(--text-dim)" }}>{r.hoaHongStr}</td>
                   <td className="mono" style={{ ...tdStyle, textAlign: "right", color: "#34d399" }}>{r.loiNhuanStr}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           {rows.length === 0 && (
-            <div style={{ textAlign: "center", padding: "32px 0", color: "#8a8fa6", fontSize: 13 }}>Không tìm thấy khách hàng phù hợp.</div>
+            <div style={{ textAlign: "center", padding: "32px 0", color: "var(--text-dim)", fontSize: 13 }}>Không tìm thấy khách hàng phù hợp.</div>
           )}
         </div>
       </SectionCard>
@@ -259,14 +259,14 @@ export default function ChannelReportPage() {
 }
 
 const thStyle = { padding: "10px 12px" };
-const tdStyle = { padding: "10px 12px", color: "#c9cbd8" };
+const tdStyle = { padding: "10px 12px", color: "var(--text)" };
 const selectStyle = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "var(--surface-soft)",
+  border: "1px solid var(--border)",
   borderRadius: 10,
   padding: "9px 12px",
   fontSize: 12.5,
-  color: "#ecedf5",
+  color: "var(--text-strong)",
   outline: "none",
   cursor: "pointer",
 };

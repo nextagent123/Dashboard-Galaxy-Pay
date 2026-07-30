@@ -45,11 +45,11 @@ export function PageHeader({ eyebrow, title, subtitle, right }) {
         <h1 style={{
           margin: "8px 0 0", fontSize: 28, fontWeight: 800,
           letterSpacing: -0.5,
-          background: "linear-gradient(135deg, #ecedf5 0%, #c0c3d4 100%)",
+          background: "linear-gradient(135deg, var(--text-strong) 0%, var(--text) 100%)",
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
         }}>{title}</h1>
         {subtitle && (
-          <div style={{ fontSize: 13, color: "#6b6f85", marginTop: 6, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 13, color: "var(--text-faint)", marginTop: 6, lineHeight: 1.5 }}>
             {subtitle}
           </div>
         )}
@@ -73,11 +73,11 @@ export function ReportHeader({ eyebrow, title, subtitle, right }) {
           fontSize: 32, margin: "8px 0 0",
           letterSpacing: -0.5, textWrap: "balance",
           fontWeight: 800,
-          background: "linear-gradient(135deg, #ecedf5 0%, #c0c3d4 100%)",
+          background: "linear-gradient(135deg, var(--text-strong) 0%, var(--text) 100%)",
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
         }}>{title}</h1>
         {subtitle && (
-          <div style={{ fontSize: 13, color: "#6b6f85", marginTop: 6, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 13, color: "var(--text-faint)", marginTop: 6, lineHeight: 1.5 }}>
             {subtitle}
           </div>
         )}
@@ -96,7 +96,7 @@ export function DateBadge({ children }) {
       border: "1px solid rgba(124,108,255,0.15)",
       borderRadius: 10,
       fontSize: 12.5, fontWeight: 500,
-      color: "#b0b3c4",
+      color: "var(--text-dim)",
       whiteSpace: "nowrap",
     }}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round">

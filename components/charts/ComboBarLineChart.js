@@ -35,14 +35,14 @@ export default function ComboBarLineChart({ labels, gtgd, slgd, accent, header =
       <svg viewBox={`0 0 ${cW} ${cH}`} width="100%" style={{ display: "block" }}>
         {header && (
           <>
-            <text x={pL} y={26} fontSize={12.5} fontWeight={700} fill="#8a8fa6" letterSpacing={1}>
+            <text x={pL} y={26} fontSize={12.5} fontWeight={700} fill="var(--text-dim)" letterSpacing={1}>
               THEO KỲ · ĐVT: TỶ VND (CỘT) &amp; SỐ GD (ĐƯỜNG)
             </text>
             <rect x={cW - pR - 200} y={16} width={12} height={12} fill={accent} opacity={0.85} rx={2} />
-            <text x={cW - pR - 183} y={26} fontSize={12} fill="#c8ccd9">GTGD (tỷ)</text>
+            <text x={cW - pR - 183} y={26} fontSize={12} fill="var(--text)">GTGD (tỷ)</text>
             <line x1={cW - pR - 98} x2={cW - pR - 78} y1={22} y2={22} stroke="#fbbf24" strokeWidth={2.4} />
             <circle cx={cW - pR - 88} cy={22} r={3.5} fill="#fbbf24" />
-            <text x={cW - pR - 72} y={26} fontSize={12} fill="#c8ccd9">SLGD</text>
+            <text x={cW - pR - 72} y={26} fontSize={12} fill="var(--text)">SLGD</text>
           </>
         )}
         <line x1={pL} x2={cW - pR} y1={pT + iH} y2={pT + iH} stroke="#3a3f52" strokeWidth={1} />
@@ -50,7 +50,7 @@ export default function ComboBarLineChart({ labels, gtgd, slgd, accent, header =
           const bh = Math.max(1, pT + iH - barY(v));
           const labelInside = bh > (header ? 32 : 28);
           const ly = labelInside ? barY(v) + (header ? 16 : 14) : pT + iH + (header ? 14 : 13);
-          const lc = labelInside ? "#ffffff" : "#a7abbe";
+          const lc = labelInside ? "#ffffff" : "var(--text-dim)";
           return (
             <g key={"b" + i}>
               <rect x={barX(i)} y={barY(v)} width={barW} height={bh} fill={accent} opacity={hover === i ? 1 : 0.9} rx={4} style={{ transition: "opacity 0.15s" }} />
@@ -70,7 +70,7 @@ export default function ComboBarLineChart({ labels, gtgd, slgd, accent, header =
           </text>
         ) : null))}
         {labels.map((w, i) => (
-          <text key={"x" + i} x={lineX(i)} y={cH - (header ? 14 : 12)} fontSize={11.5 * fontScale} fill="#a7abbe" textAnchor="middle" fontWeight={600}>
+          <text key={"x" + i} x={lineX(i)} y={cH - (header ? 14 : 12)} fontSize={11.5 * fontScale} fill="var(--text-dim)" textAnchor="middle" fontWeight={600}>
             {w}
           </text>
         ))}
