@@ -22,6 +22,14 @@
   --sidebar-bg: linear-gradient(180deg, rgba(15,16,28,0.98), rgba(10,11,18,0.99));
   --badge-bg: rgba(20,22,36,0.85);
   --scrollbar-thumb: rgba(255, 255, 255, 0.09);
+  --text-strong: #e5e7eb;
+  --surface: rgba(30,34,45,0.85);
+  --surface-hover: rgba(255,255,255,0.03);
+  --surface-soft: rgba(255,255,255,0.04);
+  --surface-raised: rgba(255,255,255,0.06);
+  --accent-soft: #a78bfa;
+  --accent-soft-bg: rgba(124,108,255,0.12);
+  --glow-circle: rgba(255,255,255,0.04);
   color-scheme: dark;
 }
 
@@ -47,6 +55,14 @@
   --sidebar-bg: linear-gradient(180deg, #ffffff, #f8f7fc);
   --badge-bg: rgba(255, 255, 255, 0.9);
   --scrollbar-thumb: rgba(0, 0, 0, 0.12);
+  --text-strong: #374151;
+  --surface: rgba(255,255,255,0.92);
+  --surface-hover: rgba(0,0,0,0.025);
+  --surface-soft: rgba(0,0,0,0.035);
+  --surface-raised: rgba(0,0,0,0.05);
+  --accent-soft: #7c6cff;
+  --accent-soft-bg: rgba(99,84,224,0.12);
+  --glow-circle: rgba(0,0,0,0.03);
   color-scheme: light;
 }
 

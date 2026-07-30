@@ -39,8 +39,8 @@ export default function LoginScreen() {
         style={{
           width: "100%",
           maxWidth: 420,
-          background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
-          border: "1px solid rgba(255,255,255,0.08)",
+          background: "var(--card-bg)",
+          border: "1px solid var(--border)",
           borderRadius: 20,
           padding: "36px 32px",
           boxShadow: "0 30px 80px rgba(0,0,0,0.5)",
@@ -48,15 +48,15 @@ export default function LoginScreen() {
       >
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 26 }}>
           <Image src={logo} alt="Galaxy Pay" width={170} height={42} style={{ width: 170, height: "auto", display: "block" }} priority />
-          <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1.6, color: "#8a7dff", textAlign: "center" }}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1.6, color: "var(--accent)", textAlign: "center" }}>
             GALAXY PAY · BUSINESS INTELLIGENCE
           </div>
-          <div style={{ fontSize: 13, color: "#8a8fa6", marginTop: 2 }}>Đăng nhập để xem báo cáo Khối Kinh doanh</div>
+          <div style={{ fontSize: 13, color: "var(--text-dim)", marginTop: 2 }}>Đăng nhập để xem báo cáo Khối Kinh doanh</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.8, color: "#8a8fa6", textTransform: "uppercase" }}>Tài khoản</span>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.8, color: "var(--text-dim)", textTransform: "uppercase" }}>Tài khoản</span>
             <input
               type="text"
               value={u}
@@ -67,7 +67,7 @@ export default function LoginScreen() {
             />
           </label>
           <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.8, color: "#8a8fa6", textTransform: "uppercase" }}>Mật khẩu</span>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.8, color: "var(--text-dim)", textTransform: "uppercase" }}>Mật khẩu</span>
             <input
               type="password"
               value={p}
@@ -120,9 +120,9 @@ export default function LoginScreen() {
           style={{
             marginTop: 22,
             paddingTop: 18,
-            borderTop: "1px solid rgba(255,255,255,0.06)",
+            borderTop: "1px solid var(--border-soft)",
             fontSize: 11,
-            color: "#5b5f74",
+            color: "var(--text-faint)",
             textAlign: "center",
             lineHeight: 1.6,
           }}
@@ -137,11 +137,11 @@ export default function LoginScreen() {
 }
 
 const inputStyle = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "var(--surface-soft)",
+  border: "1px solid var(--border)",
   borderRadius: 10,
   padding: "12px 14px",
   fontSize: 14,
-  color: "#ecedf5",
+  color: "var(--text)",
   outline: "none",
 };
