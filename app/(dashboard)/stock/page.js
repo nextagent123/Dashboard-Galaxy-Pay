@@ -266,6 +266,53 @@ function StockTable({ title, icon, stocks, accentColor, onTickerClick }) {
   );
 }
 
+function SortArrows({ colKey, sortKey, sortDir, onSort }) {
+  const isActive = sortKey === colKey;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        flexDirection: "column",
+        marginLeft: 4,
+        lineHeight: 0,
+        verticalAlign: "middle",
+        cursor: "pointer",
+      }}
+    >
+      <span
+        onClick={(e) => { e.stopPropagation(); onSort(colKey, 1); }}
+        style={{
+          fontSize: 8,
+          lineHeight: "9px",
+          color: isActive && sortDir > 0 ? "#a78bfa" : "rgba(255,255,255,0.2)",
+          transition: "color 0.15s",
+        }}
+      >
+        ▲
+      </span>
+      <span
+        onClick={(e) => { e.stopPropagation(); onSort(colKey, -1); }}
+        style={{
+          fontSize: 8,
+          lineHeight: "9px",
+          color: isActive && sortDir < 0 ? "#a78bfa" : "rgba(255,255,255,0.2)",
+          transition: "color 0.15s",
+        }}
+      >
+        ▼
+      </span>
+    </span>
+  );
+}
+
+const SORT_PRESETS = [
+  { key: "changePercent", dir: -1, label: "% Tăng", icon: "📈" },
+  { key: "changePercent", dir: 1, label: "% Giảm", icon: "📉" },
+  { key: "volume", dir: -1, label: "KL cao", icon: "🔥" },
+  { key: "price", dir: -1, label: "Giá cao", icon: "💰" },
+  { key: "ticker", dir: 1, label: "A → Z", icon: "🔤" },
+];
+
 function BlueChipSection({ stocks, onTickerClick }) {
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState("ticker");
@@ -295,14 +342,18 @@ function BlueChipSection({ stocks, onTickerClick }) {
     return list;
   }, [stocks, search, sortKey, sortDir]);
 
+  const setSort = (key, dir) => {
+    if (sortKey === key && sortDir === dir) return;
+    setSortKey(key);
+    setSortDir(dir);
+  };
+
   const toggleSort = (key) => {
     if (sortKey === key) setSortDir((d) => -d);
     else { setSortKey(key); setSortDir(key === "ticker" ? 1 : -1); }
   };
 
   if (!stocks?.length) return null;
-
-  const sortIcon = (key) => (sortKey === key ? (sortDir > 0 ? " ▲" : " ▼") : "");
 
   return (
     <div style={{ ...CARD, padding: 0, overflow: "hidden" }}>
@@ -340,28 +391,68 @@ function BlueChipSection({ stocks, onTickerClick }) {
           }}
         />
       </div>
+      {/* Sort presets toolbar */}
+      <div
+        style={{
+          padding: "8px 20px",
+          borderBottom: "1px solid rgba(255,255,255,0.04)",
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          flexWrap: "wrap",
+          background: "rgba(255,255,255,0.015)",
+        }}
+      >
+        <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, marginRight: 4 }}>Sắp xếp:</span>
+        {SORT_PRESETS.map((p) => {
+          const active = sortKey === p.key && sortDir === p.dir;
+          return (
+            <button
+              key={p.label}
+              onClick={() => setSort(p.key, p.dir)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "4px 10px",
+                borderRadius: 6,
+                border: active ? "1px solid rgba(124,108,255,0.5)" : "1px solid rgba(255,255,255,0.08)",
+                background: active ? "rgba(124,108,255,0.15)" : "rgba(255,255,255,0.04)",
+                color: active ? "#c4b5fd" : "#9ca3af",
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              <span style={{ fontSize: 12 }}>{p.icon}</span>
+              {p.label}
+            </button>
+          );
+        })}
+      </div>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th style={{ ...TABLE_HEADER, cursor: "pointer" }} onClick={() => toggleSort("ticker")}>
-                Mã{sortIcon("ticker")}
+              <th style={{ ...TABLE_HEADER, cursor: "pointer", userSelect: "none" }} onClick={() => toggleSort("ticker")}>
+                <span style={{ display: "inline-flex", alignItems: "center" }}>Mã<SortArrows colKey="ticker" sortKey={sortKey} sortDir={sortDir} onSort={setSort} /></span>
               </th>
-              <th style={{ ...TABLE_HEADER, cursor: "pointer" }} onClick={() => toggleSort("name")}>
-                Tên{sortIcon("name")}
+              <th style={{ ...TABLE_HEADER, cursor: "pointer", userSelect: "none" }} onClick={() => toggleSort("name")}>
+                <span style={{ display: "inline-flex", alignItems: "center" }}>Tên<SortArrows colKey="name" sortKey={sortKey} sortDir={sortDir} onSort={setSort} /></span>
               </th>
               <th style={TABLE_HEADER}>Ngành</th>
-              <th style={{ ...TABLE_HEADER, textAlign: "right", cursor: "pointer" }} onClick={() => toggleSort("price")}>
-                Giá (nghìn){sortIcon("price")}
+              <th style={{ ...TABLE_HEADER, textAlign: "right", cursor: "pointer", userSelect: "none" }} onClick={() => toggleSort("price")}>
+                <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", width: "100%" }}>Giá (nghìn)<SortArrows colKey="price" sortKey={sortKey} sortDir={sortDir} onSort={setSort} /></span>
               </th>
-              <th style={{ ...TABLE_HEADER, textAlign: "right", cursor: "pointer" }} onClick={() => toggleSort("change")}>
-                +/-{sortIcon("change")}
+              <th style={{ ...TABLE_HEADER, textAlign: "right", cursor: "pointer", userSelect: "none" }} onClick={() => toggleSort("change")}>
+                <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", width: "100%" }}>+/-<SortArrows colKey="change" sortKey={sortKey} sortDir={sortDir} onSort={setSort} /></span>
               </th>
-              <th style={{ ...TABLE_HEADER, textAlign: "right", cursor: "pointer" }} onClick={() => toggleSort("changePercent")}>
-                %{sortIcon("changePercent")}
+              <th style={{ ...TABLE_HEADER, textAlign: "right", cursor: "pointer", userSelect: "none" }} onClick={() => toggleSort("changePercent")}>
+                <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", width: "100%" }}>%<SortArrows colKey="changePercent" sortKey={sortKey} sortDir={sortDir} onSort={setSort} /></span>
               </th>
-              <th style={{ ...TABLE_HEADER, textAlign: "right", cursor: "pointer" }} onClick={() => toggleSort("volume")}>
-                KL{sortIcon("volume")}
+              <th style={{ ...TABLE_HEADER, textAlign: "right", cursor: "pointer", userSelect: "none" }} onClick={() => toggleSort("volume")}>
+                <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "flex-end", width: "100%" }}>KL<SortArrows colKey="volume" sortKey={sortKey} sortDir={sortDir} onSort={setSort} /></span>
               </th>
             </tr>
           </thead>
