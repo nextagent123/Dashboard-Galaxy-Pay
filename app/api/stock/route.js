@@ -320,6 +320,44 @@ const FALLBACK = {
   updated: new Date().toISOString(),
 };
 
+async function ensureWatchlist(data) {
+  const existing = new Set((data.blueChips || []).map((s) => s.ticker));
+  const missing = [...BLUE].filter((t) => !existing.has(t));
+  if (missing.length === 0) {
+    data.blueChips = (data.blueChips || []).filter((s) => BLUE.has(s.ticker));
+    return data;
+  }
+  try {
+    const scanUrl = "https://scanner.tradingview.com/vietnam/scan";
+    const tickers = missing.flatMap((t) => [`HOSE:${t}`, `HNX:${t}`, `UPCOM:${t}`]);
+    const res = await fetch(scanUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ symbols: { tickers }, columns: ["close", "change", "volume"] }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const seen = new Set();
+      for (const item of json.data || []) {
+        const [close, changePct, volume] = item.d;
+        const ticker = item.s.split(":")[1];
+        if (!close || !ticker || seen.has(ticker)) continue;
+        seen.add(ticker);
+        data.blueChips.push({
+          ticker,
+          price: +close.toFixed(2),
+          change: +(close * changePct / 100).toFixed(2),
+          changePercent: +changePct.toFixed(2),
+          volume: volume || 0,
+        });
+      }
+    }
+  } catch {}
+  data.blueChips = (data.blueChips || []).filter((s) => BLUE.has(s.ticker));
+  return data;
+}
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const debug = searchParams.get("debug") === "1";
@@ -329,6 +367,7 @@ export async function GET(request) {
   }
 
   const log = [];
+  let result = null;
 
   // 1. Try Supabase first (populated by GitHub Actions cron)
   try {
@@ -338,47 +377,54 @@ export async function GET(request) {
     if (sbData) {
       log.push({ source: "supabase", status: "ok", ms });
       if (debug) sbData._debug = { winner: "supabase", ms, log };
-      _cache = sbData;
-      _cacheTime = Date.now();
-      return Response.json(sbData);
+      result = sbData;
+    } else {
+      log.push({ source: "supabase", status: "empty", ms });
     }
-    log.push({ source: "supabase", status: "empty", ms });
   } catch (e) {
     log.push({ source: "supabase", status: "fail", error: e.message });
   }
 
-  // 2. Try direct APIs
-  const directAPIs = [
-    { name: "tradingview", fn: fetchFromTradingView },
-    { name: "tcbs", fn: fetchFromTCBS },
-    { name: "vndirect", fn: fetchFromVNDirect },
-  ];
+  // 2. Try direct APIs if Supabase didn't work
+  if (!result) {
+    const directAPIs = [
+      { name: "tradingview", fn: fetchFromTradingView },
+      { name: "tcbs", fn: fetchFromTCBS },
+      { name: "vndirect", fn: fetchFromVNDirect },
+    ];
 
-  const results = await Promise.allSettled(
-    directAPIs.map(async (api) => {
-      const start = Date.now();
-      const result = await api.fn();
-      return { name: api.name, result, ms: Date.now() - start };
-    })
-  );
+    const results = await Promise.allSettled(
+      directAPIs.map(async (api) => {
+        const start = Date.now();
+        const r = await api.fn();
+        return { name: api.name, result: r, ms: Date.now() - start };
+      })
+    );
 
-  for (const r of results) {
-    if (r.status === "fulfilled" && r.value?.result) {
-      const data = r.value.result;
-      log.push({ source: r.value.name, status: "ok", ms: r.value.ms });
-      if (debug) data._debug = { winner: r.value.name, ms: r.value.ms, log };
-      _cache = data;
-      _cacheTime = Date.now();
-      return Response.json(data);
-    }
-    if (r.status === "rejected") {
-      const info = r.reason || {};
-      log.push({ source: info.name || "unknown", status: "fail", error: String(info.message || info) });
+    for (const r of results) {
+      if (r.status === "fulfilled" && r.value?.result) {
+        result = r.value.result;
+        log.push({ source: r.value.name, status: "ok", ms: r.value.ms });
+        if (debug) result._debug = { winner: r.value.name, ms: r.value.ms, log };
+        break;
+      }
+      if (r.status === "rejected") {
+        const info = r.reason || {};
+        log.push({ source: info.name || "unknown", status: "fail", error: String(info.message || info) });
+      }
     }
   }
 
   // 3. Fallback
-  const fallback = { ...FALLBACK, updated: new Date().toISOString() };
-  if (debug) fallback._debug = { winner: "fallback", log };
-  return Response.json(fallback);
+  if (!result) {
+    result = { ...FALLBACK, updated: new Date().toISOString() };
+    if (debug) result._debug = { winner: "fallback", log };
+  }
+
+  // Always ensure watchlist has all BLUE tickers
+  await ensureWatchlist(result);
+
+  _cache = result;
+  _cacheTime = Date.now();
+  return Response.json(result);
 }
