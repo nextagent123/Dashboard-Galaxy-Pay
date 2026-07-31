@@ -5,148 +5,32 @@ import {
   FALLBACK_ACT,
   FALLBACK_TGT,
   PRODUCTS,
-  KHOI,
   PIPELINE_GROUPS,
   BDM,
+  KHOI_YTD,
 } from "@/lib/data";
 
 const MONTHS = ["T1","T2","T3","T4","T5","T6","T7","T8","T9","T10","T11","T12"];
 const fv = (v, d = 1) => v.toLocaleString("vi-VN", { minimumFractionDigits: d, maximumFractionDigits: d });
 const fvInt = (v) => Math.round(v).toLocaleString("vi-VN");
-
 function sum(arr) { return arr.reduce((a, b) => a + b, 0); }
 
-// ── Donut Chart (SVG) ──
-function DonutChart({ segments, size = 120, thickness = 14, children }) {
-  const r = (size - thickness) / 2;
-  const cx = size / 2;
-  const cy = size / 2;
-  const circ = 2 * Math.PI * r;
-  let offset = 0;
-
-  return (
-    <div style={{ position: "relative", width: size, height: size }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border-soft)" strokeWidth={thickness} />
-        {segments.map((s, i) => {
-          const dash = (s.pct / 100) * circ;
-          const gap = circ - dash;
-          const el = (
-            <circle
-              key={i}
-              cx={cx} cy={cy} r={r}
-              fill="none"
-              stroke={s.color}
-              strokeWidth={thickness}
-              strokeDasharray={`${dash} ${gap}`}
-              strokeDashoffset={-offset}
-              strokeLinecap="round"
-              style={{ filter: `drop-shadow(0 0 4px ${s.color}40)` }}
-            />
-          );
-          offset += dash;
-          return el;
-        })}
-      </svg>
-      {children && (
-        <div style={{
-          position: "absolute", inset: 0,
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-        }}>
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Progress Ring ──
-function ProgressRing({ pct, color, label, size = 110, thickness = 8 }) {
-  const r = (size - thickness) / 2;
-  const circ = 2 * Math.PI * r;
-  const dash = (Math.min(pct, 100) / 100) * circ;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-      <div style={{ position: "relative", width: size, height: size }}>
-        <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--border-soft)" strokeWidth={thickness} />
-          <circle
-            cx={size/2} cy={size/2} r={r} fill="none"
-            stroke={color}
-            strokeWidth={thickness}
-            strokeDasharray={`${dash} ${circ - dash}`}
-            strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 6px ${color}60)` }}
-          />
-        </svg>
-        <div style={{
-          position: "absolute", inset: 0,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 22, fontWeight: 800, color: "var(--text-strong)",
-        }}>
-          {fv(pct, 0)}%
-        </div>
-      </div>
-      <div style={{ fontSize: 11.5, fontWeight: 700, color, textAlign: "center" }}>{label}</div>
-    </div>
-  );
-}
-
-// ── Area Chart (SVG) ──
-function AreaChart({ dataA, dataB, labels, height = 140, colorA = "#38bdf8", colorB = "#f87171" }) {
-  const all = [...dataA, ...dataB];
-  const maxV = Math.max(...all) * 1.15;
-  const w = 100;
-  const h = height;
-  const padL = 0;
-  const padR = 0;
-  const step = (w - padL - padR) / (dataA.length - 1);
-
-  const toPoints = (data) => data.map((v, i) => `${padL + i * step},${h - (v / maxV) * h}`).join(" ");
-
-  const makeAreaPath = (data) => {
-    const pts = data.map((v, i) => `${padL + i * step},${h - (v / maxV) * h}`);
-    return `M${pts[0]} ${pts.slice(1).map(p => `L${p}`).join(" ")} L${padL + (data.length - 1) * step},${h} L${padL},${h} Z`;
-  };
-
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height={height} preserveAspectRatio="none" style={{ display: "block" }}>
-      <defs>
-        <linearGradient id="gradA" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={colorA} stopOpacity="0.35" />
-          <stop offset="100%" stopColor={colorA} stopOpacity="0.02" />
-        </linearGradient>
-        <linearGradient id="gradB" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={colorB} stopOpacity="0.25" />
-          <stop offset="100%" stopColor={colorB} stopOpacity="0.02" />
-        </linearGradient>
-      </defs>
-      <path d={makeAreaPath(dataA)} fill="url(#gradA)" />
-      <polyline points={toPoints(dataA)} fill="none" stroke={colorA} strokeWidth="1.5" />
-      <path d={makeAreaPath(dataB)} fill="url(#gradB)" />
-      <polyline points={toPoints(dataB)} fill="none" stroke={colorB} strokeWidth="1.5" />
-    </svg>
-  );
-}
-
-// ── Dashboard Card Shell ──
-function DCard({ title, children, style: extraStyle, right }) {
+// ── Card ──
+function Card({ title, children, style: s, right, subtitle }) {
   return (
     <div style={{
-      background: "var(--card-bg-soft)",
-      border: "1px solid var(--border-soft)",
-      borderRadius: 14,
-      padding: "16px 18px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 12,
-      ...extraStyle,
+      background: "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
+      border: "1px solid rgba(124,108,255,0.12)",
+      borderRadius: 16, padding: "16px 18px",
+      display: "flex", flexDirection: "column", gap: 10,
+      ...s,
     }}>
       {(title || right) && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          {title && <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-strong)" }}>{title}</div>}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-strong)" }}>{title}</div>
+            {subtitle && <div style={{ fontSize: 10.5, color: "var(--text-faint)", marginTop: 2 }}>{subtitle}</div>}
+          </div>
           {right}
         </div>
       )}
@@ -155,357 +39,370 @@ function DCard({ title, children, style: extraStyle, right }) {
   );
 }
 
-// ── Horizontal Bar ──
-function HBar({ label, value, pct, color, maxPct = 100 }) {
+// ── Donut ──
+function Donut({ segments, size = 120, thickness = 14, children }) {
+  const r = (size - thickness) / 2;
+  const circ = 2 * Math.PI * r;
+  let off = 0;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <div style={{ width: 100, fontSize: 11.5, color: "var(--text-dim)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flexShrink: 0 }}>{label}</div>
-      <div style={{ flex: 1, height: 8, borderRadius: 4, background: "var(--surface-raised)", overflow: "hidden" }}>
-        <div style={{ width: `${(pct / maxPct) * 100}%`, height: "100%", borderRadius: 4, background: color, transition: "width 0.5s" }} />
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={thickness} />
+        {segments.map((s, i) => {
+          const dash = (s.pct / 100) * circ;
+          const el = (
+            <circle key={i} cx={size/2} cy={size/2} r={r} fill="none" stroke={s.color}
+              strokeWidth={thickness} strokeDasharray={`${dash} ${circ - dash}`}
+              strokeDashoffset={-off} strokeLinecap="round"
+              style={{ filter: `drop-shadow(0 0 4px ${s.color}50)` }} />
+          );
+          off += dash;
+          return el;
+        })}
+      </svg>
+      {children && <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>{children}</div>}
+    </div>
+  );
+}
+
+// ── Progress Ring ──
+function Ring({ pct, color, label, size = 90, thickness = 7 }) {
+  const r = (size - thickness) / 2;
+  const circ = 2 * Math.PI * r;
+  const dash = (Math.min(pct, 100) / 100) * circ;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+      <div style={{ position: "relative", width: size, height: size }}>
+        <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={thickness} />
+          <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color}
+            strokeWidth={thickness} strokeDasharray={`${dash} ${circ - dash}`}
+            strokeLinecap="round" style={{ filter: `drop-shadow(0 0 6px ${color}50)` }} />
+        </svg>
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, color: "var(--text-strong)" }}>
+          {Math.round(pct)}%
+        </div>
       </div>
-      <div className="mono" style={{ fontSize: 11.5, fontWeight: 700, color: "var(--text-strong)", width: 50, textAlign: "right", flexShrink: 0 }}>{value}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color, textAlign: "center" }}>{label}</div>
+    </div>
+  );
+}
+
+// ── Smooth Area Chart ──
+function AreaChart({ dataA, dataB, labels, height = 160 }) {
+  const all = [...dataA, ...dataB];
+  const maxV = Math.max(...all) * 1.2;
+  const minV = Math.min(...all) * 0.8;
+  const range = maxV - minV;
+  const n = dataA.length;
+  const padX = 6;
+  const w = 100;
+  const usableW = w - padX * 2;
+  const step = usableW / (n - 1);
+
+  const toY = (v) => height - ((v - minV) / range) * (height * 0.85) - height * 0.08;
+  const toX = (i) => padX + i * step;
+
+  const makePath = (data) => {
+    if (data.length < 2) return "";
+    let d = `M${toX(0)},${toY(data[0])}`;
+    for (let i = 1; i < data.length; i++) {
+      const x0 = toX(i - 1), y0 = toY(data[i - 1]);
+      const x1 = toX(i), y1 = toY(data[i]);
+      const cpx = (x0 + x1) / 2;
+      d += ` C${cpx},${y0} ${cpx},${y1} ${x1},${y1}`;
+    }
+    return d;
+  };
+
+  const makeArea = (data) => {
+    const line = makePath(data);
+    return `${line} L${toX(data.length - 1)},${height} L${toX(0)},${height} Z`;
+  };
+
+  const gridLines = 5;
+  const gridVals = Array.from({ length: gridLines }, (_, i) => minV + (range / (gridLines - 1)) * i);
+
+  return (
+    <svg viewBox={`0 0 ${w} ${height}`} width="100%" height={height} preserveAspectRatio="none" style={{ display: "block" }}>
+      <defs>
+        <linearGradient id="areaA2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.01" />
+        </linearGradient>
+        <linearGradient id="areaB2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#f87171" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#f87171" stopOpacity="0.01" />
+        </linearGradient>
+      </defs>
+      {gridVals.map((v, i) => {
+        const y = toY(v);
+        return <line key={i} x1={padX} x2={w - padX} y1={y} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />;
+      })}
+      <path d={makeArea(dataB)} fill="url(#areaB2)" />
+      <path d={makePath(dataB)} fill="none" stroke="#f87171" strokeWidth="1.2" opacity="0.8" />
+      <path d={makeArea(dataA)} fill="url(#areaA2)" />
+      <path d={makePath(dataA)} fill="none" stroke="#38bdf8" strokeWidth="1.5" />
+      {dataA.map((v, i) => (
+        <circle key={i} cx={toX(i)} cy={toY(v)} r="1.2" fill="#38bdf8" />
+      ))}
+    </svg>
+  );
+}
+
+// ── Mini Bar Chart ──
+function MiniBarChart({ data, color, height = 100 }) {
+  const maxV = Math.max(...data.map(d => d.value));
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height }}>
+      {data.map((d, i) => (
+        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <div style={{
+            width: "100%", maxWidth: 28, borderRadius: 4,
+            height: `${(d.value / maxV) * (height - 20)}px`,
+            background: d.peak ? `linear-gradient(180deg, ${color}, ${color}88)` : `${color}44`,
+            transition: "height 0.3s",
+          }} />
+          <span style={{ fontSize: 8, color: "var(--text-faint)", whiteSpace: "nowrap" }}>{d.label}</span>
+        </div>
+      ))}
     </div>
   );
 }
 
 export default function Home2Page() {
-  const data = useMemo(() => {
+  const d = useMemo(() => {
     const ACT = FALLBACK_ACT;
     const TGT = FALLBACK_TGT;
     const N = ACT.gmv.length;
 
-    const gmvAct = sum(ACT.gmv);
-    const dtAct = sum(ACT.dt);
-    const lnAct = sum(ACT.ln);
-    const gmvTgt = sum(TGT.gmv);
-    const dtTgt = sum(TGT.dt);
-    const lnTgt = sum(TGT.ln);
-    const total = gmvAct + dtAct + lnAct;
+    const gmvA = sum(ACT.gmv), dtA = sum(ACT.dt), lnA = sum(ACT.ln);
+    const gmvT = sum(TGT.gmv), dtT = sum(TGT.dt), lnT = sum(TGT.ln);
+    const gmvH1 = sum(TGT.gmv.slice(0, 6)), dtH1 = sum(TGT.dt.slice(0, 6)), lnH1 = sum(TGT.ln.slice(0, 6));
 
-    const gmvH1Tgt = sum(TGT.gmv.slice(0, 6));
-    const dtH1Tgt = sum(TGT.dt.slice(0, 6));
-    const lnH1Tgt = sum(TGT.ln.slice(0, 6));
-
-    const topProducts = PRODUCTS
-      .map(p => ({
-        name: p.name.replace("Dự án ", ""),
-        code: p.code,
-        accent: p.accent,
-        total: sum(p.months.map(m => m[1])),
-        txn: sum(p.months.map(m => m[2])),
-      }))
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 5);
+    const topProd = PRODUCTS
+      .map(p => ({ name: p.name.replace("Dự án ", ""), code: p.code, accent: p.accent, total: sum(p.months.map(m => m[1])), txn: sum(p.months.map(m => m[2])) }))
+      .sort((a, b) => b.total - a.total).slice(0, 5);
 
     const topBDM = BDM
-      .map(b => {
-        const gmvActual = sum(b.metrics.gmv.actual.filter(v => v !== null));
-        return { name: b.name, short: b.short, accent: b.accent, gmv: gmvActual };
-      })
-      .sort((a, b) => b.gmv - a.gmv)
-      .slice(0, 5);
+      .map(b => ({ name: b.name, short: b.short, accent: b.accent, gmv: sum(b.metrics.gmv.actual.filter(v => v !== null)) }))
+      .sort((a, b) => b.gmv - a.gmv).slice(0, 5);
+    const maxBDM = Math.max(...topBDM.map(b => b.gmv));
 
-    const maxBDMGmv = Math.max(...topBDM.map(b => b.gmv));
-
-    const pipelineStatus = PIPELINE_GROUPS.map(g => ({
-      name: g.short,
-      color: g.color,
+    const pipeline = PIPELINE_GROUPS.map(g => ({
+      name: g.short, color: g.color, label: g.label,
       pct: Math.round((g.actYTD / g.target) * 100),
-      label: g.label,
+      actYTD: g.actYTD, target: g.target,
     }));
 
-    return {
-      N,
-      gmvAct, dtAct, lnAct,
-      gmvTgt, dtTgt, lnTgt,
-      gmvH1Tgt, dtH1Tgt, lnH1Tgt,
-      gmvMonthly: ACT.gmv,
-      dtMonthly: ACT.dt,
-      gmvTgtMonthly: TGT.gmv.slice(0, N),
-      topProducts,
-      topBDM,
-      maxBDMGmv,
-      pipelineStatus,
-    };
+    const monthlyDT = ACT.dt.map((v, i) => ({ label: MONTHS[i], value: v, peak: v === Math.max(...ACT.dt) }));
+
+    return { N, ACT, TGT, gmvA, dtA, lnA, gmvT, dtT, lnT, gmvH1, dtH1, lnH1, topProd, topBDM, maxBDM, pipeline, monthlyDT };
   }, []);
 
-  const distSegments = [
-    { pct: 60, color: "#7c6cff", label: "GMV", value: fv(data.gmvAct, 0) + " tỷ" },
-    { pct: 25, color: "#34d399", label: "Doanh thu", value: fv(data.dtAct, 1) + " tỷ" },
-    { pct: 15, color: "#f59e0b", label: "Lợi nhuận", value: fv(data.lnAct, 1) + " tỷ" },
+  const distSegs = [
+    { pct: 55, color: "#7c6cff", label: "GMV", val: fv(d.gmvA, 0) + " tỷ" },
+    { pct: 30, color: "#34d399", label: "Doanh thu", val: fv(d.dtA, 1) + " tỷ" },
+    { pct: 15, color: "#f59e0b", label: "Lợi nhuận", val: fv(d.lnA, 1) + " tỷ" },
   ];
 
   return (
     <>
-      <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        marginBottom: 20, flexWrap: "wrap", gap: 12,
-      }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
         <div>
-          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1.6, color: "var(--accent)", textTransform: "uppercase" }}>
-            GALAXY PAY · DASHBOARD V2
-          </div>
-          <h1 style={{ margin: "4px 0 0", fontSize: 22, fontWeight: 800, letterSpacing: -0.3, color: "var(--text-strong)" }}>
-            Trang chủ 2 — Tổng quan dữ liệu
-          </h1>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.6, color: "var(--accent)", textTransform: "uppercase" }}>GALAXY PAY · DASHBOARD V2</div>
+          <h1 style={{ margin: "3px 0 0", fontSize: 20, fontWeight: 800, letterSpacing: -0.3, color: "var(--text-strong)" }}>Tổng quan dữ liệu kinh doanh</h1>
         </div>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 6,
-          padding: "6px 14px", borderRadius: 10,
-          background: "rgba(124,108,255,0.08)",
-          border: "1px solid rgba(124,108,255,0.25)",
-          fontSize: 12, color: "var(--text-dim)",
-        }}>
-          Số liệu đến <span className="mono" style={{ fontWeight: 700, color: "var(--accent-light)", marginLeft: 4 }}>16/07/2026</span>
+        <div style={{ fontSize: 11, color: "var(--text-dim)", display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 8, background: "rgba(124,108,255,0.08)", border: "1px solid rgba(124,108,255,0.2)" }}>
+          Cập nhật <span className="mono" style={{ fontWeight: 700, color: "var(--accent-light)" }}>16/07/2026</span>
         </div>
       </div>
 
-      {/* ── ROW 1: 3 columns ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr", gap: 14, marginBottom: 14 }}
-           className="home2-row1">
+      {/* ══ ROW 1: Distribution | Area Chart | KPI Rings ══ */}
+      <div className="home2-grid-top" style={{ display: "grid", gridTemplateColumns: "280px 1fr 200px", gap: 12, marginBottom: 12 }}>
 
-        {/* Card 1: Distribution */}
-        <DCard title="Phân bổ chỉ tiêu">
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <DonutChart segments={distSegments} size={110} thickness={12}>
-              <span className="mono" style={{ fontSize: 16, fontWeight: 800, color: "var(--text-strong)" }}>
-                {fv((data.gmvAct / data.gmvTgt) * 100, 0)}%
-              </span>
-              <span style={{ fontSize: 9, color: "var(--text-faint)" }}>GMV YTD</span>
-            </DonutChart>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
-              {distSegments.map((s) => (
-                <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 11, color: "var(--text-dim)", flex: 1 }}>{s.label}</span>
-                  <span className="mono" style={{ fontSize: 11, fontWeight: 700, color: "var(--text-strong)" }}>{s.value}</span>
+        {/* Distribution Donut */}
+        <Card title="Phân bổ chỉ tiêu" subtitle="Lũy kế T1–T6/2026">
+          <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "4px 0" }}>
+            <Donut segments={distSegs} size={100} thickness={12}>
+              <span className="mono" style={{ fontSize: 14, fontWeight: 800, color: "var(--text-strong)" }}>{fv((d.gmvA / d.gmvT) * 100, 0)}%</span>
+              <span style={{ fontSize: 8, color: "var(--text-faint)" }}>GMV YTD</span>
+            </Donut>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
+              {distSegs.map(s => (
+                <div key={s.label}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: "var(--text-dim)" }}>{s.label}</span>
+                  </div>
+                  <div className="mono" style={{ fontSize: 14, fontWeight: 800, color: "var(--text-strong)", paddingLeft: 14 }}>{s.val}</div>
                 </div>
               ))}
             </div>
           </div>
-        </DCard>
+        </Card>
 
-        {/* Card 2: GMV Trend (area chart) */}
-        <DCard title="Xu hướng GMV" right={
-          <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 11 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#38bdf8" }} />
-                <span style={{ color: "var(--text-dim)" }}>Thực đạt</span>
-              </span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#f87171" }} />
-                <span style={{ color: "var(--text-dim)" }}>Kế hoạch</span>
-              </span>
-            </div>
+        {/* Area Chart */}
+        <Card title="Xu hướng GMV theo tháng" right={
+          <div style={{ display: "flex", gap: 14, fontSize: 10.5 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 3, borderRadius: 2, background: "#38bdf8" }} /><span style={{ color: "var(--text-dim)" }}>Thực đạt</span></span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 3, borderRadius: 2, background: "#f87171" }} /><span style={{ color: "var(--text-dim)" }}>Kế hoạch</span></span>
           </div>
         }>
-          <div style={{ display: "flex", gap: 24, marginBottom: 4 }}>
-            <div>
-              <span className="mono" style={{ fontSize: 24, fontWeight: 800, color: "var(--text-strong)" }}>
-                {fv(data.gmvAct, 0)}
-              </span>
-              <span style={{ fontSize: 11, color: "var(--text-dim)", marginLeft: 6 }}>tỷ · Thực đạt</span>
-              <span style={{
-                fontSize: 10, fontWeight: 700, color: "#34d399",
-                background: "rgba(52,211,153,0.12)", padding: "2px 7px",
-                borderRadius: 6, marginLeft: 8,
-              }}>
-                {fv((data.gmvAct / data.gmvH1Tgt) * 100, 0)}% H1 ↑
-              </span>
-            </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 2 }}>
+            <span className="mono" style={{ fontSize: 26, fontWeight: 800, color: "var(--text-strong)" }}>{fv(d.gmvA, 0)}</span>
+            <span style={{ fontSize: 11, color: "var(--text-dim)" }}>tỷ · Thực đạt</span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: "#34d399", background: "rgba(52,211,153,0.12)", padding: "2px 8px", borderRadius: 6 }}>
+              {fv((d.gmvA / d.gmvH1) * 100, 0)}% H1 ↑
+            </span>
+            <span className="mono" style={{ fontSize: 18, fontWeight: 800, color: "var(--text-dim)", marginLeft: "auto" }}>{fv(sum(d.TGT.gmv.slice(0, d.N)), 0)}</span>
+            <span style={{ fontSize: 11, color: "var(--text-faint)" }}>tỷ · KH</span>
           </div>
+          <div style={{ borderRadius: 10, overflow: "hidden", background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.04)", padding: "8px 4px 0" }}>
+            <AreaChart dataA={d.ACT.gmv} dataB={d.TGT.gmv.slice(0, d.N)} labels={MONTHS.slice(0, d.N)} height={130} />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "0 6px", fontSize: 10, color: "var(--text-faint)" }}>
+            {MONTHS.slice(0, d.N).map(m => <span key={m}>{m}</span>)}
+          </div>
+        </Card>
 
-          <AreaChart
-            dataA={data.gmvMonthly}
-            dataB={data.gmvTgtMonthly}
-            labels={MONTHS.slice(0, data.N)}
-            height={120}
-          />
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "var(--text-faint)", marginTop: 2 }}>
-            {MONTHS.slice(0, data.N).map(m => <span key={m}>{m}</span>)}
+        {/* KPI Rings */}
+        <Card title="Tiến độ KPI" subtitle="vs Target năm">
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", paddingTop: 2 }}>
+            <Ring pct={(d.gmvA / d.gmvT) * 100} color="#7c6cff" label="GMV" size={78} thickness={6} />
+            <Ring pct={(d.dtA / d.dtT) * 100} color="#34d399" label="Doanh thu" size={78} thickness={6} />
+            <Ring pct={(d.lnA / d.lnT) * 100} color="#f59e0b" label="Lợi nhuận gộp" size={78} thickness={6} />
           </div>
-        </DCard>
-
-        {/* Card 3: Pipeline KPI Status */}
-        <DCard title="Tiến độ KPI">
-          <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "center", paddingTop: 4 }}>
-            {data.pipelineStatus.map((p) => (
-              <ProgressRing key={p.name} pct={p.pct} color={p.color} label={p.label} size={90} thickness={7} />
-            ))}
-          </div>
-        </DCard>
+        </Card>
       </div>
 
-      {/* ── ROW 2: Top products, Top BDM, Monthly breakdown ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}
-           className="home2-row2">
+      {/* ══ ROW 2: Products | DT Monthly | BDM Ranking ══ */}
+      <div className="home2-grid-mid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
 
         {/* Top Products */}
-        <DCard title="Top sản phẩm theo GMV" right={
-          <span style={{ fontSize: 10, color: "var(--text-faint)" }}>T1–T7/2026</span>
-        }>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {data.topProducts.map((p, i) => (
-              <div key={p.code} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{
-                  width: 24, height: 24, borderRadius: 6,
-                  background: p.accent + "22",
-                  border: `1px solid ${p.accent}44`,
+        <Card title="Top sản phẩm" subtitle="Xếp hạng theo GMV · T1–T7">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {d.topProd.map((p, i) => (
+              <div key={p.code} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span className="mono" style={{
+                  width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                  background: `${p.accent}20`, border: `1px solid ${p.accent}40`,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 10, fontWeight: 800, color: p.accent, flexShrink: 0,
+                  fontSize: 10, fontWeight: 800, color: p.accent,
                 }}>
                   {i + 1}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-strong)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {p.name}
-                  </div>
-                  <div style={{ fontSize: 10, color: "var(--text-faint)" }}>{fvInt(p.txn)} giao dịch</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-strong)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
+                  <div style={{ fontSize: 9.5, color: "var(--text-faint)" }}>{fvInt(p.txn)} GD</div>
                 </div>
-                <span className="mono" style={{ fontSize: 12, fontWeight: 700, color: p.accent, flexShrink: 0 }}>
-                  {fv(p.total, 1)} tỷ
-                </span>
+                <span className="mono" style={{ fontSize: 12, fontWeight: 700, color: p.accent, flexShrink: 0 }}>{fv(p.total, 1)}</span>
               </div>
             ))}
           </div>
-        </DCard>
+        </Card>
 
-        {/* Monthly GMV Breakdown */}
-        <DCard title="GMV theo tháng" right={
-          <span className="mono" style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-light)" }}>
-            {fv(data.gmvAct, 0)} tỷ
-          </span>
+        {/* Monthly DT Bar Chart */}
+        <Card title="Doanh thu theo tháng" subtitle="Đơn vị: tỷ VND" right={
+          <span className="mono" style={{ fontSize: 13, fontWeight: 700, color: "#34d399" }}>{fv(d.dtA, 1)} tỷ</span>
         }>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {data.gmvMonthly.map((v, i) => {
-              const tgt = data.gmvTgtMonthly[i];
-              const pct = (v / tgt) * 100;
-              const isTop = v === Math.max(...data.gmvMonthly);
-              return (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 22, fontSize: 10.5, fontWeight: 600, color: isTop ? "#7c6cff" : "var(--text-faint)", flexShrink: 0 }}>
-                    {MONTHS[i]}
-                  </span>
-                  <div style={{ flex: 1, height: 10, borderRadius: 5, background: "var(--surface-raised)", overflow: "hidden", position: "relative" }}>
-                    <div style={{
-                      width: `${Math.min(pct, 100)}%`, height: "100%", borderRadius: 5,
-                      background: isTop
-                        ? "linear-gradient(90deg,#7c6cff,#b98cff)"
-                        : pct >= 100 ? "#34d399" : "linear-gradient(90deg,rgba(124,108,255,0.5),rgba(124,108,255,0.3))",
-                    }} />
-                  </div>
-                  <span className="mono" style={{
-                    width: 60, fontSize: 10.5, fontWeight: 700, textAlign: "right", flexShrink: 0,
-                    color: isTop ? "#b98cff" : pct >= 100 ? "#34d399" : "var(--text-dim)",
-                  }}>
-                    {fv(v, 0)} tỷ
-                  </span>
+          <MiniBarChart data={d.monthlyDT} color="#34d399" height={110} />
+        </Card>
+
+        {/* BDM Ranking */}
+        <Card title="Xếp hạng BDM" subtitle="GMV lũy kế Q1–Q2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {d.topBDM.map((b, i) => (
+              <div key={b.name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ width: 28, fontSize: 11, fontWeight: 600, color: "var(--text-dim)", flexShrink: 0 }}>{b.short}</span>
+                <div style={{ flex: 1, height: 8, borderRadius: 4, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                  <div style={{ width: `${(b.gmv / d.maxBDM) * 100}%`, height: "100%", borderRadius: 4, background: `linear-gradient(90deg, ${b.accent}, ${b.accent}88)` }} />
                 </div>
-              );
-            })}
-          </div>
-        </DCard>
-
-        {/* Top BDM */}
-        <DCard title="Top BDM theo GMV" right={
-          <span style={{ fontSize: 10, color: "var(--text-faint)" }}>Lũy kế Q1-Q2</span>
-        }>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {data.topBDM.map((b, i) => (
-              <HBar
-                key={b.name}
-                label={b.short}
-                value={fv(b.gmv, 0) + " tỷ"}
-                pct={b.gmv}
-                color={b.accent}
-                maxPct={data.maxBDMGmv}
-              />
+                <span className="mono" style={{ fontSize: 11, fontWeight: 700, color: "var(--text-strong)", width: 50, textAlign: "right", flexShrink: 0 }}>{fv(b.gmv, 0)} tỷ</span>
+              </div>
             ))}
           </div>
-        </DCard>
+        </Card>
       </div>
 
-      {/* ── ROW 3: KPI Completion Rings + Target bars ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
-           className="home2-row3">
+      {/* ══ ROW 3: H1 Completion | Pipeline | Target vs Actual ══ */}
+      <div className="home2-grid-bot" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
 
-        {/* KPI Completion */}
-        <DCard title="Hoàn thành mục tiêu H1">
-          <div style={{ display: "flex", justifyContent: "space-around", padding: "8px 0" }}>
-            <ProgressRing
-              pct={Math.round((data.gmvAct / data.gmvH1Tgt) * 100)}
-              color="#7c6cff"
-              label="GMV"
-              size={100}
-              thickness={8}
-            />
-            <ProgressRing
-              pct={Math.round((data.dtAct / data.dtH1Tgt) * 100)}
-              color="#34d399"
-              label="Doanh thu"
-              size={100}
-              thickness={8}
-            />
-            <ProgressRing
-              pct={Math.round((data.lnAct / data.lnH1Tgt) * 100)}
-              color="#f59e0b"
-              label="Lợi nhuận"
-              size={100}
-              thickness={8}
-            />
+        {/* H1 Completion Rings */}
+        <Card title="Hoàn thành mục tiêu H1" subtitle="Thực đạt vs Target H1">
+          <div style={{ display: "flex", justifyContent: "space-around", padding: "6px 0" }}>
+            <Ring pct={(d.gmvA / d.gmvH1) * 100} color="#7c6cff" label="GMV" size={80} thickness={6} />
+            <Ring pct={(d.dtA / d.dtH1) * 100} color="#34d399" label="DT" size={80} thickness={6} />
+            <Ring pct={(d.lnA / d.lnH1) * 100} color="#f59e0b" label="LN" size={80} thickness={6} />
           </div>
-          <div style={{ display: "flex", justifyContent: "space-around", fontSize: 11, color: "var(--text-dim)", textAlign: "center" }}>
-            <span>{fv(data.gmvAct, 0)} / {fv(data.gmvH1Tgt, 0)} tỷ</span>
-            <span>{fv(data.dtAct, 1)} / {fv(data.dtH1Tgt, 1)} tỷ</span>
-            <span>{fv(data.lnAct, 1)} / {fv(data.lnH1Tgt, 1)} tỷ</span>
+          <div style={{ display: "flex", justifyContent: "space-around", fontSize: 10, color: "var(--text-faint)", textAlign: "center" }}>
+            <span>{fv(d.gmvA, 0)}/{fv(d.gmvH1, 0)}</span>
+            <span>{fv(d.dtA, 1)}/{fv(d.dtH1, 1)}</span>
+            <span>{fv(d.lnA, 1)}/{fv(d.lnH1, 1)}</span>
           </div>
-        </DCard>
+        </Card>
 
-        {/* Target vs Actual Bars */}
-        <DCard title="So sánh Thực đạt vs Mục tiêu năm">
+        {/* Pipeline Status */}
+        <Card title="Sale Pipeline" subtitle="Tiến độ dự án chiến lược">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "4px 0" }}>
+            {d.pipeline.map(p => (
+              <div key={p.name}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-strong)" }}>{p.label}</span>
+                  <span className="mono" style={{ fontSize: 11, fontWeight: 700, color: p.color }}>{p.pct}%</span>
+                </div>
+                <div style={{ height: 10, borderRadius: 5, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                  <div style={{ width: `${Math.min(p.pct, 100)}%`, height: "100%", borderRadius: 5, background: `linear-gradient(90deg, ${p.color}, ${p.color}88)` }} />
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9.5, color: "var(--text-faint)", marginTop: 3 }}>
+                  <span>YTD: {fvInt(p.actYTD)} tỷ</span>
+                  <span>Target: {fvInt(p.target)} tỷ</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Target vs Actual */}
+        <Card title="Thực đạt vs Mục tiêu năm" subtitle="Tỷ lệ hoàn thành 2026">
           <div style={{ display: "flex", flexDirection: "column", gap: 14, padding: "4px 0" }}>
             {[
-              { label: "GMV", act: data.gmvAct, tgt: data.gmvTgt, color: "#7c6cff" },
-              { label: "Doanh thu", act: data.dtAct, tgt: data.dtTgt, color: "#34d399" },
-              { label: "Lợi nhuận", act: data.lnAct, tgt: data.lnTgt, color: "#f59e0b" },
-            ].map((item) => {
+              { label: "GMV", act: d.gmvA, tgt: d.gmvT, color: "#7c6cff" },
+              { label: "Doanh thu", act: d.dtA, tgt: d.dtT, color: "#34d399" },
+              { label: "Lợi nhuận", act: d.lnA, tgt: d.lnT, color: "#f59e0b" },
+            ].map(item => {
               const pct = (item.act / item.tgt) * 100;
               return (
                 <div key={item.label}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
                     <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-strong)" }}>{item.label}</span>
-                    <span className="mono" style={{ fontSize: 11, color: item.color, fontWeight: 700 }}>
-                      {fv(pct, 1)}% năm
-                    </span>
+                    <span className="mono" style={{ fontSize: 11, fontWeight: 700, color: item.color }}>{fv(pct, 1)}%</span>
                   </div>
-                  <div style={{ position: "relative", height: 12, borderRadius: 6, background: "var(--surface-raised)", overflow: "hidden" }}>
-                    <div style={{
-                      width: `${Math.min(pct, 100)}%`, height: "100%", borderRadius: 6,
-                      background: `linear-gradient(90deg, ${item.color}, ${item.color}99)`,
-                    }} />
+                  <div style={{ height: 10, borderRadius: 5, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                    <div style={{ width: `${Math.min(pct, 100)}%`, height: "100%", borderRadius: 5, background: `linear-gradient(90deg, ${item.color}, ${item.color}88)` }} />
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontSize: 10, color: "var(--text-faint)" }}>
-                    <span>Thực đạt: {fv(item.act, 1)} tỷ</span>
-                    <span>Mục tiêu: {fv(item.tgt, 0)} tỷ</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9.5, color: "var(--text-faint)", marginTop: 3 }}>
+                    <span>{fv(item.act, 1)} tỷ</span>
+                    <span>{fv(item.tgt, 0)} tỷ</span>
                   </div>
                 </div>
               );
             })}
           </div>
-        </DCard>
+        </Card>
       </div>
 
       <style>{`
-        @media (max-width: 900px) {
-          .home2-row1, .home2-row2 { grid-template-columns: 1fr !important; }
-          .home2-row3 { grid-template-columns: 1fr !important; }
+        @media (max-width: 960px) {
+          .home2-grid-top { grid-template-columns: 1fr 1fr !important; }
+          .home2-grid-top > :first-child { grid-column: 1; }
+          .home2-grid-top > :nth-child(2) { grid-column: 2; }
+          .home2-grid-top > :nth-child(3) { grid-column: 1 / -1; }
+          .home2-grid-mid, .home2-grid-bot { grid-template-columns: 1fr 1fr !important; }
         }
-        @media (min-width: 901px) and (max-width: 1200px) {
-          .home2-row1 { grid-template-columns: 1fr 1fr !important; }
-          .home2-row2 { grid-template-columns: 1fr 1fr !important; }
+        @media (max-width: 640px) {
+          .home2-grid-top, .home2-grid-mid, .home2-grid-bot { grid-template-columns: 1fr !important; }
+          .home2-grid-top > :first-child { grid-column: 1; }
         }
       `}</style>
     </>
