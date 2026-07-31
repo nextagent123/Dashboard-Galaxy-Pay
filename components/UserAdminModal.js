@@ -55,7 +55,7 @@ export default function UserAdminModal() {
         inset: 0,
         zIndex: 200,
         background:
-          "radial-gradient(1200px 700px at 12% -8%, rgba(124,108,255,0.14), transparent 55%), radial-gradient(900px 600px at 100% 0%, rgba(157,123,255,0.08), transparent 50%), #0a0b12",
+          "var(--bg-body)",
         overflowY: "auto",
         padding: "32px 40px",
       }}
@@ -65,7 +65,7 @@ export default function UserAdminModal() {
           width: "100%",
           maxWidth: 1080,
           margin: "0 auto",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))",
+          background: "var(--card-bg-soft)",
           border: "1px solid rgba(124,108,255,0.2)",
           borderRadius: 18,
           boxShadow: "0 30px 80px rgba(0,0,0,0.4)",
@@ -79,7 +79,7 @@ export default function UserAdminModal() {
             justifyContent: "space-between",
             gap: 16,
             padding: "24px 28px",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            borderBottom: "1px solid var(--border-soft)",
             flexWrap: "wrap",
           }}
         >
@@ -90,10 +90,10 @@ export default function UserAdminModal() {
               style={{
                 width: 38,
                 height: 38,
-                border: "1px solid rgba(255,255,255,0.1)",
-                background: "rgba(255,255,255,0.03)",
+                border: "1px solid var(--border)",
+                background: "var(--surface-hover)",
                 borderRadius: 10,
-                color: "#a7abbe",
+                color: "var(--text-dimmer)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -105,9 +105,9 @@ export default function UserAdminModal() {
               </svg>
             </button>
             <div>
-              <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1.6, color: "#8a7dff" }}>ADMIN · GALAXY PAY</div>
+              <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1.6, color: "var(--accent)" }}>ADMIN · GALAXY PAY</div>
               <h2 style={{ margin: "4px 0 0", fontSize: 22, fontWeight: 800, letterSpacing: -0.3 }}>Quản lý tài khoản</h2>
-              <div style={{ fontSize: 12.5, color: "#8a8fa6", marginTop: 3 }}>Danh sách người dùng · Tạo mới · Đổi mật khẩu · Xóa</div>
+              <div style={{ fontSize: 12.5, color: "var(--text-dim)", marginTop: 3 }}>Danh sách người dùng · Tạo mới · Đổi mật khẩu · Xóa</div>
             </div>
           </div>
           <div
@@ -122,14 +122,14 @@ export default function UserAdminModal() {
               fontSize: 12,
             }}
           >
-            <span className="mono" style={{ fontWeight: 700, color: "#c3b9ff" }}>{allUsers.length}</span>
-            <span style={{ color: "#8a8fa6" }}>tài khoản</span>
+            <span className="mono" style={{ fontWeight: 700, color: "var(--accent-light)" }}>{allUsers.length}</span>
+            <span style={{ color: "var(--text-dim)" }}>tài khoản</span>
           </div>
         </div>
 
         <div style={{ padding: "20px 24px 24px", display: "flex", flexDirection: "column", gap: 22 }}>
           <div>
-            <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1, color: "#8a8fa6", textTransform: "uppercase", marginBottom: 10 }}>
+            <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1, color: "var(--text-dim)", textTransform: "uppercase", marginBottom: 10 }}>
               Tài khoản hiện có
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto" }}>
@@ -144,8 +144,8 @@ export default function UserAdminModal() {
                       gap: 12,
                       padding: "10px 12px",
                       borderRadius: 10,
-                      background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: "var(--surface-hover)",
+                      border: "1px solid var(--border-soft)",
                     }}
                   >
                     <div
@@ -160,9 +160,9 @@ export default function UserAdminModal() {
                     </div>
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {u.name} <span style={{ color: "#8a8fa6", fontWeight: 500 }}>· @{u.u}</span>
+                        {u.name} <span style={{ color: "var(--text-dim)", fontWeight: 500 }}>· @{u.u}</span>
                       </div>
-                      <div style={{ fontSize: 11, color: "#8a8fa6", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      <div style={{ fontSize: 11, color: "var(--text-dim)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {u.role} · {isDefault ? "Có sẵn trong hệ thống" : "Thêm mới"}
                       </div>
                     </div>
@@ -171,7 +171,7 @@ export default function UserAdminModal() {
                       title="Đổi mật khẩu"
                       style={{
                         flexShrink: 0, padding: "6px 10px", border: "1px solid rgba(124,108,255,0.3)",
-                        background: "rgba(124,108,255,0.1)", color: "#c3b9ff", borderRadius: 8,
+                        background: "rgba(124,108,255,0.1)", color: "var(--accent-light)", borderRadius: 8,
                         fontSize: 11.5, fontWeight: 600,
                       }}
                     >
@@ -202,7 +202,7 @@ export default function UserAdminModal() {
               padding: "16px", borderRadius: 10,
               background: "rgba(124,108,255,0.06)", border: "1px solid rgba(124,108,255,0.2)",
             }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#c3b9ff" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-light)" }}>
                 Đổi mật khẩu cho @{resetTarget}
               </div>
               <input type="password" value={resetPw} onChange={(e) => setResetPw(e.target.value)} placeholder="Mật khẩu mới (≥6 ký tự)" style={{ ...modalInputStyle, letterSpacing: 2 }} autoFocus />
@@ -215,16 +215,16 @@ export default function UserAdminModal() {
                   fontSize: 12.5, fontWeight: 700,
                 }}>Xác nhận</button>
                 <button type="button" onClick={() => setResetTarget(null)} style={{
-                  padding: "8px 16px", border: "1px solid rgba(255,255,255,0.1)",
-                  background: "transparent", color: "#8a8fa6", borderRadius: 8,
+                  padding: "8px 16px", border: "1px solid var(--border)",
+                  background: "transparent", color: "var(--text-dim)", borderRadius: 8,
                   fontSize: 12.5, fontWeight: 600,
                 }}>Hủy</button>
               </div>
             </form>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 11, paddingTop: 20, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1, color: "#8a8fa6", textTransform: "uppercase", marginBottom: 2 }}>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 11, paddingTop: 20, borderTop: "1px solid var(--border-soft)" }}>
+            <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: 1, color: "var(--text-dim)", textTransform: "uppercase", marginBottom: 2 }}>
               Tạo tài khoản mới
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -260,7 +260,7 @@ export default function UserAdminModal() {
             </button>
           </form>
 
-          <div style={{ fontSize: 11, color: "#5b5f74", textAlign: "center", paddingTop: 4 }}>
+          <div style={{ fontSize: 11, color: "var(--text-faint)", textAlign: "center", paddingTop: 4 }}>
             Tài khoản được lưu trên Supabase và đồng bộ trên mọi thiết bị.
           </div>
         </div>
@@ -270,11 +270,11 @@ export default function UserAdminModal() {
 }
 
 const modalInputStyle = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "var(--surface-soft)",
+  border: "1px solid var(--border)",
   borderRadius: 9,
   padding: "10px 12px",
   fontSize: 13.5,
-  color: "#ecedf5",
+  color: "var(--text)",
   outline: "none",
 };

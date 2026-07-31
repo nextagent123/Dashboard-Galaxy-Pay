@@ -14,9 +14,9 @@ export default function StatCard({ label, val, sub, deltaStr, deltaColor }) {
         justifyContent: sub || deltaStr ? undefined : "center",
       }}
     >
-      <div style={{ fontSize: 11, color: "#8a8fa6", letterSpacing: 1.2, fontWeight: 700, textTransform: "uppercase" }}>{label}</div>
-      <div className="mono" style={{ fontSize: 28, fontWeight: 800, color: "#ecedf5", marginTop: 2, letterSpacing: -0.5 }}>{val}</div>
-      {sub && <div style={{ fontSize: 11, color: "#8a8fa6", marginTop: 2 }}>{sub}</div>}
+      <div style={{ fontSize: 11, color: "var(--text-dim)", letterSpacing: 1.2, fontWeight: 700, textTransform: "uppercase" }}>{label}</div>
+      <div className="mono" style={{ fontSize: 28, fontWeight: 800, color: "var(--text-strong)", marginTop: 2, letterSpacing: -0.5 }}>{val}</div>
+      {sub && <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>{sub}</div>}
       {deltaStr && <div style={{ fontSize: 11, color: deltaColor, fontWeight: 600, marginTop: 2 }}>{deltaStr}</div>}
     </div>
   );

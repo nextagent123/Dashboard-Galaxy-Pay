@@ -79,21 +79,21 @@ export default function CtvReportPage() {
               </span>
             )}
           </div>
-          <div style={{ fontSize: 13, color: "#a7abbe", marginTop: 12, display: "flex", flexWrap: "wrap", gap: "6px 18px" }}>
-            <span><b style={{ color: "#ecedf5" }}>{summary.totalCtv}</b> cộng tác viên</span>
-            <span style={{ color: "#5b5f74" }}>•</span>
-            <span><b style={{ color: "#ecedf5" }}>{summary.totalCustomers}</b> lượt giới thiệu</span>
-            <span style={{ color: "#5b5f74" }}>•</span>
+          <div style={{ fontSize: 13, color: "var(--text-dim)", marginTop: 12, display: "flex", flexWrap: "wrap", gap: "6px 18px" }}>
+            <span><b style={{ color: "var(--text-strong)" }}>{summary.totalCtv}</b> cộng tác viên</span>
+            <span style={{ color: "var(--text-faint)" }}>•</span>
+            <span><b style={{ color: "var(--text-strong)" }}>{summary.totalCustomers}</b> lượt giới thiệu</span>
+            <span style={{ color: "var(--text-faint)" }}>•</span>
             <span>Hoa hồng <b style={{ color: "#fbbf24" }}>{summary.totalCommissionStr}</b></span>
           </div>
         </div>
         <div style={{ display: "flex", gap: 26 }}>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 10.5, color: "#8a8fa6", textTransform: "uppercase", letterSpacing: 0.6 }}>TB / cộng tác viên</div>
-            <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#ecedf5", marginTop: 4 }}>{summary.avgRevenueStr}</div>
+            <div style={{ fontSize: 10.5, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: 0.6 }}>TB / cộng tác viên</div>
+            <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "var(--text-strong)", marginTop: 4 }}>{summary.avgRevenueStr}</div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 10.5, color: "#8a8fa6", textTransform: "uppercase", letterSpacing: 0.6 }}>Lợi nhuận gộp</div>
+            <div style={{ fontSize: 10.5, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: 0.6 }}>Lợi nhuận gộp</div>
             <div className="mono" style={{ fontSize: 22, fontWeight: 800, color: "#34d399", marginTop: 4 }}>{summary.totalProfitStr}</div>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function CtvReportPage() {
 
       {/* ===== Bục vinh danh Top 3 ===== */}
       <section>
-        <div style={{ fontSize: 13, fontWeight: 800, color: "#ecedf5", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-strong)", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
           <span>⭐</span> Top cộng tác viên xuất sắc
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, alignItems: "end" }} className="grid-3">
@@ -140,13 +140,13 @@ export default function CtvReportPage() {
                     {c.initials}
                   </div>
                   <div>
-                    <div style={{ fontSize: isGold ? 16 : 14, fontWeight: 800, color: "#ecedf5", lineHeight: 1.25 }}>{c.name}</div>
+                    <div style={{ fontSize: isGold ? 16 : 14, fontWeight: 800, color: "var(--text-strong)", lineHeight: 1.25 }}>{c.name}</div>
                     <div style={{ display: "inline-flex", alignItems: "center", gap: 4, marginTop: 6, fontSize: 9.5, fontWeight: 900, letterSpacing: 1, color: "#0a0b12", background: c.tier.bg, padding: "2px 9px", borderRadius: 6 }}>
                       ★ {c.tier.label}
                     </div>
                   </div>
                   <div className="mono" style={{ fontSize: isGold ? 24 : 20, fontWeight: 800, color: c.tier.color, letterSpacing: -0.5 }}>{c.revenueStr}</div>
-                  <div style={{ display: "flex", gap: 16, fontSize: 11, color: "#8a8fa6" }}>
+                  <div style={{ display: "flex", gap: 16, fontSize: 11, color: "var(--text-dim)" }}>
                     <span>{c.shareStr} tổng DT</span>
                     <span>{c.uniqueCustomers} KH</span>
                   </div>
@@ -165,11 +165,11 @@ export default function CtvReportPage() {
           { label: "Doanh thu phát sinh", val: summary.totalRevenueStr, sub: "Cộng dồn tất cả CTV", accent: "#34d399" },
           { label: "Hoa hồng chi trả", val: summary.totalCommissionStr, sub: "Cộng dồn tất cả CTV", accent: "#fbbf24" },
         ].map((s) => (
-          <div key={s.label} style={{ position: "relative", overflow: "hidden", background: "linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015))", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 14, padding: "18px 20px" }}>
+          <div key={s.label} style={{ position: "relative", overflow: "hidden", background: "linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015))", border: "1px solid var(--border)", borderRadius: 14, padding: "18px 20px" }}>
             <div style={{ position: "absolute", top: -40, right: -40, width: 100, height: 100, borderRadius: "50%", background: s.accent, opacity: 0.14, filter: "blur(22px)" }} />
-            <div style={{ fontSize: 10.5, color: "#8a8fa6", letterSpacing: 1.1, fontWeight: 700, textTransform: "uppercase", position: "relative" }}>{s.label}</div>
-            <div className="mono" style={{ fontSize: 26, fontWeight: 800, color: "#ecedf5", marginTop: 6, letterSpacing: -0.5, position: "relative" }}>{s.val}</div>
-            <div style={{ fontSize: 11, color: "#8a8fa6", marginTop: 4, position: "relative" }}>{s.sub}</div>
+            <div style={{ fontSize: 10.5, color: "var(--text-dim)", letterSpacing: 1.1, fontWeight: 700, textTransform: "uppercase", position: "relative" }}>{s.label}</div>
+            <div className="mono" style={{ fontSize: 26, fontWeight: 800, color: "var(--text-strong)", marginTop: 6, letterSpacing: -0.5, position: "relative" }}>{s.val}</div>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4, position: "relative" }}>{s.sub}</div>
           </div>
         ))}
       </div>
@@ -201,12 +201,12 @@ export default function CtvReportPage() {
                   padding: "11px 14px",
                   borderRadius: 12,
                   cursor: "pointer",
-                  border: `1px solid ${isSelected ? ACCENT + "66" : "rgba(255,255,255,0.05)"}`,
+                  border: `1px solid ${isSelected ? ACCENT + "66" : "var(--border-soft)"}`,
                   background: isSelected ? "rgba(124,108,255,0.08)" : "rgba(255,255,255,0.02)",
                 }}
                 className="ctv-rank-row"
               >
-                <span className="mono" style={{ fontSize: 13, fontWeight: 800, color: n.rank <= 3 ? n.tier.color : "#565a6e", textAlign: "center" }}>
+                <span className="mono" style={{ fontSize: 13, fontWeight: 800, color: n.rank <= 3 ? n.tier.color : "var(--text-faintest)", textAlign: "center" }}>
                   {n.rank <= 3 ? MEDALS[n.rank - 1] : n.rank}
                 </span>
                 <span
@@ -217,19 +217,19 @@ export default function CtvReportPage() {
                 </span>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 13.5, fontWeight: 700, color: "#ecedf5", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{n.name}</span>
+                    <span style={{ fontSize: 13.5, fontWeight: 700, color: "var(--text-strong)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{n.name}</span>
                     <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.6, color: n.tier.color, border: `1px solid ${n.tier.color}55`, borderRadius: 5, padding: "1px 6px", flexShrink: 0 }}>{n.tier.label}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: "#8a8fa6", marginTop: 3 }}>{n.uniqueCustomers} KH · {n.quantity.toLocaleString("vi-VN")} thiết bị</div>
+                  <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 3 }}>{n.uniqueCustomers} KH · {n.quantity.toLocaleString("vi-VN")} thiết bị</div>
                 </div>
                 <div>
-                  <div style={{ height: 7, borderRadius: 4, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                  <div style={{ height: 7, borderRadius: 4, background: "var(--surface-raised)", overflow: "hidden" }}>
                     <div style={{ height: "100%", width: `${Math.max(n.revenueBarPct, 2)}%`, borderRadius: 4, background: `linear-gradient(90deg, ${n.tier.color}, ${n.tier.color}aa)` }} />
                   </div>
-                  <div style={{ fontSize: 10, color: "#8a8fa6", marginTop: 4 }}>{n.shareStr} tổng DT</div>
+                  <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 4 }}>{n.shareStr} tổng DT</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div className="mono" style={{ fontSize: 13.5, fontWeight: 800, color: "#ecedf5" }}>{n.revenueStr}</div>
+                  <div className="mono" style={{ fontSize: 13.5, fontWeight: 800, color: "var(--text-strong)" }}>{n.revenueStr}</div>
                   <div style={{ fontSize: 10, color: "#fbbf24", marginTop: 2 }}>HH {n.commissionStr}</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
@@ -260,15 +260,15 @@ export default function CtvReportPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Tìm khách hàng..."
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: "9px 12px", fontSize: 12.5, color: "#ecedf5", outline: "none", minWidth: 180 }}
+              style={{ background: "var(--surface-soft)", border: "1px solid var(--border)", borderRadius: 10, padding: "9px 12px", fontSize: 12.5, color: "var(--text-strong)", outline: "none", minWidth: 180 }}
             />
           </div>
         }
       >
-        <div className="table-wrap" style={{ marginTop: 14, border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12 }}>
+        <div className="table-wrap" style={{ marginTop: 14, border: "1px solid var(--border-soft)", borderRadius: 12 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 720 }}>
             <thead>
-              <tr style={{ textAlign: "left", color: "#8a8fa6", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "rgba(255,255,255,0.03)" }}>
+              <tr style={{ textAlign: "left", color: "var(--text-dim)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, background: "var(--surface-hover)" }}>
                 <th style={thStyle}>Khách hàng</th>
                 {selected === "all" && <th style={thStyle}>CTV</th>}
                 <th style={thStyle}>Tháng</th>
@@ -280,8 +280,8 @@ export default function CtvReportPage() {
             </thead>
             <tbody>
               {rows.map((r, i) => (
-                <tr key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.055)" }}>
-                  <td style={{ ...tdStyle, fontWeight: 600, color: "#ecedf5" }}>{r.khachHang}</td>
+                <tr key={i} style={{ borderTop: "1px solid var(--border-soft)" }}>
+                  <td style={{ ...tdStyle, fontWeight: 600, color: "var(--text-strong)" }}>{r.khachHang}</td>
                   {selected === "all" && <td style={tdStyle}>{r.nvkd}</td>}
                   <td style={tdStyle}>{r.thang}</td>
                   <td className="mono" style={{ ...tdStyle, textAlign: "right" }}>{r.soLuongStr}</td>
@@ -293,7 +293,7 @@ export default function CtvReportPage() {
             </tbody>
           </table>
           {rows.length === 0 && (
-            <div style={{ textAlign: "center", padding: "32px 0", color: "#8a8fa6", fontSize: 13 }}>Không tìm thấy khách hàng phù hợp.</div>
+            <div style={{ textAlign: "center", padding: "32px 0", color: "var(--text-dim)", fontSize: 13 }}>Không tìm thấy khách hàng phù hợp.</div>
           )}
         </div>
       </SectionCard>
@@ -302,14 +302,14 @@ export default function CtvReportPage() {
 }
 
 const thStyle = { padding: "10px 12px" };
-const tdStyle = { padding: "10px 12px", color: "#c9cbd8" };
+const tdStyle = { padding: "10px 12px", color: "var(--text)" };
 const selectStyle = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "var(--surface-soft)",
+  border: "1px solid var(--border)",
   borderRadius: 10,
   padding: "9px 12px",
   fontSize: 12.5,
-  color: "#ecedf5",
+  color: "var(--text-strong)",
   outline: "none",
   cursor: "pointer",
 };

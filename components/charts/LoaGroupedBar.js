@@ -23,10 +23,10 @@ export default function LoaGroupedBar({ customers }) {
           const isHover = hover === i;
           return (
             <g key={c.name}>
-              <text x={pL - 12} y={yBase + rowH / 2 + 3} fontSize={13} fill="#ecedf5" textAnchor="end" fontWeight={700}>{c.name}</text>
+              <text x={pL - 12} y={yBase + rowH / 2 + 3} fontSize={13} fill="var(--text-strong)" textAnchor="end" fontWeight={700}>{c.name}</text>
               <text x={pL - 12} y={yBase + rowH / 2 + 18} fontSize={10.5} fill={c.color} textAnchor="end">{c.avgLoaStr} loa/KH</text>
               <rect x={pL} y={yBase + 4} width={wCust} height={bh} fill={c.color} opacity={isHover ? 0.85 : 0.6} rx={3} style={{ transition: "opacity 0.15s" }} />
-              <text x={pL + wCust + 6} y={yBase + 4 + bh / 2 + 4} fontSize={11} fill="#c8ccd9" fontWeight={600} className="mono">{c.lastCustStr} KH</text>
+              <text x={pL + wCust + 6} y={yBase + 4 + bh / 2 + 4} fontSize={11} fill="var(--text)" fontWeight={600} className="mono">{c.lastCustStr} KH</text>
               <rect x={pL} y={yBase + 8 + bh} width={wLoas} height={bh} fill={c.color} opacity={isHover ? 1 : 1} rx={3} />
               <text x={pL + wLoas + 6} y={yBase + 8 + bh + bh / 2 + 4} fontSize={11} fill={c.color} fontWeight={700} className="mono">{c.lastLoasStr} loa</text>
               <rect

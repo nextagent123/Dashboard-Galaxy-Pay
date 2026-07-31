@@ -30,10 +30,10 @@ export default function ContributionRing({ pct, color, size = 104, stroke = 10, 
         />
       </svg>
       <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-        <span className="mono" style={{ fontSize: big ? size * 0.26 : size * 0.22, fontWeight: 800, color: "#ecedf5", letterSpacing: -0.5, lineHeight: 1 }}>
+        <span className="mono" style={{ fontSize: big ? size * 0.26 : size * 0.22, fontWeight: 800, color: "var(--text-strong)", letterSpacing: -0.5, lineHeight: 1 }}>
           {clamped.toFixed(clamped >= 10 ? 0 : 1)}%
         </span>
-        {sub && <span style={{ fontSize: size * 0.09, color: "#8a8fa6", marginTop: 3, fontWeight: 600 }}>{sub}</span>}
+        {sub && <span style={{ fontSize: size * 0.09, color: "var(--text-dim)", marginTop: 3, fontWeight: 600 }}>{sub}</span>}
       </div>
     </div>
   );

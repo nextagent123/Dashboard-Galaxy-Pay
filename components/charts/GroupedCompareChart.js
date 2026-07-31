@@ -22,7 +22,7 @@ export default function GroupedCompareChart({ people }) {
         {[0, 50, 100].map((g) => (
           <g key={g}>
             <line x1={pL} x2={cW - pR} y1={yBar(g)} y2={yBar(g)} stroke={g === 100 ? "#e11d48" : "#3a3f52"} strokeWidth={g === 100 ? 1.4 : 1} strokeDasharray={g === 100 ? "6,4" : "3,4"} opacity={g === 100 ? 0.85 : 0.5} />
-            <text x={pL - 8} y={yBar(g) + 4} fontSize={11} fill="#8a8fa6" textAnchor="end">{g}%</text>
+            <text x={pL - 8} y={yBar(g) + 4} fontSize={11} fill="var(--text-dim)" textAnchor="end">{g}%</text>
             {g === 100 && <text x={cW - pR - 4} y={yBar(g) - 6} fontSize={10.5} fill="#e11d48" textAnchor="end" fontWeight={700}>Đạt KPI</text>}
           </g>
         ))}
@@ -63,8 +63,8 @@ export default function GroupedCompareChart({ people }) {
                   </g>
                 );
               })}
-              <text x={pL + gi * groupW + groupW / 2} y={cH - 24} fontSize={12.5} fill="#ecedf5" textAnchor="middle" fontWeight={700}>{person.name}</text>
-              <text x={pL + gi * groupW + groupW / 2} y={cH - 10} fontSize={10.5} fill="#8a8fa6" textAnchor="middle">{person.role}</text>
+              <text x={pL + gi * groupW + groupW / 2} y={cH - 24} fontSize={12.5} fill="var(--text-strong)" textAnchor="middle" fontWeight={700}>{person.name}</text>
+              <text x={pL + gi * groupW + groupW / 2} y={cH - 10} fontSize={10.5} fill="var(--text-dim)" textAnchor="middle">{person.role}</text>
             </g>
           );
         })}

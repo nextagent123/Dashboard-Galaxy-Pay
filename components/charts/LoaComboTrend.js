@@ -23,7 +23,7 @@ export default function LoaComboTrend({ months, customers }) {
     <div style={{ position: "relative" }}>
       <svg viewBox={`0 0 ${tW} ${tH}`} width="100%" style={{ display: "block" }}>
         <line x1={tPL} x2={tW - tPR} y1={tPT + tIH} y2={tPT + tIH} stroke="#3a3f52" strokeWidth={1} />
-        <text x={tPL} y={20} fontSize={11} fill="#8a8fa6">GTGD (Tỷ) — trục trái</text>
+        <text x={tPL} y={20} fontSize={11} fill="var(--text-dim)">GTGD (Tỷ) — trục trái</text>
         <text x={tW - tPR} y={20} fontSize={11} fill="#fbbf24" textAnchor="end">Số KH (line) — trục phải</text>
         {months.map((m, mi) => {
           const xb = tPL + mi * stepM + (stepM - barMW) / 2;
@@ -39,8 +39,8 @@ export default function LoaComboTrend({ months, customers }) {
           return (
             <g key={mi}>
               {segs}
-              {!isEmpty && <text x={xb + barMW / 2} y={stackY - 6} fontSize={10.5} fill="#ecedf5" fontWeight={700} textAnchor="middle" className="mono">{monthTotalsGT[mi].toFixed(1)}</text>}
-              <text x={xb + barMW / 2} y={tH - 24} fontSize={11.5} fill={isEmpty ? "#565a6e" : "#8a8fa6"} textAnchor="middle" fontWeight={600}>{m}</text>
+              {!isEmpty && <text x={xb + barMW / 2} y={stackY - 6} fontSize={10.5} fill="var(--text-strong)" fontWeight={700} textAnchor="middle" className="mono">{monthTotalsGT[mi].toFixed(1)}</text>}
+              <text x={xb + barMW / 2} y={tH - 24} fontSize={11.5} fill={isEmpty ? "#565a6e" : "var(--text-dim)"} textAnchor="middle" fontWeight={600}>{m}</text>
               <rect
                 x={tPL + mi * stepM}
                 y={tPT}

@@ -60,8 +60,8 @@ export default function LoaPage() {
           <div>
             <div style={{ fontSize: 10.5, color: ACCENT, letterSpacing: 1.4, textTransform: "uppercase", fontWeight: 800 }}>Rollout · Thiết bị Loa thanh toán</div>
             <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 4 }}>
-              <span className="mono" style={{ fontSize: 34, fontWeight: 800, color: "#ecedf5", letterSpacing: -1 }}>{r.totalUnitsStr}</span>
-              <span style={{ fontSize: 13, color: "#8a8fa6", fontWeight: 600 }}>thiết bị đã bán ra · {r.kpiCards[0].val} nguồn khách hàng</span>
+              <span className="mono" style={{ fontSize: 34, fontWeight: 800, color: "var(--text-strong)", letterSpacing: -1 }}>{r.totalUnitsStr}</span>
+              <span style={{ fontSize: 13, color: "var(--text-dim)", fontWeight: 600 }}>thiết bị đã bán ra · {r.kpiCards[0].val} nguồn khách hàng</span>
             </div>
           </div>
         </div>
@@ -77,8 +77,8 @@ export default function LoaPage() {
       <section className="card" style={{ padding: "22px 24px" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: "#ecedf5" }}>Chi tiết theo nguồn khách hàng</div>
-            <div style={{ fontSize: 11, color: "#8a8fa6", marginTop: 2 }}>Theo đúng thứ tự sheet nguồn · Số liệu chưa gồm VAT</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text-strong)" }}>Chi tiết theo nguồn khách hàng</div>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>Theo đúng thứ tự sheet nguồn · Số liệu chưa gồm VAT</div>
           </div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {FILTERS.map((f) => (
@@ -87,9 +87,9 @@ export default function LoaPage() {
                 onClick={() => setFilter(f.value)}
                 style={{
                   fontSize: 12, fontWeight: 700, padding: "7px 13px", borderRadius: 999,
-                  border: `1px solid ${filter === f.value ? ACCENT : "rgba(255,255,255,0.12)"}`,
+                  border: `1px solid ${filter === f.value ? ACCENT : "var(--border)"}`,
                   background: filter === f.value ? ACCENT : "transparent",
-                  color: filter === f.value ? "#0a0b12" : "#8a8fa6",
+                  color: filter === f.value ? "#0a0b12" : "var(--text-dim)",
                   cursor: "pointer",
                 }}
               >
@@ -99,27 +99,27 @@ export default function LoaPage() {
           </div>
         </div>
 
-        <div className="table-wrap" style={{ border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10 }}>
+        <div className="table-wrap" style={{ border: "1px solid var(--border-soft)", borderRadius: 10 }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 760 }}>
             <thead>
-              <tr style={{ background: "rgba(255,255,255,0.04)" }}>
-                <th style={{ padding: "9px 10px", textAlign: "right", color: "#8a8fa6", fontWeight: 700, fontSize: 10.5, width: 40 }}>STT</th>
-                <th style={{ padding: "9px 10px", textAlign: "left", color: "#8a8fa6", fontWeight: 700, fontSize: 10.5 }}>Nguồn khách hàng</th>
-                <th style={{ padding: "9px 10px", textAlign: "right", color: "#8a8fa6", fontWeight: 700, fontSize: 10.5 }}>Số lượng thiết bị</th>
-                <th style={{ padding: "9px 10px", textAlign: "right", color: "#8a8fa6", fontWeight: 700, fontSize: 10.5 }}>Doanh thu</th>
-                <th style={{ padding: "9px 10px", textAlign: "right", color: "#8a8fa6", fontWeight: 700, fontSize: 10.5 }}>Lợi nhuận gộp</th>
-                <th style={{ padding: "9px 10px", textAlign: "left", color: "#8a8fa6", fontWeight: 700, fontSize: 10.5 }}>Tình trạng</th>
+              <tr style={{ background: "var(--surface-soft)" }}>
+                <th style={{ padding: "9px 10px", textAlign: "right", color: "var(--text-dim)", fontWeight: 700, fontSize: 10.5, width: 40 }}>STT</th>
+                <th style={{ padding: "9px 10px", textAlign: "left", color: "var(--text-dim)", fontWeight: 700, fontSize: 10.5 }}>Nguồn khách hàng</th>
+                <th style={{ padding: "9px 10px", textAlign: "right", color: "var(--text-dim)", fontWeight: 700, fontSize: 10.5 }}>Số lượng thiết bị</th>
+                <th style={{ padding: "9px 10px", textAlign: "right", color: "var(--text-dim)", fontWeight: 700, fontSize: 10.5 }}>Doanh thu</th>
+                <th style={{ padding: "9px 10px", textAlign: "right", color: "var(--text-dim)", fontWeight: 700, fontSize: 10.5 }}>Lợi nhuận gộp</th>
+                <th style={{ padding: "9px 10px", textAlign: "left", color: "var(--text-dim)", fontWeight: 700, fontSize: 10.5 }}>Tình trạng</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr key={row.stt}>
-                  <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.06)", textAlign: "right", color: "#8a8fa6" }}>{row.stt}</td>
-                  <td style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.06)", fontWeight: 700, color: "#ecedf5" }}>{row.name}</td>
-                  <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.06)", textAlign: "right", fontWeight: 700 }}>{row.unitsStr}</td>
-                  <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.06)", textAlign: "right", fontWeight: 800, color: ACCENT }}>{row.revenueStr}</td>
-                  <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.06)", textAlign: "right", color: "#c9cbd8" }}>{row.grossProfitStr}</td>
-                  <td style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid var(--border-soft)", textAlign: "right", color: "var(--text-dim)" }}>{row.stt}</td>
+                  <td style={{ padding: "12px 10px", borderTop: "1px solid var(--border-soft)", fontWeight: 700, color: "var(--text-strong)" }}>{row.name}</td>
+                  <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid var(--border-soft)", textAlign: "right", fontWeight: 700 }}>{row.unitsStr}</td>
+                  <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid var(--border-soft)", textAlign: "right", fontWeight: 800, color: ACCENT }}>{row.revenueStr}</td>
+                  <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid var(--border-soft)", textAlign: "right", color: "var(--text)" }}>{row.grossProfitStr}</td>
+                  <td style={{ padding: "12px 10px", borderTop: "1px solid var(--border-soft)" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700, padding: "5px 10px", borderRadius: 7, color: row.statusColor, background: row.statusBg }}>
                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: row.statusColor }} />
                       {row.statusLabel}
@@ -131,11 +131,11 @@ export default function LoaPage() {
             <tfoot>
               <tr>
                 <td></td>
-                <td style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.09)", fontWeight: 800, color: "#8a8fa6" }}>Tổng cộng</td>
-                <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.09)", textAlign: "right", fontWeight: 800 }}>{r.totalUnitsStr}</td>
-                <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.09)", textAlign: "right", fontWeight: 800, color: ACCENT }}>{r.totalRevenueStr}</td>
-                <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid rgba(255,255,255,0.09)", textAlign: "right", fontWeight: 800, color: "#c9cbd8" }}>{r.totalGrossProfitStr}</td>
-                <td style={{ borderTop: "1px solid rgba(255,255,255,0.09)" }}></td>
+                <td style={{ padding: "12px 10px", borderTop: "1px solid var(--border)", fontWeight: 800, color: "var(--text-dim)" }}>Tổng cộng</td>
+                <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid var(--border)", textAlign: "right", fontWeight: 800 }}>{r.totalUnitsStr}</td>
+                <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid var(--border)", textAlign: "right", fontWeight: 800, color: ACCENT }}>{r.totalRevenueStr}</td>
+                <td className="mono" style={{ padding: "12px 10px", borderTop: "1px solid var(--border)", textAlign: "right", fontWeight: 800, color: "var(--text)" }}>{r.totalGrossProfitStr}</td>
+                <td style={{ borderTop: "1px solid var(--border)" }}></td>
               </tr>
             </tfoot>
           </table>

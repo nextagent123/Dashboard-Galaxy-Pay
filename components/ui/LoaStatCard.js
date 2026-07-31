@@ -17,10 +17,10 @@ export default function LoaStatCard({ icon, label, val, sub, accent }) {
         <span style={{ width: 34, height: 34, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: `${accent}1e`, flexShrink: 0 }}>
           {icon}
         </span>
-        <span style={{ fontSize: 10.5, color: "#8a8fa6", letterSpacing: 1.1, fontWeight: 700, textTransform: "uppercase" }}>{label}</span>
+        <span style={{ fontSize: 10.5, color: "var(--text-dim)", letterSpacing: 1.1, fontWeight: 700, textTransform: "uppercase" }}>{label}</span>
       </div>
-      <div className="mono" style={{ fontSize: 27, fontWeight: 800, color: "#ecedf5", letterSpacing: -0.5, position: "relative" }}>{val}</div>
-      {sub && <div style={{ fontSize: 11, color: "#8a8fa6", marginTop: 4, position: "relative" }}>{sub}</div>}
+      <div className="mono" style={{ fontSize: 27, fontWeight: 800, color: "var(--text-strong)", letterSpacing: -0.5, position: "relative" }}>{val}</div>
+      {sub && <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4, position: "relative" }}>{sub}</div>}
     </div>
   );
 }

@@ -5,7 +5,7 @@ export default function KpiCardShell({ label, icon, iconBg, glow, children, rise
     <div className={rise ? "kpi-card rise" : "kpi-card"} style={{ "--glow": glow }}>
       <div className="kpi-card__glow" />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: "#b9bccb" }}>{label}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-dim)" }}>{label}</span>
         <span
           style={{
             width: 32,

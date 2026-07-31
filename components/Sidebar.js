@@ -41,15 +41,15 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
             className="sidebar-desktop-toggle"
             aria-label="Ẩn sidebar"
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "var(--surface-soft)",
+              border: "1px solid var(--border)",
               borderRadius: 6, width: 28, height: 28,
               display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", color: "#6b6f85",
+              cursor: "pointer", color: "var(--text-faint)",
               transition: "all 0.18s", flexShrink: 0,
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,108,255,0.15)"; e.currentTarget.style.color = "#a78bfa"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "#6b6f85"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(124,108,255,0.15)"; e.currentTarget.style.color = "var(--accent-soft)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "var(--surface-soft)"; e.currentTarget.style.color = "var(--text-faint)"; }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M11 19l-7-7 7-7" /><path d="M18 19V5" />
@@ -57,7 +57,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
           </button>
         </div>
         <div style={{
-          fontSize: 10.5, color: "#6b6f85", fontWeight: 500,
+          fontSize: 10.5, color: "var(--text-faint)", fontWeight: 500,
           letterSpacing: 0.3, paddingLeft: 2,
         }}>Báo cáo Khối Kinh doanh</div>
       </div>
@@ -82,7 +82,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
                   width: "100%", border: "none", background: "none",
                   fontSize: 10, fontWeight: 700, letterSpacing: 1.6,
                   textTransform: "uppercase",
-                  color: hasActive ? "rgba(167,139,250,0.8)" : "#4d5165",
+                  color: hasActive ? "rgba(167,139,250,0.8)" : "var(--text-faintest)",
                   padding: "12px 10px 6px",
                   cursor: "pointer",
                   transition: "color 0.2s",
@@ -121,7 +121,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
                         fontSize: 13, fontWeight: active ? 600 : 450,
                         position: "relative",
                         margin: "1px 0",
-                        color: active ? "#ecedf5" : "#8a8fa6",
+                        color: active ? "var(--text)" : "var(--text-dim)",
                         background: active
                           ? "linear-gradient(90deg, rgba(124,108,255,0.18), rgba(124,108,255,0.04))"
                           : "transparent",
@@ -132,14 +132,14 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
                       }}
                       onMouseEnter={(e) => {
                         if (!active) {
-                          e.currentTarget.style.background = "rgba(255,255,255,0.035)";
-                          e.currentTarget.style.color = "#c0c3d4";
+                          e.currentTarget.style.background = "var(--surface-hover)";
+                          e.currentTarget.style.color = "var(--text-strong)";
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!active) {
                           e.currentTarget.style.background = "transparent";
-                          e.currentTarget.style.color = "#8a8fa6";
+                          e.currentTarget.style.color = "var(--text-dim)";
                         }
                       }}
                     >
@@ -157,13 +157,13 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
                         flexShrink: 0,
                         background: active
                           ? "rgba(124,108,255,0.15)"
-                          : "rgba(255,255,255,0.04)",
+                          : "var(--surface-soft)",
                         transition: "background 0.18s",
                       }}>
                         <Icon
                           paths={item.icon}
                           size={16}
-                          stroke={active ? "#b7abff" : "currentColor"}
+                          stroke={active ? "var(--accent-soft)" : "currentColor"}
                         />
                       </span>
                       <span style={{
@@ -188,7 +188,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
 
       {/* Bottom section */}
       <div style={{
-        borderTop: "1px solid rgba(255,255,255,0.06)",
+        borderTop: "1px solid var(--border-soft)",
         paddingTop: 14, marginTop: 8,
       }}>
         <div style={{
@@ -206,8 +206,8 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
             flexShrink: 0,
           }}>GP</div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 600, color: "#c0c3d4" }}>Galaxy Pay v2.0</div>
-            <div style={{ fontSize: 10, color: "#5b5f74", display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-strong)" }}>Galaxy Pay v2.0</div>
+            <div style={{ fontSize: 10, color: "var(--text-faint)", display: "flex", alignItems: "center", gap: 4 }}>
               <span style={{
                 width: 6, height: 6, borderRadius: "50%",
                 background: "#34d399",
@@ -251,7 +251,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
             background: "var(--bg)",
             border: "1px solid rgba(124,108,255,0.25)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer", color: "#a78bfa",
+            cursor: "pointer", color: "var(--accent-soft)",
             boxShadow: "0 2px 12px rgba(0,0,0,0.4)",
             transition: "all 0.18s",
           }}

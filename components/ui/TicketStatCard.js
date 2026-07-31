@@ -18,10 +18,10 @@ export default function TicketStatCard({ icon, iconBg, iconColor, label, val, su
         <span style={{ width: 30, height: 30, borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center", background: iconBg, flexShrink: 0 }}>
           <Icon paths={icon} size={16} stroke={iconColor} strokeWidth={2} />
         </span>
-        <span style={{ fontSize: 10.5, color: "#8a8fa6", letterSpacing: 1.1, fontWeight: 700, textTransform: "uppercase" }}>{label}</span>
+        <span style={{ fontSize: 10.5, color: "var(--text-dim)", letterSpacing: 1.1, fontWeight: 700, textTransform: "uppercase" }}>{label}</span>
       </div>
-      <div className="mono" style={{ fontSize: 27, fontWeight: 800, color: "#ecedf5", letterSpacing: -0.5 }}>{val}</div>
-      {sub && <div style={{ fontSize: 11, color: "#8a8fa6", marginTop: 4 }}>{sub}</div>}
+      <div className="mono" style={{ fontSize: 27, fontWeight: 800, color: "var(--text-strong)", letterSpacing: -0.5 }}>{val}</div>
+      {sub && <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>{sub}</div>}
     </div>
   );
 }

@@ -63,7 +63,7 @@ export default function UserBadge() {
       </div>
       <div className="user-badge__text" style={{ minWidth: 0, flex: 1 }}>
         <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</div>
-        <div style={{ fontSize: 10.5, color: "#8a8fa6", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.role}</div>
+        <div style={{ fontSize: 10.5, color: "var(--text-dim)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.role}</div>
       </div>
       {isAdmin && (
         <button
@@ -76,7 +76,7 @@ export default function UserBadge() {
             border: "1px solid rgba(124,108,255,0.35)",
             background: "rgba(124,108,255,0.12)",
             borderRadius: 8,
-            color: "#c3b9ff",
+            color: "var(--accent-light)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -126,10 +126,10 @@ export default function UserBadge() {
           flexShrink: 0,
           width: 28,
           height: 28,
-          border: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(255,255,255,0.02)",
+          border: "1px solid var(--border)",
+          background: "var(--surface-hover)",
           borderRadius: 8,
-          color: "#8a8fa6",
+          color: "var(--text-dim)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",

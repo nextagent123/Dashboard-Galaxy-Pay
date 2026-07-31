@@ -5,12 +5,12 @@ import { useAuth } from "@/components/AuthProvider";
 import { NAV_SECTIONS } from "@/lib/nav";
 
 const INPUT = {
-  background: "rgba(255,255,255,0.04)",
-  border: "1px solid rgba(255,255,255,0.1)",
+  background: "var(--surface-soft)",
+  border: "1px solid var(--border)",
   borderRadius: 9,
   padding: "10px 12px",
   fontSize: 13.5,
-  color: "#ecedf5",
+  color: "var(--text-strong)",
   outline: "none",
   width: "100%",
   boxSizing: "border-box",
@@ -60,7 +60,7 @@ function RoutesPicker({ value, onChange }) {
           onChange={toggleFullAccess}
           style={{ accentColor: "#7c6cff", width: 16, height: 16 }}
         />
-        <span style={{ fontSize: 13, fontWeight: 600, color: isFullAccess ? "#34d399" : "#8a8fa6" }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: isFullAccess ? "#34d399" : "var(--text-dim)" }}>
           Toàn quyền truy cập
         </span>
       </label>
@@ -68,7 +68,7 @@ function RoutesPicker({ value, onChange }) {
         <div style={{
           display: "flex", flexDirection: "column", gap: 6,
           padding: "12px 14px", borderRadius: 10,
-          background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--surface-hover)", border: "1px solid var(--border-soft)",
           maxHeight: 240, overflowY: "auto",
         }}>
           {SECTIONS_FOR_PICKER.map((s) => {
@@ -84,7 +84,7 @@ function RoutesPicker({ value, onChange }) {
                     onChange={() => toggleSection(s.routes)}
                     style={{ accentColor: "#7c6cff", width: 14, height: 14 }}
                   />
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#8a8fa6", letterSpacing: 0.5, textTransform: "uppercase" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.5, textTransform: "uppercase" }}>
                     {s.header}
                   </span>
                 </label>
@@ -97,7 +97,7 @@ function RoutesPicker({ value, onChange }) {
                         onChange={() => toggleRoute(r.href)}
                         style={{ accentColor: "#7c6cff", width: 13, height: 13 }}
                       />
-                      <span style={{ fontSize: 12.5, color: selected.has(r.href) ? "#ecedf5" : "#6b6f85" }}>
+                      <span style={{ fontSize: 12.5, color: selected.has(r.href) ? "var(--text-strong)" : "var(--text-faint)" }}>
                         {r.label}
                       </span>
                     </label>
@@ -200,7 +200,7 @@ export default function QuanTriPage() {
       <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.3, marginBottom: 4 }}>
         Quản lý tài khoản
       </h1>
-      <p style={{ fontSize: 13, color: "#8a8fa6", marginBottom: 24 }}>
+      <p style={{ fontSize: 13, color: "var(--text-dim)", marginBottom: 24 }}>
         Tạo mới, phân quyền, đổi mật khẩu và quản lý người dùng hệ thống
       </p>
 
@@ -216,7 +216,7 @@ export default function QuanTriPage() {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700 }}>Tổng tài khoản</div>
-            <div style={{ fontSize: 12, color: "#8a8fa6" }}>
+            <div style={{ fontSize: 12, color: "var(--text-dim)" }}>
               {defaultCount} mặc định · {dynamicCount} Supabase
             </div>
           </div>
@@ -234,7 +234,7 @@ export default function QuanTriPage() {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700 }}>Lưu trữ</div>
-            <div style={{ fontSize: 12, color: "#8a8fa6" }}>Supabase · Đồng bộ mọi thiết bị</div>
+            <div style={{ fontSize: 12, color: "var(--text-dim)" }}>Supabase · Đồng bộ mọi thiết bị</div>
           </div>
         </div>
 
@@ -250,7 +250,7 @@ export default function QuanTriPage() {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700 }}>Bảo mật</div>
-            <div style={{ fontSize: 12, color: "#8a8fa6" }}>Mật khẩu SHA-256</div>
+            <div style={{ fontSize: 12, color: "var(--text-dim)" }}>Mật khẩu SHA-256</div>
           </div>
         </div>
       </div>
@@ -265,7 +265,7 @@ export default function QuanTriPage() {
       <div className="card" style={{ padding: 0, marginBottom: 24, overflow: "hidden" }}>
         <div style={{
           padding: "16px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          borderBottom: "1px solid var(--border-soft)",
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 0.5 }}>
@@ -282,7 +282,7 @@ export default function QuanTriPage() {
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
                 <th style={TH}></th>
                 <th style={TH}>Họ tên</th>
                 <th style={TH}>Username</th>
@@ -297,7 +297,7 @@ export default function QuanTriPage() {
               {filtered.map((u) => {
                 const routeCount = u.allowedRoutes ? u.allowedRoutes.length : ALL_ROUTES.length;
                 return (
-                  <tr key={u.u} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                  <tr key={u.u} style={{ borderBottom: "1px solid var(--border-faint)" }}>
                     <td style={{ ...TD, width: 48 }}>
                       <div style={{
                         width: 32, height: 32, borderRadius: 9,
@@ -312,9 +312,9 @@ export default function QuanTriPage() {
                     </td>
                     <td style={{ ...TD, fontWeight: 600 }}>{u.name}</td>
                     <td style={TD}>
-                      <span className="mono" style={{ color: "#a78bfa", fontSize: 12 }}>@{u.u}</span>
+                      <span className="mono" style={{ color: "var(--accent-soft)", fontSize: 12 }}>@{u.u}</span>
                     </td>
-                    <td style={{ ...TD, color: "#8a8fa6" }}>{u.role}</td>
+                    <td style={{ ...TD, color: "var(--text-dim)" }}>{u.role}</td>
                     <td style={TD}>
                       {u.isAdmin ? (
                         <span style={{
@@ -342,7 +342,7 @@ export default function QuanTriPage() {
                         display: "inline-block", padding: "3px 8px", borderRadius: 6,
                         fontSize: 11, fontWeight: 600,
                         background: u.isDefault ? "rgba(124,108,255,0.12)" : "rgba(52,211,153,0.12)",
-                        color: u.isDefault ? "#c3b9ff" : "#34d399",
+                        color: u.isDefault ? "var(--accent-light)" : "#34d399",
                         border: `1px solid ${u.isDefault ? "rgba(124,108,255,0.25)" : "rgba(52,211,153,0.25)"}`,
                       }}>
                         {u.isDefault ? "Mặc định" : "Supabase"}
@@ -370,7 +370,7 @@ export default function QuanTriPage() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} style={{ ...TD, textAlign: "center", color: "#5b5f74", padding: 32 }}>
+                  <td colSpan={8} style={{ ...TD, textAlign: "center", color: "var(--text-faint)", padding: 32 }}>
                     Không tìm thấy tài khoản nào
                   </td>
                 </tr>
@@ -383,7 +383,7 @@ export default function QuanTriPage() {
       {/* Edit permissions */}
       {editTarget && (
         <div className="card" style={{ padding: "20px", marginBottom: 24 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#c3b9ff", marginBottom: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-light)", marginBottom: 14 }}>
             Phân quyền cho @{editTarget}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -394,12 +394,12 @@ export default function QuanTriPage() {
                 onChange={(e) => setEditAdmin(e.target.checked)}
                 style={{ accentColor: "#fbbf24", width: 16, height: 16 }}
               />
-              <span style={{ fontSize: 13, fontWeight: 600, color: editAdmin ? "#fbbf24" : "#8a8fa6" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: editAdmin ? "#fbbf24" : "var(--text-dim)" }}>
                 Quyền Admin (xem tất cả trang, quản trị hệ thống)
               </span>
             </label>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#8a8fa6", marginBottom: 8 }}>Trang được truy cập:</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-dim)", marginBottom: 8 }}>Trang được truy cập:</div>
               <RoutesPicker value={editRoutes} onChange={setEditRoutes} />
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
@@ -409,8 +409,8 @@ export default function QuanTriPage() {
                 fontSize: 12.5, fontWeight: 700, cursor: "pointer",
               }}>Lưu</button>
               <button onClick={() => setEditTarget(null)} style={{
-                padding: "8px 16px", border: "1px solid rgba(255,255,255,0.1)",
-                background: "transparent", color: "#8a8fa6", borderRadius: 8,
+                padding: "8px 16px", border: "1px solid var(--border)",
+                background: "transparent", color: "var(--text-dim)", borderRadius: 8,
                 fontSize: 12.5, fontWeight: 600, cursor: "pointer",
               }}>Hủy</button>
             </div>
@@ -422,7 +422,7 @@ export default function QuanTriPage() {
       {resetTarget && (
         <div className="card" style={{ padding: "20px", marginBottom: 24 }}>
           <form onSubmit={handleResetSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#c3b9ff" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-light)" }}>
               Đổi mật khẩu cho @{resetTarget}
             </div>
             <input type="password" value={resetPw} onChange={(e) => setResetPw(e.target.value)} placeholder="Mật khẩu mới (min 6 ký tự)" style={{ ...INPUT, letterSpacing: 2 }} autoFocus />
@@ -435,8 +435,8 @@ export default function QuanTriPage() {
                 fontSize: 12.5, fontWeight: 700, cursor: "pointer",
               }}>Xác nhận</button>
               <button type="button" onClick={() => setResetTarget(null)} style={{
-                padding: "8px 16px", border: "1px solid rgba(255,255,255,0.1)",
-                background: "transparent", color: "#8a8fa6", borderRadius: 8,
+                padding: "8px 16px", border: "1px solid var(--border)",
+                background: "transparent", color: "var(--text-dim)", borderRadius: 8,
                 fontSize: 12.5, fontWeight: 600, cursor: "pointer",
               }}>Hủy</button>
             </div>
@@ -448,7 +448,7 @@ export default function QuanTriPage() {
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{
           padding: "16px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          borderBottom: "1px solid var(--border-soft)",
           fontSize: 13, fontWeight: 700, letterSpacing: 0.5,
         }}>
           Tạo tài khoản mới
@@ -467,10 +467,10 @@ export default function QuanTriPage() {
 
           <div style={{
             padding: "14px 16px", borderRadius: 10,
-            background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--surface-hover)", border: "1px solid var(--border-soft)",
             display: "flex", flexDirection: "column", gap: 12,
           }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#8a8fa6", letterSpacing: 0.5, textTransform: "uppercase" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.5, textTransform: "uppercase" }}>
               Phân quyền
             </div>
             <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
@@ -480,12 +480,12 @@ export default function QuanTriPage() {
                 onChange={(e) => setNewIsAdmin(e.target.checked)}
                 style={{ accentColor: "#fbbf24", width: 16, height: 16 }}
               />
-              <span style={{ fontSize: 13, fontWeight: 600, color: newIsAdmin ? "#fbbf24" : "#8a8fa6" }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: newIsAdmin ? "#fbbf24" : "var(--text-dim)" }}>
                 Quyền Admin
               </span>
             </label>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#8a8fa6", marginBottom: 6 }}>Trang được truy cập:</div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-dim)", marginBottom: 6 }}>Trang được truy cập:</div>
               <RoutesPicker value={newRoutes} onChange={setNewRoutes} />
             </div>
           </div>
@@ -511,14 +511,14 @@ export default function QuanTriPage() {
         </form>
       </div>
 
-      <div style={{ fontSize: 11, color: "#5b5f74", textAlign: "center", marginTop: 16 }}>
+      <div style={{ fontSize: 11, color: "var(--text-faint)", textAlign: "center", marginTop: 16 }}>
         Tài khoản được lưu trên Supabase và đồng bộ trên mọi thiết bị. Tài khoản mặc định chỉ có thể đổi mật khẩu.
       </div>
 
       <div
         style={{
           marginTop: 24, padding: "14px 18px", borderRadius: 12,
-          background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)",
+          background: "var(--surface-hover)", border: "1px solid var(--border-soft)",
           display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
         }}
       >
@@ -529,16 +529,16 @@ export default function QuanTriPage() {
             border: "1px solid rgba(124,108,255,0.2)",
             display: "flex", alignItems: "center", justifyContent: "center",
           }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-soft)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
               <path d="M12 16v-4M12 8h.01" />
             </svg>
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#c3b9ff" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-light)" }}>
               Galaxy Pay Dashboard v2.0
             </div>
-            <div style={{ fontSize: 11, color: "#5b5f74" }}>
+            <div style={{ fontSize: 11, color: "var(--text-faint)" }}>
               Cập nhật: 30/07/2026 · Cloudflare Workers + Supabase
             </div>
           </div>
@@ -560,7 +560,7 @@ const TH = {
   textAlign: "left",
   fontSize: 11,
   fontWeight: 700,
-  color: "#8a8fa6",
+  color: "var(--text-dim)",
   textTransform: "uppercase",
   letterSpacing: 0.8,
 };
@@ -571,7 +571,7 @@ const BTN_EDIT = {
   padding: "5px 10px",
   border: "1px solid rgba(124,108,255,0.3)",
   background: "rgba(124,108,255,0.1)",
-  color: "#c3b9ff",
+  color: "var(--accent-light)",
   borderRadius: 7,
   fontSize: 11,
   fontWeight: 600,

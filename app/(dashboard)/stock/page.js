@@ -104,9 +104,9 @@ const chgBg = (v) => {
 const chgArrow = (v) => (v > 0 ? "▲" : v < 0 ? "▼" : "—");
 
 const CARD = {
-  background: "rgba(30,34,45,0.85)",
+  background: "var(--surface)",
   borderRadius: 16,
-  border: "1px solid rgba(255,255,255,0.08)",
+  border: "1px solid var(--border)",
   padding: "20px 24px",
   backdropFilter: "blur(12px)",
 };
@@ -114,16 +114,16 @@ const TABLE_HEADER = {
   padding: "10px 12px",
   fontSize: 12,
   fontWeight: 600,
-  color: "#9ca3af",
+  color: "var(--text-dim)",
   textTransform: "uppercase",
   letterSpacing: 0.5,
-  borderBottom: "1px solid rgba(255,255,255,0.06)",
+  borderBottom: "1px solid var(--border-soft)",
   textAlign: "left",
 };
 const TABLE_CELL = {
   padding: "10px 12px",
   fontSize: 14,
-  borderBottom: "1px solid rgba(255,255,255,0.04)",
+  borderBottom: "1px solid var(--border-faint)",
 };
 
 function Skeleton({ h = 20, w = "100%", r = 8 }) {
@@ -133,7 +133,7 @@ function Skeleton({ h = 20, w = "100%", r = 8 }) {
         height: h,
         width: w,
         borderRadius: r,
-        background: "linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)",
+        background: "linear-gradient(90deg, var(--surface-soft) 25%, var(--surface-raised) 50%, var(--surface-soft) 75%)",
         backgroundSize: "200% 100%",
         animation: "shimmer 1.5s infinite",
       }}
@@ -156,20 +156,20 @@ function IndexCard({ idx }) {
       }}
     >
       <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: `${color}11` }} />
-      <div style={{ fontSize: 13, color: "#9ca3af", fontWeight: 600, marginBottom: 4 }}>
+      <div style={{ fontSize: 13, color: "var(--text-dim)", fontWeight: 600, marginBottom: 4 }}>
         {INDEX_LABELS[idx.code] || idx.code}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 8 }}>
-        <span style={{ fontSize: 32, fontWeight: 700, color: "#fff" }}>{fmtNum(idx.value)}</span>
+        <span style={{ fontSize: 32, fontWeight: 700, color: "var(--text)" }}>{fmtNum(idx.value)}</span>
         <span style={{ fontSize: 16, fontWeight: 600, color: cc }}>
           {chgArrow(idx.change)} {chgSign(idx.change)}{fmtNum(idx.change)} ({chgSign(idx.changePercent)}{fmtNum(idx.changePercent)}%)
         </span>
       </div>
-      <div style={{ display: "flex", gap: 16, fontSize: 12, color: "#9ca3af" }}>
-        <span>Mở: <b style={{ color: "#e5e7eb" }}>{fmtNum(idx.open)}</b></span>
+      <div style={{ display: "flex", gap: 16, fontSize: 12, color: "var(--text-dim)" }}>
+        <span>Mở: <b style={{ color: "var(--text-strong)" }}>{fmtNum(idx.open)}</b></span>
         <span>Cao: <b style={{ color: "#34d399" }}>{fmtNum(idx.high)}</b></span>
         <span>Thấp: <b style={{ color: "#ef4444" }}>{fmtNum(idx.low)}</b></span>
-        <span>KL: <b style={{ color: "#e5e7eb" }}>{fmtVol(idx.volume)}</b></span>
+        <span>KL: <b style={{ color: "var(--text-strong)" }}>{fmtVol(idx.volume)}</b></span>
       </div>
     </div>
   );
@@ -185,15 +185,15 @@ function BreadthBar({ breadth }) {
     <div style={{ ...CARD, padding: "16px 24px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10, fontSize: 13, fontWeight: 600 }}>
         <span style={{ color: "#34d399" }}>{"▲"} Tăng: {advances}</span>
-        <span style={{ color: "#9ca3af" }}>{"—"} Đứng: {unchanged}</span>
+        <span style={{ color: "var(--text-dim)" }}>{"—"} Đứng: {unchanged}</span>
         <span style={{ color: "#ef4444" }}>{"▼"} Giảm: {declines}</span>
       </div>
-      <div style={{ display: "flex", height: 12, borderRadius: 6, overflow: "hidden", background: "rgba(255,255,255,0.04)" }}>
+      <div style={{ display: "flex", height: 12, borderRadius: 6, overflow: "hidden", background: "var(--surface-soft)" }}>
         <div style={{ width: `${aP}%`, background: "linear-gradient(90deg, #22c55e, #34d399)", transition: "width 0.5s" }} />
-        <div style={{ width: `${uP}%`, background: "#6b7280", transition: "width 0.5s" }} />
+        <div style={{ width: `${uP}%`, background: "var(--text-faint)", transition: "width 0.5s" }} />
         <div style={{ width: `${dP}%`, background: "linear-gradient(90deg, #ef4444, #dc2626)", transition: "width 0.5s" }} />
       </div>
-      <div style={{ textAlign: "center", marginTop: 6, fontSize: 12, color: "#6b7280" }}>
+      <div style={{ textAlign: "center", marginTop: 6, fontSize: 12, color: "var(--text-faint)" }}>
         Tổng {total} mã trên sàn HOSE
       </div>
     </div>
@@ -208,14 +208,14 @@ function StockTable({ title, icon, stocks, accentColor, onTickerClick }) {
         style={{
           padding: "16px 20px",
           background: `linear-gradient(135deg, ${accentColor}18, transparent)`,
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          borderBottom: "1px solid var(--border-soft)",
           display: "flex",
           alignItems: "center",
           gap: 8,
         }}
       >
         <span style={{ fontSize: 18 }}>{icon}</span>
-        <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>{title}</span>
+        <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text)" }}>{title}</span>
       </div>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -234,18 +234,18 @@ function StockTable({ title, icon, stocks, accentColor, onTickerClick }) {
               const cc = chgColor(s.changePercent);
               const meta = STOCK_META[s.ticker];
               return (
-                <tr key={s.ticker} style={{ transition: "background 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
-                  <td style={{ ...TABLE_CELL, color: "#6b7280", fontWeight: 500, width: 32 }}>{i + 1}</td>
+                <tr key={s.ticker} style={{ transition: "background 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-hover)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                  <td style={{ ...TABLE_CELL, color: "var(--text-faint)", fontWeight: 500, width: 32 }}>{i + 1}</td>
                   <td style={TABLE_CELL}>
                     <div
                       onClick={() => onTickerClick?.(s.ticker)}
-                      style={{ fontWeight: 700, color: onTickerClick ? "#a78bfa" : "#fff", fontSize: 14, cursor: onTickerClick ? "pointer" : "default" }}
+                      style={{ fontWeight: 700, color: onTickerClick ? "var(--accent-soft)" : "var(--text)", fontSize: 14, cursor: onTickerClick ? "pointer" : "default" }}
                     >
                       {s.ticker}
                     </div>
-                    {meta && <div style={{ fontSize: 11, color: "#6b7280", marginTop: 1 }}>{meta.name}</div>}
+                    {meta && <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 1 }}>{meta.name}</div>}
                   </td>
-                  <td style={{ ...TABLE_CELL, textAlign: "right", fontWeight: 600, color: "#e5e7eb", fontVariantNumeric: "tabular-nums" }}>
+                  <td style={{ ...TABLE_CELL, textAlign: "right", fontWeight: 600, color: "var(--text-strong)", fontVariantNumeric: "tabular-nums" }}>
                     {fmtNum(s.price)}
                   </td>
                   <td style={{ ...TABLE_CELL, textAlign: "right", color: cc, fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
@@ -259,14 +259,14 @@ function StockTable({ title, icon, stocks, accentColor, onTickerClick }) {
                         borderRadius: 6,
                         fontSize: 12,
                         fontWeight: 700,
-                        color: "#fff",
+                        color: "var(--text)",
                         background: chgBg(s.changePercent),
                       }}
                     >
                       {chgSign(s.changePercent)}{fmtNum(s.changePercent)}%
                     </span>
                   </td>
-                  <td style={{ ...TABLE_CELL, textAlign: "right", color: "#9ca3af", fontVariantNumeric: "tabular-nums" }}>
+                  <td style={{ ...TABLE_CELL, textAlign: "right", color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>
                     {fmtVol(s.volume)}
                   </td>
                 </tr>
@@ -297,7 +297,7 @@ function SortArrows({ colKey, sortKey, sortDir, onSort }) {
         style={{
           fontSize: 8,
           lineHeight: "9px",
-          color: isActive && sortDir > 0 ? "#a78bfa" : "rgba(255,255,255,0.2)",
+          color: isActive && sortDir > 0 ? "var(--accent-soft)" : "var(--text-faintest)",
           transition: "color 0.15s",
         }}
       >
@@ -308,7 +308,7 @@ function SortArrows({ colKey, sortKey, sortDir, onSort }) {
         style={{
           fontSize: 8,
           lineHeight: "9px",
-          color: isActive && sortDir < 0 ? "#a78bfa" : "rgba(255,255,255,0.2)",
+          color: isActive && sortDir < 0 ? "var(--accent-soft)" : "var(--text-faintest)",
           transition: "color 0.15s",
         }}
       >
@@ -374,7 +374,7 @@ function BlueChipSection({ stocks, onTickerClick }) {
         style={{
           padding: "16px 20px",
           background: "linear-gradient(135deg, rgba(124,108,255,0.1), transparent)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          borderBottom: "1px solid var(--border-soft)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -384,8 +384,8 @@ function BlueChipSection({ stocks, onTickerClick }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 18 }}>{"\u{1F4BC}"}</span>
-          <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>Danh mục của Hải Bùi</span>
-          <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 500 }}>({filtered.length} mã)</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text)" }}>Danh mục của Hải Bùi</span>
+          <span style={{ fontSize: 12, color: "var(--text-faint)", fontWeight: 500 }}>({filtered.length} mã)</span>
         </div>
         <input
           type="text"
@@ -393,12 +393,12 @@ function BlueChipSection({ stocks, onTickerClick }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            background: "var(--surface-raised)",
+            border: "1px solid var(--border)",
             borderRadius: 8,
             padding: "6px 12px",
             fontSize: 13,
-            color: "#e5e7eb",
+            color: "var(--text-strong)",
             outline: "none",
             width: 200,
           }}
@@ -408,15 +408,15 @@ function BlueChipSection({ stocks, onTickerClick }) {
       <div
         style={{
           padding: "8px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.04)",
+          borderBottom: "1px solid var(--border-faint)",
           display: "flex",
           alignItems: "center",
           gap: 6,
           flexWrap: "wrap",
-          background: "rgba(255,255,255,0.015)",
+          background: "var(--surface-hover)",
         }}
       >
-        <span style={{ fontSize: 11, color: "#6b7280", fontWeight: 600, marginRight: 4 }}>Sắp xếp:</span>
+        <span style={{ fontSize: 11, color: "var(--text-faint)", fontWeight: 600, marginRight: 4 }}>Sắp xếp:</span>
         {SORT_PRESETS.map((p) => {
           const active = sortKey === p.key && sortDir === p.dir;
           return (
@@ -429,9 +429,9 @@ function BlueChipSection({ stocks, onTickerClick }) {
                 gap: 4,
                 padding: "4px 10px",
                 borderRadius: 6,
-                border: active ? "1px solid rgba(124,108,255,0.5)" : "1px solid rgba(255,255,255,0.08)",
-                background: active ? "rgba(124,108,255,0.15)" : "rgba(255,255,255,0.04)",
-                color: active ? "#c4b5fd" : "#9ca3af",
+                border: active ? "1px solid rgba(124,108,255,0.5)" : "1px solid var(--border)",
+                background: active ? "rgba(124,108,255,0.15)" : "var(--surface-soft)",
+                color: active ? "var(--accent-soft)" : "var(--text-dim)",
                 fontSize: 11,
                 fontWeight: 600,
                 cursor: "pointer",
@@ -474,15 +474,15 @@ function BlueChipSection({ stocks, onTickerClick }) {
               const cc = chgColor(s.changePercent);
               const meta = STOCK_META[s.ticker];
               return (
-                <tr key={s.ticker} style={{ transition: "background 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
-                  <td style={{ ...TABLE_CELL, fontWeight: 700, color: onTickerClick ? "#a78bfa" : "#fff", cursor: onTickerClick ? "pointer" : "default" }} onClick={() => onTickerClick?.(s.ticker)}>{s.ticker}</td>
-                  <td style={{ ...TABLE_CELL, color: "#e5e7eb" }}>{meta?.name || s.ticker}</td>
+                <tr key={s.ticker} style={{ transition: "background 0.2s" }} onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-hover)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                  <td style={{ ...TABLE_CELL, fontWeight: 700, color: onTickerClick ? "var(--accent-soft)" : "var(--text)", cursor: onTickerClick ? "pointer" : "default" }} onClick={() => onTickerClick?.(s.ticker)}>{s.ticker}</td>
+                  <td style={{ ...TABLE_CELL, color: "var(--text-strong)" }}>{meta?.name || s.ticker}</td>
                   <td style={TABLE_CELL}>
-                    <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: "rgba(124,108,255,0.12)", color: "#a78bfa", fontWeight: 600 }}>
+                    <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: "var(--accent-soft-bg)", color: "var(--accent-soft)", fontWeight: 600 }}>
                       {meta?.sector || "—"}
                     </span>
                   </td>
-                  <td style={{ ...TABLE_CELL, textAlign: "right", fontWeight: 600, color: "#e5e7eb", fontVariantNumeric: "tabular-nums" }}>
+                  <td style={{ ...TABLE_CELL, textAlign: "right", fontWeight: 600, color: "var(--text-strong)", fontVariantNumeric: "tabular-nums" }}>
                     {fmtNum(s.price)}
                   </td>
                   <td style={{ ...TABLE_CELL, textAlign: "right", color: cc, fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
@@ -496,14 +496,14 @@ function BlueChipSection({ stocks, onTickerClick }) {
                         borderRadius: 6,
                         fontSize: 12,
                         fontWeight: 700,
-                        color: "#fff",
+                        color: "var(--text)",
                         background: chgBg(s.changePercent),
                       }}
                     >
                       {chgSign(s.changePercent)}{fmtNum(s.changePercent)}%
                     </span>
                   </td>
-                  <td style={{ ...TABLE_CELL, textAlign: "right", color: "#9ca3af", fontVariantNumeric: "tabular-nums" }}>
+                  <td style={{ ...TABLE_CELL, textAlign: "right", color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>
                     {fmtVol(s.volume)}
                   </td>
                 </tr>
@@ -555,10 +555,10 @@ function MiniChart({ history, width = 480, height = 160 }) {
       {prices.length > 0 && (() => {
         const lx = padX + ((prices.length - 1) / (prices.length - 1)) * chartW;
         const ly = padY + chartH - ((last - min) / range) * chartH;
-        return <circle cx={lx} cy={ly} r="4" fill={stroke} stroke="#1e222d" strokeWidth="2" />;
+        return <circle cx={lx} cy={ly} r="4" fill={stroke} stroke="var(--surface)" strokeWidth="2" />;
       })()}
-      <text x={padX} y={padY - 1} fill="#6b7280" fontSize="10" fontFamily="sans-serif">{fmtNum(max, 1)}</text>
-      <text x={padX} y={height - 2} fill="#6b7280" fontSize="10" fontFamily="sans-serif">{fmtNum(min, 1)}</text>
+      <text x={padX} y={padY - 1} fill="var(--text-faint)" fontSize="10" fontFamily="sans-serif">{fmtNum(max, 1)}</text>
+      <text x={padX} y={height - 2} fill="var(--text-faint)" fontSize="10" fontFamily="sans-serif">{fmtNum(min, 1)}</text>
     </svg>
   );
 }
@@ -569,7 +569,7 @@ function StockDetailPanel({ detail, onClose, loading: detLoading, error }) {
       <div style={{ ...CARD, marginBottom: 24, position: "relative" }}>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
           <Skeleton h={28} w={200} />
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#9ca3af", cursor: "pointer", fontSize: 20 }}>{"✕"}</button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-dim)", cursor: "pointer", fontSize: 20 }}>{"✕"}</button>
         </div>
         <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 300px" }}><Skeleton h={160} /><div style={{ marginTop: 12 }}><Skeleton h={20} /></div></div>
@@ -583,7 +583,7 @@ function StockDetailPanel({ detail, onClose, loading: detLoading, error }) {
       <div style={{ ...CARD, marginBottom: 24, position: "relative" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ color: "#ef4444", fontWeight: 600 }}>{error}</span>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "#9ca3af", cursor: "pointer", fontSize: 20 }}>{"✕"}</button>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-dim)", cursor: "pointer", fontSize: 20 }}>{"✕"}</button>
         </div>
       </div>
     );
@@ -612,55 +612,55 @@ function StockDetailPanel({ detail, onClose, loading: detLoading, error }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-              <span style={{ fontSize: 24, fontWeight: 800, color: "#fff" }}>{detail.ticker}</span>
-              <span style={{ fontSize: 13, padding: "3px 10px", borderRadius: 8, background: "rgba(124,108,255,0.15)", color: "#a78bfa", fontWeight: 600 }}>
+              <span style={{ fontSize: 24, fontWeight: 800, color: "var(--text)" }}>{detail.ticker}</span>
+              <span style={{ fontSize: 13, padding: "3px 10px", borderRadius: 8, background: "rgba(124,108,255,0.15)", color: "var(--accent-soft)", fontWeight: 600 }}>
                 {detail.exchange}
               </span>
             </div>
-            <div style={{ fontSize: 15, color: "#e5e7eb", fontWeight: 500 }}>{detail.companyName}</div>
-            {detail.industry && <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>{detail.industry}</div>}
+            <div style={{ fontSize: 15, color: "var(--text-strong)", fontWeight: 500 }}>{detail.companyName}</div>
+            {detail.industry && <div style={{ fontSize: 12, color: "var(--text-faint)", marginTop: 2 }}>{detail.industry}</div>}
           </div>
-          <button onClick={onClose} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#9ca3af", cursor: "pointer", fontSize: 18, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>{"✕"}</button>
+          <button onClick={onClose} style={{ background: "var(--surface-raised)", border: "1px solid var(--border)", borderRadius: 8, color: "var(--text-dim)", cursor: "pointer", fontSize: 18, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>{"✕"}</button>
         </div>
 
         <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 20 }}>
-          <span style={{ fontSize: 36, fontWeight: 800, color: "#fff" }}>{fmtNum(detail.price)}</span>
+          <span style={{ fontSize: 36, fontWeight: 800, color: "var(--text)" }}>{fmtNum(detail.price)}</span>
           <span style={{ fontSize: 18, fontWeight: 700, color: cc }}>
             {chgArrow(detail.change)} {chgSign(detail.change)}{fmtNum(detail.change)} ({chgSign(detail.changePercent)}{fmtNum(detail.changePercent)}%)
           </span>
         </div>
 
-        <div style={{ display: "flex", gap: 16, marginBottom: 20, fontSize: 13, color: "#9ca3af", flexWrap: "wrap" }}>
-          <span>Mở: <b style={{ color: "#e5e7eb" }}>{fmtNum(detail.open)}</b></span>
+        <div style={{ display: "flex", gap: 16, marginBottom: 20, fontSize: 13, color: "var(--text-dim)", flexWrap: "wrap" }}>
+          <span>Mở: <b style={{ color: "var(--text-strong)" }}>{fmtNum(detail.open)}</b></span>
           <span>Cao: <b style={{ color: "#34d399" }}>{fmtNum(detail.high)}</b></span>
           <span>Thấp: <b style={{ color: "#ef4444" }}>{fmtNum(detail.low)}</b></span>
-          <span>KL: <b style={{ color: "#e5e7eb" }}>{fmtVol(detail.volume)}</b></span>
+          <span>KL: <b style={{ color: "var(--text-strong)" }}>{fmtVol(detail.volume)}</b></span>
         </div>
 
         <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 320px", minWidth: 280 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-soft)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>
               Biểu đồ 30 ngày
             </div>
-            <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 12, padding: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ background: "var(--surface-hover)", borderRadius: 12, padding: 12, border: "1px solid var(--border-faint)" }}>
               <MiniChart history={detail.history} />
             </div>
             {detail.history?.length > 0 && (
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#6b7280", marginTop: 6, padding: "0 4px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-faint)", marginTop: 6, padding: "0 4px" }}>
                 <span>{detail.history[0].date?.slice(0, 10)}</span>
                 <span>{detail.history[detail.history.length - 1].date?.slice(0, 10)}</span>
               </div>
             )}
           </div>
           <div style={{ flex: "1 1 280px", minWidth: 240 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent-soft)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>
               Chỉ số tài chính
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1px", background: "rgba(255,255,255,0.04)", borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1px", background: "var(--surface-soft)", borderRadius: 12, overflow: "hidden", border: "1px solid var(--border-faint)" }}>
               {stats.map((s) => (
-                <div key={s.label} style={{ padding: "10px 14px", background: "rgba(30,34,45,0.9)" }}>
-                  <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 2 }}>{s.label}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#e5e7eb", fontVariantNumeric: "tabular-nums" }}>{s.value}</div>
+                <div key={s.label} style={{ padding: "10px 14px", background: "var(--surface)" }}>
+                  <div style={{ fontSize: 11, color: "var(--text-faint)", marginBottom: 2 }}>{s.label}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-strong)", fontVariantNumeric: "tabular-nums" }}>{s.value}</div>
                 </div>
               ))}
             </div>
@@ -668,7 +668,7 @@ function StockDetailPanel({ detail, onClose, loading: detLoading, error }) {
         </div>
 
         {detail.source && (
-          <div style={{ marginTop: 16, fontSize: 11, color: "#6b7280", textAlign: "right" }}>
+          <div style={{ marginTop: 16, fontSize: 11, color: "var(--text-faint)", textAlign: "right" }}>
             Nguồn: {detail.source} | {new Date(detail.updated).toLocaleString("vi-VN")}
           </div>
         )}
@@ -789,7 +789,7 @@ export default function StockPage() {
       {/* Hero Header */}
       <section
         style={{
-          background: "linear-gradient(135deg, rgba(15,16,28,0.9) 0%, rgba(124,108,255,0.08) 100%)",
+          background: "linear-gradient(135deg, var(--surface) 0%, rgba(124,108,255,0.08) 100%)",
           borderRadius: 20,
           padding: "28px 32px",
           marginBottom: 24,
@@ -804,7 +804,7 @@ export default function StockPage() {
         }}/>
         <div style={{ position: "relative" }}>
           <div style={{
-            fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "#a78bfa",
+            fontSize: 11, fontWeight: 700, letterSpacing: 2, color: "var(--accent-soft)",
             textTransform: "uppercase", marginBottom: 8,
             display: "flex", alignItems: "center", gap: 8,
           }}>
@@ -817,17 +817,16 @@ export default function StockPage() {
           </div>
           <h1 style={{
             fontSize: 28, fontWeight: 800, margin: 0, lineHeight: 1.2,
-            background: "linear-gradient(135deg, #ecedf5, #c0c3d4)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            color: "var(--text)",
           }}>
             Báo cáo Thị trường Chứng khoán Việt Nam
           </h1>
-          <p style={{ fontSize: 13, color: "#6b6f85", margin: "8px 0 0", maxWidth: 600, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 13, color: "var(--text-faint)", margin: "8px 0 0", maxWidth: 600, lineHeight: 1.5 }}>
             Theo dõi chỉ số VN-Index, HNX, UPCOM và biến động cổ phiếu trên sàn HOSE.
             Dữ liệu tự động cập nhật mỗi 5 phút.
           </p>
           {data?.updated && (
-            <div style={{ marginTop: 10, fontSize: 11.5, color: "#4d5165", display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ marginTop: 10, fontSize: 11.5, color: "var(--text-faintest)", display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", boxShadow: "0 0 6px rgba(52,211,153,0.5)", display: "inline-block" }}/>
               Cập nhật: {new Date(data.updated).toLocaleString("vi-VN")}
               {data.source && <span style={{ marginLeft: 4 }}>| Nguồn: {data.source}</span>}
@@ -849,18 +848,18 @@ export default function StockPage() {
                 onFocus={() => setShowSuggestions(true)}
                 style={{
                   width: "100%",
-                  background: "rgba(30,34,45,0.85)",
+                  background: "var(--surface)",
                   border: "1px solid rgba(124,108,255,0.3)",
                   borderRadius: 12,
                   padding: "12px 16px 12px 42px",
                   fontSize: 15,
-                  color: "#e5e7eb",
+                  color: "var(--text-strong)",
                   outline: "none",
                   backdropFilter: "blur(12px)",
                   boxSizing: "border-box",
                 }}
               />
-              <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", width: 18, height: 18 }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", width: 18, height: 18 }}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
             </div>
@@ -873,7 +872,7 @@ export default function StockPage() {
                 padding: "0 24px",
                 fontSize: 14,
                 fontWeight: 700,
-                color: "#fff",
+                color: "var(--text)",
                 cursor: "pointer",
                 whiteSpace: "nowrap",
               }}
@@ -888,7 +887,7 @@ export default function StockPage() {
               left: 0,
               right: 72,
               marginTop: 4,
-              background: "rgba(30,34,45,0.98)",
+              background: "var(--surface)",
               border: "1px solid rgba(124,108,255,0.25)",
               borderRadius: 12,
               overflow: "hidden",
@@ -909,18 +908,18 @@ export default function StockPage() {
                       justifyContent: "space-between",
                       padding: "10px 16px",
                       cursor: "pointer",
-                      borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      borderBottom: "1px solid var(--border-faint)",
                       transition: "background 0.15s",
                     }}
                     onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(124,108,255,0.1)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontWeight: 700, color: "#fff", fontSize: 14, minWidth: 44 }}>{s.ticker}</span>
-                      {meta && <span style={{ fontSize: 13, color: "#9ca3af" }}>{meta.name}</span>}
+                      <span style={{ fontWeight: 700, color: "var(--text)", fontSize: 14, minWidth: 44 }}>{s.ticker}</span>
+                      {meta && <span style={{ fontSize: 13, color: "var(--text-dim)" }}>{meta.name}</span>}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontWeight: 600, color: "#e5e7eb", fontSize: 13, fontVariantNumeric: "tabular-nums" }}>{fmtNum(s.price)}</span>
+                      <span style={{ fontWeight: 600, color: "var(--text-strong)", fontSize: 13, fontVariantNumeric: "tabular-nums" }}>{fmtNum(s.price)}</span>
                       <span style={{ fontSize: 12, fontWeight: 600, color: cc, fontVariantNumeric: "tabular-nums" }}>
                         {chgSign(s.changePercent)}{fmtNum(s.changePercent)}%
                       </span>
@@ -961,7 +960,7 @@ export default function StockPage() {
         <section style={{ ...CARD, borderColor: "rgba(239,68,68,0.3)", marginBottom: 24, textAlign: "center", padding: 32 }}>
           <div style={{ fontSize: 36, marginBottom: 12 }}>{"⚠️"}</div>
           <div style={{ fontSize: 16, fontWeight: 600, color: "#ef4444", marginBottom: 8 }}>{err}</div>
-          <div style={{ fontSize: 13, color: "#6b7280" }}>
+          <div style={{ fontSize: 13, color: "var(--text-faint)" }}>
             Vui lòng thử lại sau hoặc kiểm tra kết nối mạng.
           </div>
         </section>
@@ -1021,11 +1020,11 @@ export default function StockPage() {
               flexWrap: "wrap",
               gap: 8,
               fontSize: 12,
-              color: "#6b7280",
+              color: "var(--text-faint)",
             }}
           >
             <div>
-              Nguồn dữ liệu: <b style={{ color: "#a78bfa" }}>{data.source}</b> | Tự động làm mới mỗi 5 phút
+              Nguồn dữ liệu: <b style={{ color: "var(--accent-soft)" }}>{data.source}</b> | Tự động làm mới mỗi 5 phút
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span

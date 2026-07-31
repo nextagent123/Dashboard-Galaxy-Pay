@@ -69,7 +69,7 @@ export default function GrowthBarChart({ title, unit, years, h1, fullYear, forec
 
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: "#ecedf5", marginBottom: 6 }}>{title} ({unit})</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-strong)", marginBottom: 6 }}>{title} ({unit})</div>
       <svg viewBox={`0 0 ${svgW} ${svgH}`} width="100%">
         <defs>
           <linearGradient id={`fg-${title}`} x1="0" y1="0" x2="0" y2="1">
@@ -83,8 +83,8 @@ export default function GrowthBarChart({ title, unit, years, h1, fullYear, forec
           const y = toY(val);
           return (
             <g key={i}>
-              <line x1={padL} x2={svgW - padR} y1={y} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-              <text x={padL - 8} y={y + 4} textAnchor="end" fill="#6b6f82" fontSize="10" fontFamily="monospace">{fmt(val)}</text>
+              <line x1={padL} x2={svgW - padR} y1={y} y2={y} stroke="var(--border-soft)" strokeWidth="1" />
+              <text x={padL - 8} y={y + 4} textAnchor="end" fill="var(--text-faint)" fontSize="10" fontFamily="monospace">{fmt(val)}</text>
             </g>
           );
         })}
@@ -123,11 +123,11 @@ export default function GrowthBarChart({ title, unit, years, h1, fullYear, forec
                 fill={isForecast ? `url(#fg-${title})` : isHovered ? "rgba(140,100,220,0.95)" : "rgba(120,80,200,0.7)"}
                 style={isHovered ? { filter: "brightness(1.2)" } : undefined}
               />
-              <text x={cx + barW / 2 + barGap / 2} y={toY(fyVal) - 6} textAnchor="middle" fill={isForecast ? "#a78bfa" : "#c9cbd8"} fontSize="9.5" fontWeight="700" fontFamily="monospace">
+              <text x={cx + barW / 2 + barGap / 2} y={toY(fyVal) - 6} textAnchor="middle" fill={isForecast ? "#a78bfa" : "var(--text)"} fontSize="9.5" fontWeight="700" fontFamily="monospace">
                 {fmt(fyVal)} {suffix}
               </text>
 
-              <text x={cx} y={svgH - 8} textAnchor="middle" fill="#8a8fa6" fontSize="12" fontWeight="600">{yr}</text>
+              <text x={cx} y={svgH - 8} textAnchor="middle" fill="var(--text-dim)" fontSize="12" fontWeight="600">{yr}</text>
             </g>
           );
         })}
@@ -135,7 +135,7 @@ export default function GrowthBarChart({ title, unit, years, h1, fullYear, forec
         <polyline points={trendPoints} fill="none" stroke="#f87171" strokeWidth="2" strokeDasharray="6 4" opacity="0.6" />
       </svg>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 8, fontSize: 11, color: "#8a8fa6" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 8, fontSize: 11, color: "var(--text-dim)" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <span style={{ width: 14, height: 10, borderRadius: 2, background: "rgba(180,155,240,0.35)", display: "inline-block" }} /> H1
         </span>

@@ -32,7 +32,7 @@ export default function DualSeriesBarChart({ data, seriesA, seriesB, colorA, col
               <rect x={gx + barW + barGap} y={by} width={barW} height={Math.max(pT + iH - by, 1)} fill={colorB} rx={3} opacity={hover === keyB ? 1 : 0.9} style={{ transition: "opacity 0.15s" }} />
               <rect x={gx - 2} y={pT} width={barW + 4} height={iH} fill="transparent" onMouseEnter={() => setHover(keyA)} onMouseLeave={() => setHover(null)} style={{ cursor: "pointer" }} />
               <rect x={gx + barW + barGap - 2} y={pT} width={barW + 4} height={iH} fill="transparent" onMouseEnter={() => setHover(keyB)} onMouseLeave={() => setHover(null)} style={{ cursor: "pointer" }} />
-              <text x={pL + i * groupW + groupW / 2} y={cH - 14} fontSize={11.5} fill="#a7abbe" textAnchor="middle" fontWeight={600}>
+              <text x={pL + i * groupW + groupW / 2} y={cH - 14} fontSize={11.5} fill="var(--text-dim)" textAnchor="middle" fontWeight={600}>
                 {d.label}
               </text>
             </g>

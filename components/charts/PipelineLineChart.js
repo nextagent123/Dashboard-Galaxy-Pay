@@ -59,11 +59,11 @@ export default function PipelineLineChart({ monthlyTargets, prevYear, runrate, t
             style={{ cursor: "pointer" }}
           />
         ))}
-        <text x={padX} y={chartH - 6} fontSize={15} fill="#ecedf5" fontWeight={600}>
+        <text x={padX} y={chartH - 6} fontSize={15} fill="var(--text-strong)" fontWeight={600}>
           <tspan>Current Run Rate: </tspan>
           <tspan fill={color} fontWeight={800}>{vnTy(runrate)} {unit}</tspan>
         </text>
-        <text x={padX} y={chartH + 12} fontSize={13} fill="#8a8fa6">
+        <text x={padX} y={chartH + 12} fontSize={13} fill="var(--text-dim)">
           (so với {vnTy(prevYear)} {unit} năm 2025)
         </text>
       </svg>

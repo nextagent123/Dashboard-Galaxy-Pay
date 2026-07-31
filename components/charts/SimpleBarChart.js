@@ -43,7 +43,7 @@ export default function SimpleBarChart({ labels, values, color = "#fb7185", form
           );
         })}
         {labels.map((l, i) => (
-          <text key={"x" + i} x={pL + step * i + step / 2} y={cH - 12} fontSize={11.5} fill="#a7abbe" textAnchor="middle" fontWeight={600}>
+          <text key={"x" + i} x={pL + step * i + step / 2} y={cH - 12} fontSize={11.5} fill="var(--text-dim)" textAnchor="middle" fontWeight={600}>
             {l}
           </text>
         ))}

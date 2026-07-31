@@ -41,7 +41,7 @@ export default function OtaPage() {
       />
 
       {/* Annual monthly overview — all partners combined */}
-      <div style={{ fontSize: 13, fontWeight: 800, color: "#ecedf5", display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-strong)", display: "flex", alignItems: "center", gap: 8 }}>
         <PlaneIcon size={15} color={ACCENT} />
         Tổng quan theo tháng · Cả năm 2026 (tất cả đối tác)
       </div>
@@ -54,22 +54,22 @@ export default function OtaPage() {
       </div>
 
       <section className="card" style={{ padding: "22px 24px" }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: "#ecedf5", marginBottom: 4 }}>Booking Count</div>
-        <div style={{ fontSize: 11.5, color: "#8a8fa6", marginBottom: 6 }}>Số lượng đơn đặt theo tháng · Cả năm 2026</div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text-strong)", marginBottom: 4 }}>Booking Count</div>
+        <div style={{ fontSize: 11.5, color: "var(--text-dim)", marginBottom: 6 }}>Số lượng đơn đặt theo tháng · Cả năm 2026</div>
         <SimpleLineChart labels={m.labels} values={m.monthlyBookings} color={ACCENT} />
       </section>
 
       <section className="card" style={{ padding: "22px 24px" }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: "#ecedf5", marginBottom: 4 }}>Revenue Report</div>
-        <div style={{ fontSize: 11.5, color: "#8a8fa6", marginBottom: 6 }}>Doanh thu theo tháng (VND) · Cả năm 2026</div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text-strong)", marginBottom: 4 }}>Revenue Report</div>
+        <div style={{ fontSize: 11.5, color: "var(--text-dim)", marginBottom: 6 }}>Doanh thu theo tháng (VND) · Cả năm 2026</div>
         <SimpleBarChart labels={m.labels} values={m.monthlyRevenue} color={ACCENT} formatValue={(v) => (v >= 1e6 ? vnLoc(v / 1e6, 0) + "tr" : vnLoc(v, 0))} />
       </section>
 
-      <div style={{ fontSize: 11, color: "#565a6e" }}>
+      <div style={{ fontSize: 11, color: "var(--text-faintest)" }}>
         Số liệu theo tháng được quy đổi tỷ lệ từ ảnh biểu đồ báo cáo để khớp đúng 4 số tổng đã xác nhận cả năm (Total/Successful/Cancelled Bookings, Total Revenue) — sẽ cập nhật số chính xác từng tháng khi có dữ liệu gốc.
       </div>
 
-      <div style={{ fontSize: 13, fontWeight: 800, color: "#ecedf5", marginTop: 4 }}>Chi tiết theo đối tác</div>
+      <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-strong)", marginTop: 4 }}>Chi tiết theo đối tác</div>
 
       {/* Boarding-pass style hero */}
       <section
@@ -98,8 +98,8 @@ export default function OtaPage() {
               </div>
               <div>
                 <div style={{ fontSize: 10.5, color: ACCENT, letterSpacing: 1.4, textTransform: "uppercase", fontWeight: 800 }}>Boarding · Đối tác OTA</div>
-                <div style={{ fontSize: 19, fontWeight: 800, color: "#ecedf5", marginTop: 2 }}>{r.agent}</div>
-                <div style={{ fontSize: 11.5, color: "#8a8fa6", marginTop: 2 }}>Mã đối tác: {r.agentCode}</div>
+                <div style={{ fontSize: 19, fontWeight: 800, color: "var(--text-strong)", marginTop: 2 }}>{r.agent}</div>
+                <div style={{ fontSize: 11.5, color: "var(--text-dim)", marginTop: 2 }}>Mã đối tác: {r.agentCode}</div>
               </div>
             </div>
           </div>
@@ -113,7 +113,7 @@ export default function OtaPage() {
             className="ota-filter-col"
           >
             <label style={{ display: "flex", flexDirection: "column", gap: 5, flex: 1, minWidth: 140 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: "#8a8fa6", textTransform: "uppercase" }}>Đối tác</span>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: "var(--text-dim)", textTransform: "uppercase" }}>Đối tác</span>
               <select value={agent} onChange={(e) => handleAgentChange(e.target.value)} style={selectStyle}>
                 {agentOptions.map((o) => (
                   <option key={o.value} value={o.value}>{o.label}</option>
@@ -121,7 +121,7 @@ export default function OtaPage() {
               </select>
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: 5, flex: 1, minWidth: 140 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: "#8a8fa6", textTransform: "uppercase" }}>Kỳ báo cáo</span>
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: "var(--text-dim)", textTransform: "uppercase" }}>Kỳ báo cáo</span>
               <select value={periodKey} onChange={(e) => setPeriodKey(e.target.value)} style={selectStyle}>
                 {periodOptions.map((o) => (
                   <option key={o.value} value={o.value}>{o.label}</option>
@@ -140,18 +140,18 @@ export default function OtaPage() {
       </div>
 
       <section className="card" style={{ padding: "22px 24px" }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: "#ecedf5", marginBottom: 4 }}>Booking Count</div>
-        <div style={{ fontSize: 11.5, color: "#8a8fa6", marginBottom: 6 }}>Số lượng đơn đặt theo ngày · {r.periodLabel}</div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text-strong)", marginBottom: 4 }}>Booking Count</div>
+        <div style={{ fontSize: 11.5, color: "var(--text-dim)", marginBottom: 6 }}>Số lượng đơn đặt theo ngày · {r.periodLabel}</div>
         <SimpleLineChart labels={r.labels} values={r.dailyBookings} color={ACCENT} />
       </section>
 
       <section className="card" style={{ padding: "22px 24px" }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: "#ecedf5", marginBottom: 4 }}>Revenue Report</div>
-        <div style={{ fontSize: 11.5, color: "#8a8fa6", marginBottom: 6 }}>Doanh thu theo ngày (VND) · {r.periodLabel}</div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text-strong)", marginBottom: 4 }}>Revenue Report</div>
+        <div style={{ fontSize: 11.5, color: "var(--text-dim)", marginBottom: 6 }}>Doanh thu theo ngày (VND) · {r.periodLabel}</div>
         <SimpleBarChart labels={r.labels} values={r.dailyRevenue} color={ACCENT} formatValue={(v) => (v >= 1e6 ? vnLoc(v / 1e6, 0) + "tr" : vnLoc(v, 0))} />
       </section>
 
-      <div style={{ fontSize: 11, color: "#565a6e" }}>
+      <div style={{ fontSize: 11, color: "var(--text-faintest)" }}>
         Số liệu chi tiết theo ngày được quy đổi tỷ lệ từ báo cáo gốc để khớp đúng 4 số tổng đã xác nhận (Total/Successful/Cancelled Bookings, Total Revenue) — sẽ cập nhật số chính xác từng ngày khi có dữ liệu gốc.
       </div>
     </>
@@ -159,12 +159,12 @@ export default function OtaPage() {
 }
 
 const selectStyle = {
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.12)",
+  background: "var(--surface-soft)",
+  border: "1px solid var(--border)",
   borderRadius: 9,
   padding: "9px 10px",
   fontSize: 12.5,
-  color: "#ecedf5",
+  color: "var(--text-strong)",
   outline: "none",
   cursor: "pointer",
 };
