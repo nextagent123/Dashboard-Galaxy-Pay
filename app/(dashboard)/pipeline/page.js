@@ -124,18 +124,23 @@ export default function PipelinePage() {
             </div>
 
             <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-strong)" }}>Dự án trọng điểm — {g.label}</div>
-                <div style={{ fontSize: 11.5, color: "var(--text-dim)" }}>Tổng đóng góp: <span className="mono" style={{ color: "var(--text-strong)", fontWeight: 700 }}>{g.totProjStr} {g.unit}</span></div>
+                <div style={{ display: "flex", gap: 20, fontSize: 11.5, color: "var(--text-dim)", flexWrap: "wrap" }}>
+                  <span>Tổng đóng góp {g.label}: <span className="mono" style={{ color: "var(--text-strong)", fontWeight: 700 }}>{g.totProjStr} {g.unit}</span></span>
+                  <span>Tổng GMV đóng góp: <span className="mono" style={{ color: "#c3b9ff", fontWeight: 700 }}>{g.totGmvContribStr} Tỷ</span></span>
+                </div>
               </div>
               <div className="table-wrap" style={{ border: "1px solid var(--border-soft)", borderRadius: 11, overflow: "hidden" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 760 }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5, minWidth: 920 }}>
                   <thead>
                     <tr style={{ background: "var(--surface-hover)" }}>
                       <th style={{ padding: "11px 14px", textAlign: "left", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6, width: 40 }}>#</th>
                       <th style={{ padding: "11px 14px", textAlign: "left", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6 }}>Dự án</th>
+                      <th style={{ padding: "11px 14px", textAlign: "left", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6 }}>Nguồn đóng góp</th>
                       <th style={{ padding: "11px 14px", textAlign: "right", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6 }}>Doanh số mục tiêu</th>
-                      <th style={{ padding: "11px 14px", textAlign: "center", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6 }}>Go-live dự kiến</th>
+                      <th style={{ padding: "11px 14px", textAlign: "right", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6 }}>GMV đóng góp</th>
+                      <th style={{ padding: "11px 14px", textAlign: "center", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6 }}>Go-live</th>
                       <th style={{ padding: "11px 14px", textAlign: "center", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6 }}>Trạng thái</th>
                       <th style={{ padding: "11px 14px", textAlign: "left", fontSize: 10.5, fontWeight: 700, color: "var(--text-dim)", letterSpacing: 0.6 }}>Ghi chú tiến độ</th>
                     </tr>
@@ -145,7 +150,11 @@ export default function PipelinePage() {
                       <tr key={p.idx}>
                         <td className="mono" style={{ padding: "12px 14px", borderTop: "1px solid var(--border-faint)", color: "var(--text-dim)" }}>{p.idx}</td>
                         <td style={{ padding: "12px 14px", borderTop: "1px solid var(--border-faint)", color: "var(--text-strong)", fontWeight: 600 }}>{p.name}</td>
+                        <td style={{ padding: "12px 14px", borderTop: "1px solid var(--border-faint)" }}>
+                          <span style={{ display: "inline-block", padding: "3px 9px", borderRadius: 6, fontSize: 11, fontWeight: 600, color: g.color, background: `${g.color}18`, whiteSpace: "nowrap" }}>{p.source || "–"}</span>
+                        </td>
                         <td className="mono" style={{ padding: "12px 14px", borderTop: "1px solid var(--border-faint)", textAlign: "right", color: "var(--text-strong)", fontWeight: 700 }}>{p.targetStr}</td>
+                        <td className="mono" style={{ padding: "12px 14px", borderTop: "1px solid var(--border-faint)", textAlign: "right", color: "#c3b9ff", fontWeight: 700 }}>{p.gmvContribStr}</td>
                         <td className="mono" style={{ padding: "12px 14px", borderTop: "1px solid var(--border-faint)", textAlign: "center", color: "var(--text-dim)" }}>{p.goLive}</td>
                         <td style={{ padding: "12px 14px", borderTop: "1px solid var(--border-faint)", textAlign: "center" }}>
                           <span style={{ display: "inline-block", padding: "4px 10px", borderRadius: 12, fontSize: 11, fontWeight: 700, color: p.statusColor, background: p.statusBg, border: `1px solid ${p.statusColor}`, whiteSpace: "nowrap" }}>{p.status}</span>
