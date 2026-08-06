@@ -214,7 +214,7 @@ export default function Home2Page() {
           <h1 style={{ margin: "3px 0 0", fontSize: 20, fontWeight: 800, letterSpacing: -0.3, color: "var(--text-strong)" }}>Tổng quan dữ liệu kinh doanh</h1>
         </div>
         <div style={{ fontSize: 11, color: "var(--text-dim)", display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 8, background: "rgba(124,108,255,0.08)", border: "1px solid rgba(124,108,255,0.2)" }}>
-          Cập nhật <span className="mono" style={{ fontWeight: 700, color: "var(--accent-light)" }}>16/07/2026</span>
+          Cập nhật <span className="mono" style={{ fontWeight: 700, color: "var(--accent-light)" }}>05/08/2026</span>
         </div>
       </div>
 
@@ -222,7 +222,7 @@ export default function Home2Page() {
       <div className="home2-grid-top" style={{ display: "grid", gridTemplateColumns: "280px 1fr 200px", gap: 12, marginBottom: 12 }}>
 
         {/* Distribution Donut */}
-        <Card title="Phân bổ chỉ tiêu" subtitle="Lũy kế T1–T6/2026">
+        <Card title="Phân bổ chỉ tiêu" subtitle="Lũy kế T1–T7/2026">
           <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "4px 0" }}>
             <Donut segments={distSegs} size={100} thickness={12}>
               <span className="mono" style={{ fontSize: 14, fontWeight: 800, color: "var(--text-strong)" }}>{fv((d.gmvA / d.gmvT) * 100, 0)}%</span>

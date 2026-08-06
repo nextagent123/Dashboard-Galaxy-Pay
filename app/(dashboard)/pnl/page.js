@@ -548,7 +548,7 @@ export default function PnlPage() {
         eyebrow="GALAXY PAY · PHÂN TÍCH LỢI NHUẬN"
         title="Báo cáo P&L theo nhóm sản phẩm"
         subtitle="Phân tích Doanh thu — Chi phí — Lợi nhuận cho Cổng thanh toán, SoftPOS và Loa thanh toán · T1–T7/2026"
-        right={<DateBadge>Số liệu đến 16/07/2026</DateBadge>}
+        right={<DateBadge>Số liệu đến 05/08/2026</DateBadge>}
       />
 
       {/* View tabs */}

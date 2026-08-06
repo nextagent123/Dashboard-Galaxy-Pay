@@ -18,7 +18,7 @@ export default function PipelinePage() {
         eyebrow="GALAXY PAY · STRATEGIC PIPELINE"
         title={`Chiến lược Pipeline 2026 · ${activeLabel}`}
         subtitle="3 vùng chiến lược: GMV — Doanh thu — Lợi nhuận · Runrate & dự án trọng điểm theo trạng thái go-live"
-        right={<DateBadge>Số liệu lũy kế đến 16/07/2026</DateBadge>}
+        right={<DateBadge>Số liệu lũy kế đến 05/08/2026</DateBadge>}
       />
 
       <section style={{ display: "flex", alignItems: "center", gap: 12, background: "var(--card-bg-soft)", border: "1px solid var(--border)", borderRadius: 14, padding: 8, flexWrap: "wrap" }}>
@@ -117,7 +117,7 @@ export default function PipelinePage() {
             </div>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 28px", padding: "2px 4px" }}>
-              <div style={{ whiteSpace: "nowrap" }}><span style={{ fontSize: 11, color: "var(--text-dim)" }}>Thực đạt T1–T5: </span><span className="mono" style={{ fontWeight: 700, color: "var(--text-strong)" }}>{g.actYTDStr} {g.unit}</span></div>
+              <div style={{ whiteSpace: "nowrap" }}><span style={{ fontSize: 11, color: "var(--text-dim)" }}>Thực đạt T1–T7:</span><span className="mono" style={{ fontWeight: 700, color: "var(--text-strong)" }}>{g.actYTDStr} {g.unit}</span></div>
               <div style={{ whiteSpace: "nowrap" }}><span style={{ fontSize: 11, color: "var(--text-dim)" }}>Runrate cả năm: </span><span className="mono" style={{ fontWeight: 700, color: g.color }}>{g.runrateStr} {g.unit}</span></div>
               <div style={{ whiteSpace: "nowrap" }}><span style={{ fontSize: 11, color: "var(--text-dim)" }}>{g.gapLabel}: </span><span className="mono" style={{ fontWeight: 700, color: g.appColor }}>{g.gapStr}</span></div>
               <div style={{ whiteSpace: "nowrap" }}><span style={{ fontSize: 11, color: "var(--text-dim)" }}>APP: </span><span className="mono" style={{ fontWeight: 700, color: g.appColor }}>{g.appStr}</span></div>

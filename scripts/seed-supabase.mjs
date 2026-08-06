@@ -48,7 +48,7 @@ const rows = [
   },
   {
     key: "khoi_ytd",
-    description: "Lũy kế Khối KD T1-T6/2026 (tỷ VND)",
+    description: "Lũy kế Khối KD T1-T7/2026 (tỷ VND)",
     data: { gmv: KHOI_YTD.gmv, rev: KHOI_YTD.rev, gp: KHOI_YTD.gp },
   },
   {
