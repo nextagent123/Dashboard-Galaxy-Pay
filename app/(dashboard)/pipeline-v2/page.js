@@ -7,9 +7,31 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import PipelineLineChart from "@/components/charts/PipelineLineChart";
 import WaterfallChart from "@/components/charts/WaterfallChart";
 
+// V2 extra featured items for GMV zone
+const V2_GMV_EXTRA_FEATURED = [
+  { title: "DA. Payment Ecom - 2C2P", kind: "Quy mô tiềm năng", value: 765, valStr: "765 Tỷ" },
+  { title: "DA. Payment DAM", kind: "Quy mô tiềm năng", value: 1275, valStr: "1.275 Tỷ" },
+];
+
+function augmentGroups(groups) {
+  return groups.map((g) => {
+    if (g.key !== "gmv") return g;
+    const allFeatured = [...g.featured, ...V2_GMV_EXTRA_FEATURED];
+    const featMax = Math.max(...allFeatured.map((f) => f.value || 0));
+    return {
+      ...g,
+      featured: allFeatured.map((f) => ({
+        ...f,
+        barH: Math.max(35, featMax > 0 ? ((f.value || 0) / featMax) * 140 : 35),
+      })),
+    };
+  });
+}
+
 export default function PipelineV2Page() {
   const [filter, setFilter] = useState("all");
-  const groups = getPipelineGroups(filter);
+  const rawGroups = getPipelineGroups(filter);
+  const groups = augmentGroups(rawGroups);
   const activeLabel = (PIPELINE_TABS.find((t) => t.id === filter) || {}).label || "Tất cả";
 
   return (
@@ -90,30 +112,43 @@ export default function PipelineV2Page() {
           </div>
 
           <div style={{ padding: "22px 24px", display: "flex", flexDirection: "column", gap: 18 }}>
-            <div className="grid-pipeline-highlight" style={{ background: "var(--surface-hover)", border: "1px solid var(--border-soft)", borderRadius: 14, padding: "22px 24px", overflow: "visible" }}>
+            <div className="grid-pipeline-highlight" style={{
+              background: "var(--surface-hover)", border: "1px solid var(--border-soft)", borderRadius: 14, padding: "22px 24px", overflow: "visible",
+              ...(g.featured.length > 2 ? { gridTemplateColumns: `1.5fr repeat(${g.featured.length}, 1fr)` } : {}),
+            }}>
               <div style={{ width: "100%", alignSelf: "center" }}>
                 <PipelineLineChart monthlyTargets={g.monthlyTargets} prevYear={g.prevYear} runrate={g.runrate} target={g.target} unit={g.unit} color={g.color} />
               </div>
 
-              {g.featured.map((f, fi) => (
+              {g.featured.map((f, fi) => {
+                const isNew = fi >= g.featured.length - V2_GMV_EXTRA_FEATURED.length && g.key === "gmv";
+                return (
                 <div key={fi} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, justifyContent: "flex-end" }}>
-                  <div style={{ display: "flex", alignItems: "flex-end", gap: 18, height: 150, width: "100%", justifyContent: "center" }}>
+                  <div style={{ display: "flex", alignItems: "flex-end", gap: 14, height: 150, width: "100%", justifyContent: "center" }}>
                     <div
                       style={{
-                        width: 56, height: f.barH,
-                        background: fi === 0 ? `linear-gradient(180deg,${g.barCol},${g.barCol}dd)` : `linear-gradient(180deg,${g.barCol}cc,${g.barCol}88)`,
+                        width: 48, height: f.barH,
+                        background: isNew
+                          ? `linear-gradient(180deg, #38bdf8, #7c6cff)`
+                          : fi === 0 ? `linear-gradient(180deg,${g.barCol},${g.barCol}dd)` : `linear-gradient(180deg,${g.barCol}cc,${g.barCol}88)`,
                         borderRadius: "7px 7px 0 0",
-                        boxShadow: fi === 0 ? `0 4px 14px ${g.barCol}33` : `0 4px 14px ${g.barCol}22`,
+                        boxShadow: isNew ? `0 4px 14px #38bdf855` : fi === 0 ? `0 4px 14px ${g.barCol}33` : `0 4px 14px ${g.barCol}22`,
+                        border: isNew ? "1px solid rgba(56,189,248,0.4)" : "none",
                       }}
                     />
-                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: 6, lineHeight: 1.35 }}>
-                      <div style={{ fontSize: 11, color: "var(--text-dim)" }}>{f.kind}</div>
-                      <div className="mono" style={{ fontSize: 17, fontWeight: 800, color: "var(--text-strong)", marginTop: 2 }}>{f.valStr}</div>
+                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", paddingBottom: 6, lineHeight: 1.35, minWidth: 0 }}>
+                      <div style={{ fontSize: 10.5, color: "var(--text-dim)", whiteSpace: "nowrap" }}>{f.kind}</div>
+                      <div className="mono" style={{ fontSize: 15, fontWeight: 800, color: isNew ? "#38bdf8" : "var(--text-strong)", marginTop: 2, whiteSpace: "nowrap" }}>{f.valStr}</div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 11.5, color: "var(--text-dim)", textAlign: "center", lineHeight: 1.45, padding: "0 4px", textWrap: "balance" }}>{f.title}</div>
+                  <div style={{ fontSize: 11, color: isNew ? "#38bdf8" : "var(--text-dim)", textAlign: "center", lineHeight: 1.4, padding: "0 2px", textWrap: "balance", fontWeight: isNew ? 600 : 400 }}>
+                    {isNew && <span style={{ display: "inline-block", fontSize: 9, background: "rgba(56,189,248,0.15)", border: "1px solid rgba(56,189,248,0.3)", color: "#38bdf8", padding: "1px 6px", borderRadius: 4, marginBottom: 3, fontWeight: 700, letterSpacing: 0.5 }}>MỚI</span>}
+                    {isNew && <br />}
+                    {f.title}
+                  </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "12px 28px", padding: "2px 4px" }}>
