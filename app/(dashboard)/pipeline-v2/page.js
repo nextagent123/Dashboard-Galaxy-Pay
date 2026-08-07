@@ -111,16 +111,16 @@ export default function PipelineV2Page() {
                 <div style={{ fontSize: 12.5, color: "var(--text-dim)", marginTop: 5, lineHeight: 1.45, maxWidth: 620 }}>{g.zoneNarrative}</div>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "stretch", gap: 10, flexShrink: 0, flexWrap: "wrap" }}>
-              <div style={{ background: "rgba(0,0,0,0.35)", border: "1px solid var(--border-soft)", borderRadius: 10, padding: "10px 14px", minWidth: 112 }}>
+            <div style={{ display: "flex", alignItems: "stretch", gap: 10, flexShrink: 0, flexWrap: "wrap", width: "100%" }}>
+              <div style={{ background: "rgba(0,0,0,0.35)", border: "1px solid var(--border-soft)", borderRadius: 10, padding: "10px 14px", flex: "1 1 100px", minWidth: 0 }}>
                 <div style={{ fontSize: 10, color: "var(--text-dim)", letterSpacing: 0.8, textTransform: "uppercase" }}>Thực đạt YTD</div>
                 <div className="mono" style={{ fontSize: 18, fontWeight: 800, color: "var(--text-strong)", marginTop: 2 }}>{g.actYTDStr} <span style={{ fontSize: 11, color: "var(--text-dim)" }}>{g.unit}</span></div>
               </div>
-              <div style={{ background: "rgba(0,0,0,0.35)", border: "1px solid var(--border-soft)", borderRadius: 10, padding: "10px 14px", minWidth: 112 }}>
+              <div style={{ background: "rgba(0,0,0,0.35)", border: "1px solid var(--border-soft)", borderRadius: 10, padding: "10px 14px", flex: "1 1 100px", minWidth: 0 }}>
                 <div style={{ fontSize: 10, color: "var(--text-dim)", letterSpacing: 0.8, textTransform: "uppercase" }}>Runrate FY</div>
                 <div className="mono" style={{ fontSize: 18, fontWeight: 800, color: g.color, marginTop: 2 }}>{g.runrateStr} <span style={{ fontSize: 11, color: "var(--text-dim)" }}>{g.unit}</span></div>
               </div>
-              <div style={{ background: `linear-gradient(135deg,${g.color}22,transparent)`, border: `1px solid ${g.zoneBorder}`, borderRadius: 10, padding: "10px 14px", minWidth: 112 }}>
+              <div style={{ background: `linear-gradient(135deg,${g.color}22,transparent)`, border: `1px solid ${g.zoneBorder}`, borderRadius: 10, padding: "10px 14px", flex: "1 1 100px", minWidth: 0 }}>
                 <div style={{ fontSize: 10, color: g.color, letterSpacing: 0.8, textTransform: "uppercase", fontWeight: 700 }}>APP · Achievement</div>
                 <div className="mono" style={{ fontSize: 22, fontWeight: 900, color: g.appColor, marginTop: 2 }}>{g.appStr}</div>
               </div>
@@ -128,9 +128,8 @@ export default function PipelineV2Page() {
           </div>
 
           <div style={{ padding: "22px 24px", display: "flex", flexDirection: "column", gap: 18 }}>
-            <div className="grid-pipeline-highlight" style={{
+            <div className="grid-pipeline-highlight" data-feat={g.featured.length > 2 ? g.featured.length : undefined} style={{
               background: "var(--surface-hover)", border: "1px solid var(--border-soft)", borderRadius: 14, padding: "22px 24px", overflow: "visible",
-              ...(g.featured.length > 2 ? { gridTemplateColumns: `1.5fr repeat(${g.featured.length}, 1fr)` } : {}),
             }}>
               <div style={{ width: "100%", alignSelf: "center" }}>
                 <PipelineLineChart monthlyTargets={g.monthlyTargets} prevYear={g.prevYear} runrate={g.runrate} target={g.target} unit={g.unit} color={g.color} />

@@ -254,6 +254,10 @@ button {
   gap: 28px;
   align-items: stretch;
 }
+/* V2 dynamic column overrides via data attribute */
+.grid-pipeline-highlight[data-feat="3"] { grid-template-columns: 1.5fr repeat(3, 1fr); }
+.grid-pipeline-highlight[data-feat="4"] { grid-template-columns: 1.5fr repeat(4, 1fr); }
+.grid-pipeline-highlight[data-feat="5"] { grid-template-columns: 1.2fr repeat(5, 1fr); }
 .grid-product-filter {
   display: grid;
   grid-template-columns: 1.4fr 1fr auto auto;
@@ -456,10 +460,11 @@ button {
   .grid-ota-top,
   .ota-hero-grid,
   .grid-pipeline-highlight,
+  .grid-pipeline-highlight[data-feat],
   .grid-product-filter,
   .khoi-strip,
   .player-identity {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
   .ota-filter-col {
     border-left: none !important;
