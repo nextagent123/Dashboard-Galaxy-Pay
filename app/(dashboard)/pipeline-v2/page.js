@@ -7,16 +7,32 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import PipelineLineChart from "@/components/charts/PipelineLineChart";
 import WaterfallChart from "@/components/charts/WaterfallChart";
 
-// V2 extra featured items for GMV zone
-const V2_GMV_EXTRA_FEATURED = [
-  { title: "DA. Payment Ecom - 2C2P", kind: "Quy mô tiềm năng", value: 765, valStr: "765 Tỷ" },
-  { title: "DA. Payment DAM", kind: "Quy mô tiềm năng", value: 1275, valStr: "1.275 Tỷ" },
-];
+// V2 featured overrides — extra items per zone
+const V2_FEATURED_EXTRA = {
+  gmv: [
+    { title: "DA. Payment Ecom - 2C2P", kind: "Quy mô tiềm năng", value: 765, valStr: "765 Tỷ", isNew: true },
+    { title: "DA. Payment DAM", kind: "Quy mô tiềm năng", value: 1275, valStr: "1.275 Tỷ", isNew: true },
+  ],
+  dt: [
+    { title: "DA. SkyAgent OTA", kind: "Quy mô dự kiến", value: 61, valStr: "~61 Tỷ" },
+    { title: "Dự án Cybs VCB", sub: "High Priority", kind: "Quy mô tiềm năng", value: 24, valStr: "~24 Tỷ", priority: "high" },
+    { title: "Gói thầu thiết bị HDFG", kind: "Quy mô dự kiến", value: 5, valStr: "~5 Tỷ", priority: "high" },
+    { title: "Thu hộ BHXH & 2c2p", kind: "Quy mô dự kiến", value: 4, valStr: "~4 Tỷ", priority: "high" },
+    { title: "DA. Payment Hub", sub: "Medium Priority", kind: "Quy mô tiềm năng", value: 8.7, valStr: "~8,7 Tỷ" },
+  ],
+  ln: [
+    { title: "Dự án Cybs VCB", sub: "High Priority", kind: "Quy mô tiềm năng", value: 5, valStr: "~5 Tỷ" },
+    { title: "Dự án Vikki Đông Á", sub: "High Priority", kind: "Quy mô tiềm năng", value: 1.3, valStr: "~1,3 Tỷ", priority: "high" },
+    { title: "Gói thầu thiết bị & hoạt động thanh toán với HDFG", kind: "Quy mô dự kiến", value: 1, valStr: "~1 Tỷ" },
+  ],
+};
 
 function augmentGroups(groups) {
   return groups.map((g) => {
-    if (g.key !== "gmv") return g;
-    const allFeatured = [...g.featured, ...V2_GMV_EXTRA_FEATURED];
+    const extra = V2_FEATURED_EXTRA[g.key];
+    if (!extra) return g;
+    // For GMV: append extra items to existing featured; for REV/LN: replace entirely
+    const allFeatured = g.key === "gmv" ? [...g.featured, ...extra] : extra;
     const featMax = Math.max(...allFeatured.map((f) => f.value || 0));
     return {
       ...g,
@@ -121,18 +137,24 @@ export default function PipelineV2Page() {
               </div>
 
               {g.featured.map((f, fi) => {
-                const isNew = fi >= g.featured.length - V2_GMV_EXTRA_FEATURED.length && g.key === "gmv";
+                const isNew = f.isNew;
+                const hasPriority = !!f.priority;
                 return (
-                <div key={fi} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, justifyContent: "flex-end" }}>
+                <div key={fi} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, justifyContent: "flex-end", position: "relative" }}>
+                  {hasPriority && (
+                    <div style={{ position: "absolute", top: 0, right: 8, width: 22, height: 22, borderRadius: 6, background: "#e11d48", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(225,29,72,0.4)", zIndex: 1 }}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M2 6h8" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" /></svg>
+                    </div>
+                  )}
                   <div style={{ display: "flex", alignItems: "flex-end", gap: 14, height: 150, width: "100%", justifyContent: "center" }}>
                     <div
                       style={{
                         width: 48, height: f.barH,
                         background: isNew
                           ? `linear-gradient(180deg, #38bdf8, #7c6cff)`
-                          : fi === 0 ? `linear-gradient(180deg,${g.barCol},${g.barCol}dd)` : `linear-gradient(180deg,${g.barCol}cc,${g.barCol}88)`,
+                          : `linear-gradient(180deg,${g.barCol},${g.barCol}${fi === 0 ? "" : "aa"})`,
                         borderRadius: "7px 7px 0 0",
-                        boxShadow: isNew ? `0 4px 14px #38bdf855` : fi === 0 ? `0 4px 14px ${g.barCol}33` : `0 4px 14px ${g.barCol}22`,
+                        boxShadow: isNew ? `0 4px 14px #38bdf855` : `0 4px 14px ${g.barCol}33`,
                         border: isNew ? "1px solid rgba(56,189,248,0.4)" : "none",
                       }}
                     />
@@ -145,6 +167,7 @@ export default function PipelineV2Page() {
                     {isNew && <span style={{ display: "inline-block", fontSize: 9, background: "rgba(56,189,248,0.15)", border: "1px solid rgba(56,189,248,0.3)", color: "#38bdf8", padding: "1px 6px", borderRadius: 4, marginBottom: 3, fontWeight: 700, letterSpacing: 0.5 }}>MỚI</span>}
                     {isNew && <br />}
                     {f.title}
+                    {f.sub && <><br /><span style={{ fontSize: 10, color: f.priority === "high" ? "#e11d48" : "#fbbf24", fontWeight: 600, fontStyle: "italic" }}>({f.sub})</span></>}
                   </div>
                 </div>
                 );
