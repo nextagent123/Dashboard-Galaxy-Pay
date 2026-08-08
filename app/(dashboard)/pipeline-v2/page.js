@@ -6,6 +6,7 @@ import { ReportHeader, DateBadge } from "@/components/ui/PageHeader";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import PipelineLineChart from "@/components/charts/PipelineLineChart";
 import WaterfallChart from "@/components/charts/WaterfallChart";
+import { STATUS_COLORS } from "@/lib/data";
 
 // V2 featured overrides — extra items per zone
 const V2_FEATURED_EXTRA = {
@@ -27,19 +28,61 @@ const V2_FEATURED_EXTRA = {
   ],
 };
 
+// V2 project table overrides for REV & LN — matches featured blocks
+const V2_PROJECTS = {
+  dt: [
+    { name: "DA. SkyAgent OTA", target: 61, goLive: "05/2026", status: "On Processing", note: "Đã qua mốc T5 nhưng đang chạy tiếp — cần theo dõi doanh số & biên phí" },
+    { name: "Dự án Cybs VCB (High Priority)", target: 24, goLive: "08/2026", status: "Risk", note: "Rủi ro trượt deadline T8 — cần chốt sớm ký kết Cybs Vietcombank & lên production" },
+    { name: "Gói thầu thiết bị HDFG", target: 5, goLive: "09/2026", status: "On Processing", note: "Đang triển khai theo tiến độ, target chốt gói thầu T9" },
+    { name: "Thu hộ BHXH & 2c2p", target: 4, goLive: "TBD", status: "On Processing", note: "Dự án thu hộ BHXH kết hợp 2C2P — đang trong giai đoạn triển khai" },
+    { name: "DA. Payment Hub (Medium Priority)", target: 8.7, goLive: "08/2026", status: "Risk", note: "Rủi ro deadline T8 — nhiều đối tác (Smartro, Alipay, Azupay, PayU) cần đồng bộ" },
+  ],
+  ln: [
+    { name: "Dự án Cybs VCB (High Priority)", target: 5, goLive: "08/2026", status: "Risk", note: "Rủi ro trượt deadline T8 — cần chốt sớm ký kết & lên production" },
+    { name: "Dự án Vikki Đông Á (High Priority)", target: 1.3, goLive: "09/2026", status: "On Processing", note: "Đang triển khai Payment Hub cho Vikki Đông Á — mục tiêu nâng biên lợi nhuận" },
+    { name: "Gói thầu thiết bị & hoạt động thanh toán với HDFG", target: 1, goLive: "09/2026", status: "On Processing", note: "Gói thầu thiết bị & dịch vụ thanh toán HDFG — đang triển khai theo tiến độ" },
+  ],
+};
+
+function vnTy(v) {
+  if (v >= 1000) return new Intl.NumberFormat("vi-VN").format(Math.round(v));
+  if (v >= 100) return new Intl.NumberFormat("vi-VN").format(+v.toFixed(0));
+  if (v >= 10) return new Intl.NumberFormat("vi-VN").format(+v.toFixed(1));
+  return new Intl.NumberFormat("vi-VN").format(+v.toFixed(2));
+}
+
 function augmentGroups(groups) {
   return groups.map((g) => {
     const extra = V2_FEATURED_EXTRA[g.key];
     if (!extra) return g;
-    // For GMV: append extra items to existing featured; for REV/LN: replace entirely
+
+    // Featured: GMV appends, REV/LN replace entirely
     const allFeatured = g.key === "gmv" ? [...g.featured, ...extra] : extra;
     const featMax = Math.max(...allFeatured.map((f) => f.value || 0));
+    const featured = allFeatured.map((f) => ({
+      ...f,
+      barH: Math.max(35, featMax > 0 ? ((f.value || 0) / featMax) * 140 : 35),
+    }));
+
+    // Projects: override for REV/LN
+    const v2Projects = V2_PROJECTS[g.key];
+    if (!v2Projects) return { ...g, featured };
+
+    const totProj = v2Projects.reduce((s, p) => s + (p.target || 0), 0);
+    const projRows = v2Projects.map((p, i) => ({
+      ...p,
+      idx: i + 1,
+      targetStr: vnTy(p.target || 0) + " " + (g.unit || ""),
+      statusColor: STATUS_COLORS[p.status] || "#8a8fa6",
+      statusBg: (STATUS_COLORS[p.status] || "#8a8fa6") + "22",
+    }));
+
     return {
       ...g,
-      featured: allFeatured.map((f) => ({
-        ...f,
-        barH: Math.max(35, featMax > 0 ? ((f.value || 0) / featMax) * 140 : 35),
-      })),
+      featured,
+      projects: v2Projects,
+      projRows,
+      totProjStr: vnTy(totProj),
     };
   });
 }
