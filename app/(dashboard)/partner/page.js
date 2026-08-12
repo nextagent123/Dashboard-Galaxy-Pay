@@ -499,178 +499,422 @@ function Phase1Tab() {
 function FinanceTab() {
   const data = SKY_PARTNER_PHASE1;
 
+  // ── Core financial aggregates ──
   const totals = useMemo(() => {
-    const t = { gdMonth: 0, dtC: 0, dtB: 0, dtO: 0, dt2: 0, dtY: 0 };
-    data.forEach((r) => { t.gdMonth += r.gdMonth; t.dtC += r.dtThangCautious; t.dtB += r.dtThangBase; t.dtO += r.dtThangOptimistic; t.dt2 += r.dt2Month; t.dtY += r.dtYear1; });
+    const t = { gdMonth: 0, gmv: 0, dtC: 0, dtB: 0, dtO: 0, dt2: 0, dtY: 0, gmvY: 0 };
+    data.forEach((r) => {
+      t.gdMonth += r.gdMonth;
+      t.gmv += r.gdMonth * r.avgValue;
+      t.dtC += r.dtThangCautious;
+      t.dtB += r.dtThangBase;
+      t.dtO += r.dtThangOptimistic;
+      t.dt2 += r.dt2Month;
+      t.dtY += r.dtYear1;
+    });
+    // Year 1 GMV with progressive growth (same 6-cycle multiplier as revenue)
+    const growthCycles = [1.0, 1.15, 1.3, 1.5, 1.7, 2.0];
+    t.gmvY = growthCycles.reduce((s, m) => s + t.gmv * m * 2, 0);
+    t.takeRate = t.gmv > 0 ? (t.dtB / t.gmv) * 100 : 0;
     return t;
   }, [data]);
 
-  const fixedItems = data.filter((r) => r.feeType === "fixed");
-  const pctItems = data.filter((r) => r.feeType === "percent");
-  const fixedTotal = { gdMonth: 0, dtB: 0, dtY: 0 };
-  fixedItems.forEach((r) => { fixedTotal.gdMonth += r.gdMonth; fixedTotal.dtB += r.dtThangBase; fixedTotal.dtY += r.dtYear1; });
-  const pctTotal = { gdMonth: 0, dtB: 0, dtY: 0 };
-  pctItems.forEach((r) => { pctTotal.gdMonth += r.gdMonth; pctTotal.dtB += r.dtThangBase; pctTotal.dtY += r.dtYear1; });
+  // ── Block-level breakdown ──
+  const blockAnalysis = useMemo(() => {
+    const map = {};
+    data.forEach((r) => {
+      if (!map[r.block]) map[r.block] = { gmv: 0, rev: 0, revY: 0, gd: 0 };
+      map[r.block].gmv += r.gdMonth * r.avgValue;
+      map[r.block].rev += r.dtThangBase;
+      map[r.block].revY += r.dtYear1;
+      map[r.block].gd += r.gdMonth;
+    });
+    return SKY_PARTNER_BLOCKS.map((b) => {
+      const d = map[b.id] || { gmv: 0, rev: 0, revY: 0, gd: 0 };
+      return { ...b, ...d, takeRate: d.gmv > 0 ? (d.rev / d.gmv) * 100 : 0 };
+    });
+  }, [data]);
 
-  // Top products by Year 1 revenue
-  const top5 = [...data].sort((a, b) => b.dtYear1 - a.dtYear1).slice(0, 5);
+  const maxBlockGmv = Math.max(...blockAnalysis.map((b) => b.gmv));
+  const maxBlockRev = Math.max(...blockAnalysis.map((b) => b.rev));
+
+  // ── Fee-type split ──
+  const feeSplit = useMemo(() => {
+    const fixed = { gd: 0, gmv: 0, rev: 0, revY: 0 };
+    const pct = { gd: 0, gmv: 0, rev: 0, revY: 0 };
+    data.forEach((r) => {
+      const t = r.feeType === "fixed" ? fixed : pct;
+      t.gd += r.gdMonth; t.gmv += r.gdMonth * r.avgValue;
+      t.rev += r.dtThangBase; t.revY += r.dtYear1;
+    });
+    return { fixed, pct };
+  }, [data]);
+
+  // ── Top products ──
+  const top5 = useMemo(() => [...data].sort((a, b) => b.dtYear1 - a.dtYear1).slice(0, 5), [data]);
+
+  // ── Section header helper ──
+  const SectionHead = ({ num, title, sub }) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 28, marginBottom: 14 }}>
+      <div style={{
+        width: 28, height: 28, borderRadius: 8,
+        background: "linear-gradient(135deg, rgba(124,108,255,0.15), rgba(124,108,255,0.05))",
+        border: "1px solid rgba(124,108,255,0.20)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontSize: 12, fontWeight: 800, color: "var(--accent-2)", flexShrink: 0,
+      }}>{num}</div>
+      <div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>{title}</div>
+        {sub && <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 1 }}>{sub}</div>}
+      </div>
+    </div>
+  );
 
   return (
     <>
-      {/* KPI Cards */}
-      <div className="grid-4" style={{ marginBottom: 0 }}>
-        <div className="kpi-card" style={{ "--glow": "rgba(124,108,255,0.25)" }}>
-          <div className="kpi-card__label">📊 GD DỰ KIẾN / THÁNG</div>
-          <div className="kpi-card__value">{fmtFull(totals.gdMonth)}</div>
-          <div className="kpi-card__sub">{data.length} sản phẩm</div>
+      {/* ════════════════════════════════════════════════
+          HERO: Executive Financial Summary
+         ════════════════════════════════════════════════ */}
+      <div style={{
+        padding: "24px 28px", borderRadius: 16, marginBottom: 4,
+        background: "linear-gradient(135deg, rgba(124,108,255,0.06) 0%, rgba(52,211,153,0.04) 50%, rgba(251,191,36,0.03) 100%)",
+        border: "1px solid rgba(124,108,255,0.12)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--accent-2)" }}>Phân tích tài chính dự án</span>
+          <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: "rgba(52,211,153,0.12)", color: "var(--green)", fontWeight: 600 }}>Giai đoạn 1 · 17 sản phẩm</span>
         </div>
-        <div className="kpi-card" style={{ "--glow": "rgba(52,211,153,0.25)" }}>
-          <div className="kpi-card__label">✅ DT CƠ SỞ / THÁNG</div>
-          <div className="kpi-card__value">{fmt(totals.dtB)}</div>
-          <div className="kpi-card__sub">{fmtFull(totals.dtB)} đ</div>
-        </div>
-        <div className="kpi-card" style={{ "--glow": "rgba(251,191,36,0.25)" }}>
-          <div className="kpi-card__label">📅 DT 2 THÁNG GĐ1</div>
-          <div className="kpi-card__value">{fmt(totals.dt2)}</div>
-          <div className="kpi-card__sub">{fmtFull(totals.dt2)} đ</div>
-        </div>
-        <div className="kpi-card" style={{ "--glow": "rgba(251,113,133,0.25)" }}>
-          <div className="kpi-card__label">🎯 DT NĂM 1 (12T)</div>
-          <div className="kpi-card__value">{fmt(totals.dtY)}</div>
-          <div className="kpi-card__sub">{fmtFull(totals.dtY)} đ</div>
-        </div>
-      </div>
 
-      {/* Revenue split */}
-      <div className="grid-2" style={{ marginTop: 20 }}>
-        <div className="card" style={{ borderLeft: "3px solid var(--accent)" }}>
-          <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.06em" }}>A. Phí cố định / GD</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", marginTop: 8 }}>{fmt(fixedTotal.dtB)}<span style={{ fontSize: 13, color: "var(--text-dim)" }}>/tháng</span></div>
-          <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 4 }}>{fmtFull(fixedTotal.gdMonth)} GD/tháng · Year 1: {fmt(fixedTotal.dtY)}</div>
-        </div>
-        <div className="card" style={{ borderLeft: "3px solid var(--green)" }}>
-          <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.06em" }}>B. Hoa hồng % trên GTGD</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", marginTop: 8 }}>{fmt(pctTotal.dtB)}<span style={{ fontSize: 13, color: "var(--text-dim)" }}>/tháng</span></div>
-          <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 4 }}>{fmtFull(pctTotal.gdMonth)} GD/tháng · Year 1: {fmt(pctTotal.dtY)}</div>
-        </div>
-      </div>
-
-      {/* Top 5 */}
-      <div className="card" style={{ marginTop: 20 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", margin: "0 0 4px" }}>Top 5 sản phẩm — Doanh thu Year 1</h3>
-        <p style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 16px" }}>Kịch bản cơ sở (×1.0)</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {top5.map((p, i) => {
-            const maxVal = top5[0].dtYear1;
-            const blockColor = SKY_PARTNER_BLOCKS.find((b) => b.id === p.block)?.color || "var(--accent)";
-            return (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-faint)", width: 20, textAlign: "right" }}>{i + 1}</span>
-                <span style={{ fontSize: 12, color: "var(--text)", width: 200, flexShrink: 0 }}>{p.name}</span>
-                <div style={{ flex: 1, height: 22, background: "var(--border-faint)", borderRadius: 4, overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${(p.dtYear1 / maxVal) * 100}%`, background: blockColor, borderRadius: 4, transition: "width 0.5s ease" }} />
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", width: 80, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmt(p.dtYear1)}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Scenario Comparison */}
-      <div className="card" style={{ marginTop: 20 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", margin: "0 0 4px" }}>3 kịch bản doanh thu</h3>
-        <p style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 16px" }}>Thận trọng (×0.7) · Cơ sở (×1.0) · Lạc quan (×1.4)</p>
-        <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-          {[
-            { label: "Thận trọng", val: totals.dtC, color: "#64748B", bg: "rgba(100,116,139,0.08)" },
-            { label: "Cơ sở", val: totals.dtB, color: "var(--accent-2)", bg: "rgba(124,108,255,0.08)" },
-            { label: "Lạc quan", val: totals.dtO, color: "var(--green)", bg: "rgba(52,211,153,0.08)" },
-          ].map((s, i) => (
-            <div key={i} style={{ flex: "1 1 160px", padding: "16px 20px", borderRadius: 12, background: s.bg, border: `1px solid ${typeof s.color === 'string' && s.color.startsWith('#') ? s.color + '20' : 'var(--border)'}`, textAlign: "center" }}>
-              <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", marginBottom: 8 }}>{s.label}</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: s.color }}>{fmt(s.val)}</div>
-              <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>/tháng</div>
+        {/* 3 hero metrics */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+          {/* GMV */}
+          <div style={{
+            padding: "20px 24px", borderRadius: 14,
+            background: "rgba(56,189,248,0.06)", border: "1px solid rgba(56,189,248,0.15)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#38bdf8" }} />
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#38bdf8" }}>GMV / Tháng</span>
             </div>
-          ))}
+            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--text)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{fmt(totals.gmv)}</div>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Tổng GTGD dự kiến · {fmtFull(totals.gdMonth)} GD</div>
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(56,189,248,0.10)" }}>
+              <span style={{ fontSize: 10, color: "var(--text-faint)" }}>Year 1: </span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#38bdf8" }}>{fmt(totals.gmvY)}</span>
+            </div>
+          </div>
+          {/* Revenue */}
+          <div style={{
+            padding: "20px 24px", borderRadius: 14,
+            background: "rgba(52,211,153,0.06)", border: "1px solid rgba(52,211,153,0.15)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#34d399" }} />
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#34d399" }}>Doanh thu / Tháng</span>
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--text)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{fmt(totals.dtB)}</div>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Phí & hoa hồng · Kịch bản cơ sở</div>
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(52,211,153,0.10)" }}>
+              <span style={{ fontSize: 10, color: "var(--text-faint)" }}>Year 1: </span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#34d399" }}>{fmt(totals.dtY)}</span>
+            </div>
+          </div>
+          {/* Take Rate */}
+          <div style={{
+            padding: "20px 24px", borderRadius: 14,
+            background: "rgba(167,139,250,0.06)", border: "1px solid rgba(167,139,250,0.15)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#a78bfa" }} />
+              <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#a78bfa" }}>Take Rate bình quân</span>
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: "var(--text)", fontVariantNumeric: "tabular-nums", letterSpacing: "-0.02em" }}>{totals.takeRate.toFixed(2)}%</div>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Revenue / GMV · Weighted avg</div>
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(167,139,250,0.10)" }}>
+              <span style={{ fontSize: 10, color: "var(--text-faint)" }}>DT 2T GĐ1: </span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa" }}>{fmt(totals.dt2)}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Full Detail Table */}
-      <div className="card" style={{ marginTop: 20, padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "20px 24px 12px" }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text)" }}>Chi tiết dự phóng doanh thu</h3>
-          <p style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 2 }}>Baseline: Vikki Bank thực tế · Phí: iMedia T7/2026 & Benchmark TT · Đơn vị: VNĐ</p>
-        </div>
-        <div style={{ overflowX: "auto", paddingBottom: 8 }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap", minWidth: 1200 }}>
+      {/* ════════════════════════════════════════════════
+          SECTION 1: 3 Kịch bản doanh thu
+         ════════════════════════════════════════════════ */}
+      <SectionHead num="1" title="Kịch bản doanh thu" sub="Thận trọng (×0.7) · Cơ sở (×1.0) · Lạc quan (×1.4)" />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.4fr 1fr", gap: 12 }}>
+        {[
+          { label: "Thận trọng", factor: "×0.7", val: totals.dtC, y1: totals.dtC * 17.3, color: "#64748B", rgb: "100,116,139", icon: "🛡️" },
+          { label: "Cơ sở", factor: "×1.0", val: totals.dtB, y1: totals.dtY, color: "#a78bfa", rgb: "167,139,250", icon: "📊", hero: true },
+          { label: "Lạc quan", factor: "×1.4", val: totals.dtO, y1: totals.dtO * 17.3, color: "#34d399", rgb: "52,211,153", icon: "🚀" },
+        ].map((s, i) => (
+          <div key={i} style={{
+            padding: s.hero ? "22px 24px" : "18px 20px", borderRadius: 14, textAlign: "center",
+            background: `rgba(${s.rgb},${s.hero ? 0.08 : 0.04})`,
+            border: `${s.hero ? 2 : 1}px solid rgba(${s.rgb},${s.hero ? 0.30 : 0.15})`,
+            transform: s.hero ? "scale(1.02)" : "none", position: "relative", zIndex: s.hero ? 1 : 0,
+          }}>
+            <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: s.color, marginBottom: 2 }}>{s.label}</div>
+            <div style={{ fontSize: 10, color: "var(--text-faint)", marginBottom: 10 }}>{s.factor}</div>
+            <div style={{ fontSize: s.hero ? 26 : 22, fontWeight: 800, color: s.color, fontVariantNumeric: "tabular-nums" }}>{fmt(s.val)}</div>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>/tháng</div>
+            <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid rgba(${s.rgb},0.12)`, fontSize: 11 }}>
+              <span style={{ color: "var(--text-faint)" }}>Year 1 ≈ </span>
+              <span style={{ fontWeight: 700, color: s.color }}>{fmt(s.y1)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ════════════════════════════════════════════════
+          SECTION 2: GMV & Revenue theo khối
+         ════════════════════════════════════════════════ */}
+      <SectionHead num="2" title="GMV & Doanh thu theo khối" sub="So sánh tổng giá trị giao dịch và phí thu được" />
+      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
             <thead>
               <tr>
-                {["TT", "Sản phẩm / Dịch vụ", "Baseline Vikki", "Hệ số", "GD/tháng", "GTGD TB", "Phí/HH", "Nguồn", "DT Thận trọng", "DT Cơ sở", "DT Lạc quan", "DT 2T GĐ1", "DT Year 1"].map((h, i) => (
+                {["Khối", "GD/tháng", "GMV/tháng", "", "DT/tháng", "", "Take Rate", "DT Year 1"].map((h, i) => (
                   <th key={i} style={{
-                    padding: "8px 12px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)",
+                    padding: "10px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)",
                     textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)",
-                    textAlign: i >= 2 ? "right" : "left", position: i <= 1 ? "sticky" : undefined,
-                    left: i === 0 ? 0 : i === 1 ? 32 : undefined, background: "var(--bg)", zIndex: i <= 1 ? 1 : undefined,
-                    minWidth: i === 1 ? 180 : undefined,
+                    textAlign: i >= 1 ? "right" : "left",
                   }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {data.map((r, i) => {
-                const blockColor = SKY_PARTNER_BLOCKS.find((b) => b.id === r.block)?.color || "var(--text)";
-                return (
-                  <tr key={i} style={{ borderBottom: "1px solid var(--border-faint)" }}>
-                    <td style={{ padding: "8px 12px", color: "var(--text-faint)", fontWeight: 600, position: "sticky", left: 0, background: "var(--bg)", zIndex: 1, width: 32 }}>{r.stt}</td>
-                    <td style={{ padding: "8px 12px", color: "var(--text)", fontWeight: 500, position: "sticky", left: 32, background: "var(--bg)", zIndex: 1 }}>
-                      <span style={{ display: "inline-block", width: 4, height: 4, borderRadius: "50%", background: blockColor, marginRight: 8 }} />
-                      {r.name}
-                    </td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", color: r.baseline > 0 ? "var(--text)" : "var(--text-faint)" }}>{r.baseline > 0 ? fmtFull(r.baseline) : "—"}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", color: "var(--accent-2)" }}>×{r.factor}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 600 }}>{fmtFull(r.gdMonth)}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", color: "var(--text-dim)" }}>{fmtFull(r.avgValue)}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", color: r.feeType === "fixed" ? "var(--accent-2)" : "var(--green)" }}>{r.fee}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", fontSize: 11, color: r.source.includes("iMedia") ? "#378ADD" : "var(--amber)" }}>{r.source}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", color: "var(--text-dim)" }}>{fmtFull(r.dtThangCautious)}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 600 }}>{fmtFull(r.dtThangBase)}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", color: "var(--green)" }}>{fmtFull(r.dtThangOptimistic)}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 600 }}>{fmtFull(r.dt2Month)}</td>
-                    <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "var(--green)" }}>{fmtFull(r.dtYear1)}</td>
-                  </tr>
-                );
-              })}
+              {blockAnalysis.map((b) => (
+                <tr key={b.id} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                  <td style={{ padding: "10px 14px" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontWeight: 500, color: "var(--text)" }}>
+                      <span style={{ width: 10, height: 10, borderRadius: 3, background: b.color, flexShrink: 0 }} />
+                      {b.name}
+                    </span>
+                  </td>
+                  <td style={{ padding: "10px 14px", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmtFull(b.gd)}</td>
+                  <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 600, color: "#38bdf8", fontVariantNumeric: "tabular-nums" }}>{fmt(b.gmv)}</td>
+                  <td style={{ padding: "10px 14px", width: 120 }}>
+                    <div style={{ height: 6, borderRadius: 3, background: "var(--border-faint)", overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: maxBlockGmv > 0 ? `${(b.gmv / maxBlockGmv) * 100}%` : "0%", borderRadius: 3, background: `linear-gradient(90deg, ${b.color}88, ${b.color})` }} />
+                    </div>
+                  </td>
+                  <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 600, color: "#34d399", fontVariantNumeric: "tabular-nums" }}>{b.rev > 0 ? fmt(b.rev) : "—"}</td>
+                  <td style={{ padding: "10px 14px", width: 120 }}>
+                    <div style={{ height: 6, borderRadius: 3, background: "var(--border-faint)", overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: maxBlockRev > 0 ? `${(b.rev / maxBlockRev) * 100}%` : "0%", borderRadius: 3, background: "linear-gradient(90deg, rgba(52,211,153,0.5), #34d399)" }} />
+                    </div>
+                  </td>
+                  <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 600, color: b.takeRate > 3 ? "var(--amber)" : "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>
+                    {b.takeRate > 0 ? b.takeRate.toFixed(1) + "%" : "—"}
+                  </td>
+                  <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{b.revY > 0 ? fmt(b.revY) : "—"}</td>
+                </tr>
+              ))}
               {/* Totals */}
-              <tr style={{ background: "rgba(124,108,255,0.06)", fontWeight: 700 }}>
-                <td colSpan={2} style={{ padding: "10px 12px", fontWeight: 700, color: "var(--accent-2)", position: "sticky", left: 0, background: "rgba(124,108,255,0.06)", zIndex: 1 }}>TỔNG CỘNG</td>
-                <td style={{ padding: "8px 12px" }} />
-                <td style={{ padding: "8px 12px" }} />
-                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700 }}>{fmtFull(totals.gdMonth)}</td>
-                <td style={{ padding: "8px 12px" }} />
-                <td style={{ padding: "8px 12px" }} />
-                <td style={{ padding: "8px 12px" }} />
-                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700 }}>{fmtFull(totals.dtC)}</td>
-                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700 }}>{fmtFull(totals.dtB)}</td>
-                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "var(--green)" }}>{fmtFull(totals.dtO)}</td>
-                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700 }}>{fmtFull(totals.dt2)}</td>
-                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "var(--green)" }}>{fmtFull(totals.dtY)}</td>
+              <tr style={{ background: "rgba(124,108,255,0.05)" }}>
+                <td style={{ padding: "10px 14px", fontWeight: 700, color: "var(--accent-2)" }}>Tổng cộng</td>
+                <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmtFull(totals.gdMonth)}</td>
+                <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "#38bdf8", fontVariantNumeric: "tabular-nums" }}>{fmt(totals.gmv)}</td>
+                <td />
+                <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "#34d399", fontVariantNumeric: "tabular-nums" }}>{fmt(totals.dtB)}</td>
+                <td />
+                <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "var(--accent-2)", fontVariantNumeric: "tabular-nums" }}>{totals.takeRate.toFixed(2)}%</td>
+                <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "var(--green)", fontVariantNumeric: "tabular-nums" }}>{fmt(totals.dtY)}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Assumptions */}
-      <div className="card" style={{ marginTop: 20, background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.12)" }}>
-        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--amber)", margin: "0 0 10px" }}>📌 Giả định & Ghi chú</h3>
+      {/* ════════════════════════════════════════════════
+          SECTION 3: Revenue Mix — Fee model
+         ════════════════════════════════════════════════ */}
+      <SectionHead num="3" title="Cơ cấu doanh thu" sub="Phân tích theo mô hình thu phí" />
+      <div className="grid-2" style={{ marginBottom: 0 }}>
+        {/* Fixed fee */}
+        <div className="card" style={{ position: "relative", overflow: "hidden" }}>
+          <div style={{
+            position: "absolute", top: 0, left: 0, right: 0, height: 3,
+            background: "linear-gradient(90deg, var(--accent-2), rgba(124,108,255,0.3))",
+          }} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--accent-2)" }}>Phí cố định / GD</div>
+              <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 2 }}>{data.filter((r) => r.feeType === "fixed").length} sản phẩm · 1K–20K₫/GD</div>
+            </div>
+            <div style={{
+              fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 8,
+              background: "rgba(124,108,255,0.10)", color: "var(--accent-2)",
+            }}>{totals.dtB > 0 ? ((feeSplit.fixed.rev / totals.dtB) * 100).toFixed(0) : 0}% DT</div>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>
+            {fmt(feeSplit.fixed.rev)}<span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-dim)" }}>/tháng</span>
+          </div>
+          <div style={{ display: "flex", gap: 16, marginTop: 10, fontSize: 11, color: "var(--text-dim)" }}>
+            <span>GMV: <strong style={{ color: "#38bdf8" }}>{fmt(feeSplit.fixed.gmv)}</strong></span>
+            <span>Year 1: <strong style={{ color: "var(--text)" }}>{fmt(feeSplit.fixed.revY)}</strong></span>
+          </div>
+        </div>
+        {/* Percent commission */}
+        <div className="card" style={{ position: "relative", overflow: "hidden" }}>
+          <div style={{
+            position: "absolute", top: 0, left: 0, right: 0, height: 3,
+            background: "linear-gradient(90deg, var(--green), rgba(52,211,153,0.3))",
+          }} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--green)" }}>Hoa hồng % trên GTGD</div>
+              <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 2 }}>{data.filter((r) => r.feeType === "percent").length} sản phẩm · 3–25% TPV</div>
+            </div>
+            <div style={{
+              fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 8,
+              background: "rgba(52,211,153,0.10)", color: "var(--green)",
+            }}>{totals.dtB > 0 ? ((feeSplit.pct.rev / totals.dtB) * 100).toFixed(0) : 0}% DT</div>
+          </div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "var(--text)", fontVariantNumeric: "tabular-nums" }}>
+            {fmt(feeSplit.pct.rev)}<span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-dim)" }}>/tháng</span>
+          </div>
+          <div style={{ display: "flex", gap: 16, marginTop: 10, fontSize: 11, color: "var(--text-dim)" }}>
+            <span>GMV: <strong style={{ color: "#38bdf8" }}>{fmt(feeSplit.pct.gmv)}</strong></span>
+            <span>Year 1: <strong style={{ color: "var(--text)" }}>{fmt(feeSplit.pct.revY)}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      {/* Revenue mix bar */}
+      <div style={{ marginTop: 10, height: 10, borderRadius: 5, overflow: "hidden", display: "flex" }}>
+        <div style={{ width: `${totals.dtB > 0 ? (feeSplit.fixed.rev / totals.dtB) * 100 : 50}%`, height: "100%", background: "var(--accent-2)", transition: "width 0.5s" }} />
+        <div style={{ flex: 1, height: "100%", background: "var(--green)" }} />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontSize: 10, color: "var(--text-faint)" }}>
+        <span>Phí cố định</span>
+        <span>Hoa hồng %</span>
+      </div>
+
+      {/* ════════════════════════════════════════════════
+          SECTION 4: Top 5 sản phẩm
+         ════════════════════════════════════════════════ */}
+      <SectionHead num="4" title="Top 5 sản phẩm doanh thu cao nhất" sub="Kịch bản cơ sở · Year 1" />
+      <div className="card">
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {top5.map((p, i) => {
+            const maxVal = top5[0].dtYear1;
+            const blk = SKY_PARTNER_BLOCKS.find((b) => b.id === p.block);
+            const gmv = p.gdMonth * p.avgValue;
+            return (
+              <div key={i}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                  <span style={{
+                    width: 22, height: 22, borderRadius: 6,
+                    background: `${blk?.color || "var(--accent)"}15`,
+                    color: blk?.color || "var(--accent)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 11, fontWeight: 800, flexShrink: 0,
+                  }}>{i + 1}</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text)", flex: 1 }}>{p.name}</span>
+                  <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 6, background: `${blk?.color || "#888"}14`, color: blk?.color, fontWeight: 600 }}>Khối 0{p.block}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--green)", fontVariantNumeric: "tabular-nums", width: 80, textAlign: "right" }}>{fmt(p.dtYear1)}</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ flex: 1, height: 8, background: "var(--border-faint)", borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{
+                      height: "100%", borderRadius: 4,
+                      width: `${(p.dtYear1 / maxVal) * 100}%`,
+                      background: `linear-gradient(90deg, ${blk?.color || "var(--accent)"}88, ${blk?.color || "var(--accent)"})`,
+                    }} />
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 14, marginTop: 4, fontSize: 10.5, color: "var(--text-faint)" }}>
+                  <span>GMV: <strong style={{ color: "#38bdf8" }}>{fmt(gmv)}</strong>/tháng</span>
+                  <span>DT: <strong style={{ color: "#34d399" }}>{fmt(p.dtThangBase)}</strong>/tháng</span>
+                  <span>{fmtFull(p.gdMonth)} GD · {p.fee}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════════
+          SECTION 5: Chi tiết dự phóng
+         ════════════════════════════════════════════════ */}
+      <SectionHead num="5" title="Chi tiết dự phóng doanh thu" sub="Baseline: Vikki Bank thực tế · Phí: iMedia T7/2026 & Benchmark TT" />
+      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ overflowX: "auto", paddingBottom: 4 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap", minWidth: 1300 }}>
+            <thead>
+              <tr>
+                {["TT", "Sản phẩm / Dịch vụ", "GD/tháng", "GTGD TB", "GMV/tháng", "Phí/HH", "Nguồn", "DT Thận trọng", "DT Cơ sở", "DT Lạc quan", "DT Year 1"].map((h, i) => (
+                  <th key={i} style={{
+                    padding: "10px 12px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)",
+                    textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)",
+                    textAlign: i >= 2 ? "right" : "left",
+                    position: i <= 1 ? "sticky" : undefined,
+                    left: i === 0 ? 0 : i === 1 ? 36 : undefined,
+                    background: "var(--card-bg)", zIndex: i <= 1 ? 1 : undefined,
+                    minWidth: i === 1 ? 200 : undefined,
+                  }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((r, i) => {
+                const blk = SKY_PARTNER_BLOCKS.find((b) => b.id === r.block);
+                const gmv = r.gdMonth * r.avgValue;
+                return (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                    <td style={{ padding: "8px 12px", color: "var(--text-faint)", fontWeight: 600, textAlign: "center", position: "sticky", left: 0, background: "var(--card-bg)", zIndex: 1, width: 36 }}>{r.stt}</td>
+                    <td style={{ padding: "8px 12px", color: "var(--text)", fontWeight: 500, position: "sticky", left: 36, background: "var(--card-bg)", zIndex: 1 }}>
+                      <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: 2, background: blk?.color, marginRight: 8, verticalAlign: "middle" }} />
+                      {r.name}
+                    </td>
+                    <td style={{ padding: "8px 12px", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmtFull(r.gdMonth)}</td>
+                    <td style={{ padding: "8px 12px", textAlign: "right", color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{fmtFull(r.avgValue)}</td>
+                    <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 600, color: "#38bdf8", fontVariantNumeric: "tabular-nums" }}>{fmt(gmv)}</td>
+                    <td style={{ padding: "8px 12px", textAlign: "right" }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 7px", borderRadius: 8, background: r.feeType === "fixed" ? "rgba(124,108,255,0.10)" : "rgba(52,211,153,0.10)", color: r.feeType === "fixed" ? "var(--accent-2)" : "var(--green)" }}>{r.fee}</span>
+                    </td>
+                    <td style={{ padding: "8px 12px", textAlign: "right", fontSize: 10.5, color: r.source.includes("iMedia") ? "#378ADD" : "var(--amber)" }}>{r.source}</td>
+                    <td style={{ padding: "8px 12px", textAlign: "right", color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{fmtFull(r.dtThangCautious)}</td>
+                    <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{fmtFull(r.dtThangBase)}</td>
+                    <td style={{ padding: "8px 12px", textAlign: "right", color: "var(--green)", fontVariantNumeric: "tabular-nums" }}>{fmtFull(r.dtThangOptimistic)}</td>
+                    <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "var(--green)", fontVariantNumeric: "tabular-nums" }}>{fmtFull(r.dtYear1)}</td>
+                  </tr>
+                );
+              })}
+              <tr style={{ background: "rgba(124,108,255,0.05)" }}>
+                <td colSpan={2} style={{ padding: "10px 12px", fontWeight: 700, color: "var(--accent-2)", position: "sticky", left: 0, background: "rgba(124,108,255,0.05)", zIndex: 1 }}>TỔNG CỘNG</td>
+                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmtFull(totals.gdMonth)}</td>
+                <td />
+                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "#38bdf8", fontVariantNumeric: "tabular-nums" }}>{fmt(totals.gmv)}</td>
+                <td />
+                <td />
+                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmtFull(totals.dtC)}</td>
+                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmtFull(totals.dtB)}</td>
+                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "var(--green)", fontVariantNumeric: "tabular-nums" }}>{fmtFull(totals.dtO)}</td>
+                <td style={{ padding: "8px 12px", textAlign: "right", fontWeight: 700, color: "var(--green)", fontVariantNumeric: "tabular-nums" }}>{fmtFull(totals.dtY)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════════
+          SECTION 6: Assumptions
+         ════════════════════════════════════════════════ */}
+      <div className="card" style={{ marginTop: 24, background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.12)" }}>
+        <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--amber)", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>📌 Giả định & Ghi chú</h3>
         {[
           "Baseline: Dữ liệu thực tế Vikki Bank (85.4K users, 164.8K trans, ~56.7 tỷ GTGD/tháng)",
           "Hệ số mở rộng kênh GĐ1: ×2.0–3.0 khi thêm HDBank App, POS trạm xăng pilot (50–100 điểm), Kiosk CDS",
           "3 kịch bản: Thận trọng (×0.7), Cơ sở (×1.0), Lạc quan (×1.4)",
+          "GMV = GD/tháng × GTGD trung bình — tổng giá trị giao dịch qua nền tảng (chưa trừ phí)",
+          "Take Rate = DT / GMV — tỷ lệ phí thu được trên tổng GTGD, phụ thuộc cơ cấu sản phẩm",
           "Dự phóng Year 1: Tăng trưởng lũy tiến qua 6 chu kỳ 2 tháng (×1.0 → ×1.15 → ×1.3 → ×1.5 → ×1.7 → ×2.0)",
           "Phí nguồn iMedia T7/2026: căn cứ chính sách phí hợp tác kênh thanh toán — Cty CNGH & DV iMedia",
-          "Chưa bao gồm chi phí vận hành, hạ tầng, nhân sự",
+          "Chưa bao gồm chi phí vận hành, hạ tầng, nhân sự — đây là dự phóng doanh thu gộp (Gross Revenue)",
         ].map((note, i) => (
           <p key={i} style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 6px", lineHeight: 1.6, display: "flex", gap: 8 }}>
             <span style={{ color: "var(--amber)", flexShrink: 0 }}>•</span> {note}
