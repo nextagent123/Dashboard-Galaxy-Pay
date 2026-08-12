@@ -23,44 +23,96 @@ function fmtFull(n) {
 // ═══════════════════════════════════════════════════
 // FLOW STAGE WRAPPER (pipeline rail + content)
 // ═══════════════════════════════════════════════════
+const STAGE_COLORS = [
+  { main: "#38bdf8", rgb: "56,189,248", grad: "linear-gradient(135deg, #38bdf8, #0ea5e9)" },    // 1 — sky blue
+  { main: "#a78bfa", rgb: "167,139,250", grad: "linear-gradient(135deg, #a78bfa, #7c6cff)" },    // 2 — violet
+  { main: "#fb923c", rgb: "251,146,60",  grad: "linear-gradient(135deg, #fb923c, #f97316)" },    // 3 — orange
+  { main: "#f472b6", rgb: "244,114,182", grad: "linear-gradient(135deg, #f472b6, #ec4899)" },    // 4 — pink
+  { main: "#34d399", rgb: "52,211,153",  grad: "linear-gradient(135deg, #34d399, #10b981)" },    // 5 — emerald
+];
+
 function FlowStage({ num, label, note, last, children }) {
+  const c = STAGE_COLORS[(num - 1) % STAGE_COLORS.length];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "68px 1fr" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "82px 1fr", position: "relative" }}>
+      {/* ── Rail column ── */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
+        {/* Outer glow ring */}
         <div style={{
-          width: 34, height: 34, borderRadius: "50%",
-          background: "rgba(124,108,255,0.10)", border: "2px solid var(--accent-2)",
+          width: 54, height: 54, borderRadius: "50%", marginTop: 10, flexShrink: 0,
+          background: `radial-gradient(circle, rgba(${c.rgb},0.12) 0%, transparent 70%)`,
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 700, color: "var(--accent-2)",
-          marginTop: 14, flexShrink: 0, boxShadow: "0 0 12px rgba(124,108,255,0.15)",
-        }}>{num}</div>
+          position: "relative",
+        }}>
+          {/* Pulsing ring */}
+          <div style={{
+            position: "absolute", inset: 2, borderRadius: "50%",
+            border: `2px solid rgba(${c.rgb},0.25)`,
+            animation: "pulse-ring 3s ease-in-out infinite",
+          }} />
+          {/* Main node */}
+          <div style={{
+            width: 42, height: 42, borderRadius: "50%",
+            background: c.grad,
+            boxShadow: `0 0 20px rgba(${c.rgb},0.35), 0 0 40px rgba(${c.rgb},0.12), inset 0 1px 0 rgba(255,255,255,0.20)`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 16, fontWeight: 800, color: "#fff",
+            letterSpacing: "-0.02em",
+            position: "relative", zIndex: 2,
+          }}>{num}</div>
+        </div>
+        {/* Label badge */}
         <div style={{
-          fontSize: 8.5, fontWeight: 700, letterSpacing: "0.1em",
-          textTransform: "uppercase", color: "var(--accent-2)",
-          marginTop: 4, textAlign: "center",
+          marginTop: 6,
+          background: `rgba(${c.rgb},0.10)`,
+          border: `1px solid rgba(${c.rgb},0.20)`,
+          borderRadius: 8, padding: "3px 10px",
+          fontSize: 9, fontWeight: 800, letterSpacing: "0.12em",
+          textTransform: "uppercase", color: c.main,
+          textAlign: "center", whiteSpace: "nowrap",
         }}>{label}</div>
+        {/* Connecting rail */}
         {!last && (
-          <>
-            <div style={{ width: 2, flex: 1, background: "linear-gradient(to bottom, rgba(124,108,255,0.22), rgba(124,108,255,0.08))", minHeight: 14 }} />
+          <div style={{
+            display: "flex", flexDirection: "column", alignItems: "center",
+            flex: 1, minHeight: 18, marginTop: 8,
+          }}>
             <div style={{
-              width: 0, height: 0, flexShrink: 0,
-              borderLeft: "5px solid transparent", borderRight: "5px solid transparent",
-              borderTop: "6px solid rgba(124,108,255,0.18)",
+              width: 3, flex: 1, borderRadius: 2,
+              background: `linear-gradient(to bottom, rgba(${c.rgb},0.30), rgba(${c.rgb},0.06))`,
             }} />
-          </>
+            {/* Chevron arrow */}
+            <svg width="14" height="10" viewBox="0 0 14 10" style={{ flexShrink: 0, marginTop: 2 }}>
+              <path d="M1 1L7 8L13 1" fill="none" stroke={c.main} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.35" />
+            </svg>
+          </div>
         )}
       </div>
-      <div style={{ padding: "8px 0 14px 16px" }}>
+      {/* ── Content column ── */}
+      <div style={{ padding: "8px 0 18px 12px" }}>
+        {/* Stage annotation line */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 8,
-          marginBottom: 10, fontSize: 10, color: "var(--text-faint)",
-          letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600,
+          display: "flex", alignItems: "center", gap: 10,
+          marginBottom: 12, marginTop: 6,
         }}>
-          <span style={{ width: 12, height: 1, background: "rgba(124,108,255,0.30)", flexShrink: 0 }} />
-          {note}
+          <span style={{
+            width: 24, height: 2, borderRadius: 1,
+            background: `linear-gradient(90deg, ${c.main}, transparent)`, flexShrink: 0,
+          }} />
+          <span style={{
+            fontSize: 10.5, color: c.main, fontWeight: 600,
+            letterSpacing: "0.06em", textTransform: "uppercase", opacity: 0.85,
+          }}>{note}</span>
         </div>
         {children}
       </div>
+      {/* Keyframes (injected once per stage for scoping, browser deduplicates) */}
+      <style>{`
+        @keyframes pulse-ring {
+          0%, 100% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.08); }
+        }
+      `}</style>
     </div>
   );
 }
