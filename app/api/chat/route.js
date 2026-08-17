@@ -223,6 +223,23 @@ function getEnv(key) {
   return process.env[key];
 }
 
+// --- Model configuration ---
+// Groq: fast & lightweight models (sorted by speed → quality)
+const GROQ_DEFAULT_MODEL = "llama-3.1-8b-instant";
+const GROQ_FALLBACK_MODELS = [
+  "llama-3.1-8b-instant",   // 8B — fastest, good quality
+  "gemma2-9b-it",           // 9B — strong reasoning backup
+  "qwen-qwq-32b",           // 32B — last resort, heavier
+];
+// Deprecated models (auto-skip if set in env)
+const GROQ_DEPRECATED = new Set([
+  "llama-3.3-70b-versatile",     // retired 16/08/2026
+  "llama-3.3-70b-specdec",
+]);
+
+// Workers AI: lightweight model for Cloudflare fallback
+const WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+
 async function tryWorkersAI(messages, systemPrompt) {
   try {
     const { env } = getCloudflareContext();
@@ -234,7 +251,7 @@ async function tryWorkersAI(messages, systemPrompt) {
       ...messages,
     ];
 
-    const response = await ai.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+    const response = await ai.run(WORKERS_AI_MODEL, {
       messages: aiMessages,
       max_tokens: 1024,
       temperature: 0.7,
@@ -247,36 +264,53 @@ async function tryWorkersAI(messages, systemPrompt) {
   }
 }
 
+async function callGroqModel(apiKey, model, messages, systemPrompt) {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "GalaxyPay-Dashboard/1.0",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages,
+      ],
+      max_tokens: 1024,
+      temperature: 0.7,
+      stream: true,
+    }),
+  });
+  if (!res.ok) return null;
+  return { type: "groq", response: res };
+}
+
 async function tryGroq(messages, systemPrompt) {
   const apiKey = getEnv("GROQ_API_KEY");
-  const model = getEnv("CHAT_MODEL") || "llama-3.1-8b-instant";
   if (!apiKey) return null;
 
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "GalaxyPay-Dashboard/1.0",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        max_tokens: 1024,
-        temperature: 0.7,
-        stream: true,
-      }),
-    });
-
-    if (!res.ok) return null;
-    return { type: "groq", response: res };
-  } catch {
-    return null;
+  // Build model list: env override (if not deprecated) → fallbacks
+  const envModel = getEnv("CHAT_MODEL");
+  const models = [];
+  if (envModel && !GROQ_DEPRECATED.has(envModel)) {
+    models.push(envModel);
   }
+  for (const m of GROQ_FALLBACK_MODELS) {
+    if (!models.includes(m)) models.push(m);
+  }
+
+  // Try each model until one succeeds
+  for (const model of models) {
+    try {
+      const result = await callGroqModel(apiKey, model, messages, systemPrompt);
+      if (result) return result;
+    } catch {
+      continue;
+    }
+  }
+  return null;
 }
 
 function sseHeaders() {
