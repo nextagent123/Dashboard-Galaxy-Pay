@@ -902,7 +902,86 @@ function FinanceTab() {
       </div>
 
       {/* ════════════════════════════════════════════════
-          SECTION 6: Assumptions
+          SECTION 6: Topup carrier breakdown
+         ════════════════════════════════════════════════ */}
+      {(() => {
+        const topupRow = data.find((r) => r.topupCarriers);
+        if (!topupRow) return null;
+        const carriers = topupRow.topupCarriers;
+        const maxDt = Math.max(...carriers.map((c) => c.dtBase));
+        const CARRIER_COLORS = { Viettel: "#e11d48", VinaPhone: "#2563eb", MobiFone: "#16a34a", Vietnamobile: "#f59e0b" };
+        return (
+          <>
+            <SectionHead num="6" title="Chi tiết chiết khấu Topup theo nhà mạng" sub="Nguồn: Imedia · Chiết khấu đã gồm VAT" />
+            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
+                  <thead>
+                    <tr>
+                      {["Nhà mạng", "Thị phần GD", "GD/tháng", "Chiết khấu", "GMV/tháng", "DT Base/tháng", "Tỷ trọng DT"].map((h, i) => (
+                        <th key={i} style={{
+                          padding: "10px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)",
+                          textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)",
+                          textAlign: i >= 2 ? "right" : "left",
+                        }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {carriers.map((c, i) => {
+                      const gmv = c.gdMonth * topupRow.avgValue;
+                      const dtPct = topupRow.dtThangBase > 0 ? (c.dtBase / topupRow.dtThangBase * 100) : 0;
+                      return (
+                        <tr key={i} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                          <td style={{ padding: "10px 14px", fontWeight: 600 }}>
+                            <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: CARRIER_COLORS[c.carrier], marginRight: 10, verticalAlign: "middle" }} />
+                            {c.carrier}
+                          </td>
+                          <td style={{ padding: "10px 14px" }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: "rgba(124,108,255,0.08)", color: "var(--accent-2)" }}>{(c.share * 100).toFixed(0)}%</span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmtFull(c.gdMonth)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: "rgba(52,211,153,0.10)", color: "var(--green)" }}>{c.ck}%</span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: "#38bdf8", fontWeight: 600 }}>{fmt(gmv)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10 }}>
+                              <div style={{ width: 80, height: 6, borderRadius: 3, background: "var(--border-faint)", overflow: "hidden" }}>
+                                <div style={{ width: `${(c.dtBase / maxDt) * 100}%`, height: "100%", borderRadius: 3, background: CARRIER_COLORS[c.carrier] }} />
+                              </div>
+                              <span style={{ fontWeight: 600, fontVariantNumeric: "tabular-nums", minWidth: 70, textAlign: "right" }}>{fmt(c.dtBase)}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 600, color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{dtPct.toFixed(1)}%</td>
+                        </tr>
+                      );
+                    })}
+                    <tr style={{ background: "rgba(124,108,255,0.05)", borderTop: "2px solid var(--border)" }}>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, color: "var(--accent-2)" }}>TỔNG CỘNG</td>
+                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "var(--text-dim)" }}>100%</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmtFull(topupRow.gdMonth)}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: "rgba(251,191,36,0.10)", color: "var(--amber)" }}>~4.07%</span>
+                      </td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "#38bdf8", fontVariantNumeric: "tabular-nums" }}>{fmt(topupRow.gdMonth * topupRow.avgValue)}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmt(topupRow.dtThangBase)}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "var(--accent-2)" }}>100%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style={{ padding: "10px 14px", borderTop: "1px solid var(--border-faint)", fontSize: 11, color: "var(--text-faint)", display: "flex", gap: 6, alignItems: "center" }}>
+                <span style={{ color: "#378ADD" }}>ℹ</span>
+                CK bình quân gia quyền ~4.07% (dựa trên thị phần GD ước tính) · Nguồn cung: <strong style={{ color: "#378ADD", marginLeft: 2 }}>Imedia</strong>
+              </div>
+            </div>
+          </>
+        );
+      })()}
+
+      {/* ════════════════════════════════════════════════
+          SECTION 7: Assumptions
          ════════════════════════════════════════════════ */}
       <div className="card" style={{ marginTop: 24, background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.12)" }}>
         <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--amber)", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>📌 Giả định & Ghi chú</h3>
@@ -914,6 +993,8 @@ function FinanceTab() {
           "Take Rate = DT / GMV — tỷ lệ phí thu được trên tổng GTGD, phụ thuộc cơ cấu sản phẩm",
           "Dự phóng Year 1: Tăng trưởng lũy tiến qua 6 chu kỳ 2 tháng (×1.0 → ×1.15 → ×1.3 → ×1.5 → ×1.7 → ×2.0)",
           "Phí nguồn iMedia T7/2026: căn cứ chính sách phí hợp tác kênh thanh toán — Cty CNGH & DV iMedia",
+          "Topup Direct: CK từ Imedia — Viettel 3.6%, VinaPhone 4.6%, MobiFone 3.7%, Vietnamobile 6.5% (đã gồm VAT). Bình quân gia quyền ~4.07%",
+          "Thị phần GD Topup ước tính: Viettel 50%, VinaPhone 22%, MobiFone 20%, Vietnamobile 8% — dùng để tính CK bình quân",
           "Chưa bao gồm chi phí vận hành, hạ tầng, nhân sự — đây là dự phóng doanh thu gộp (Gross Revenue)",
         ].map((note, i) => (
           <p key={i} style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 6px", lineHeight: 1.6, display: "flex", gap: 8 }}>
