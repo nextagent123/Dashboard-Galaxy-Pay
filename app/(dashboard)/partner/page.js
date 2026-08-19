@@ -399,8 +399,12 @@ function Phase1Tab() {
     },
     {
       stt: 5, service: "Postpaid (Nạp tiền trả sau)", category: "Telco",
-      gpPrice: "~400đ/GD", vnpayPrice: null, unit: "VND/GD",
-      gpSource: "Imedia", note: "Tất cả nhà mạng",
+      subItems: [
+        { carrier: "Viettel", gpPrice: "0.5%/GTGD", vnpayPrice: null, unit: "% GTGD" },
+        { carrier: "MobiFone", gpPrice: "0.4%/GTGD", vnpayPrice: null, unit: "% GTGD" },
+        { carrier: "VinaPhone", gpPrice: "0.4%/GTGD", vnpayPrice: null, unit: "% GTGD" },
+      ],
+      gpSource: "Imedia", note: "Miễn phí thu KH",
     },
     {
       stt: 6, service: "Data Card (Thẻ cào / Gói dữ liệu)", category: "Telco",
@@ -1196,6 +1200,86 @@ function FinanceTab() {
       })()}
 
       {/* ════════════════════════════════════════════════
+          SECTION 8: Postpaid carrier breakdown
+         ════════════════════════════════════════════════ */}
+      {(() => {
+        const ppRow = data.find((r) => r.postpaidCarriers);
+        if (!ppRow) return null;
+        const carriers = ppRow.postpaidCarriers;
+        const maxDt = Math.max(...carriers.map((c) => c.dtBase));
+        const PP_COLORS = { Viettel: "#e11d48", MobiFone: "#16a34a", VinaPhone: "#2563eb" };
+        return (
+          <>
+            <SectionHead num="8" title="Chi tiết phí Postpaid theo nhà mạng" sub="Nguồn: Imedia T7/2026 · Phí tính theo %GTGD" />
+            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
+                  <thead>
+                    <tr>
+                      {["Nhà mạng", "Thị phần GD", "GD/tháng", "Phí (%GTGD)", "GMV/tháng", "DT Base/tháng", "Tỷ trọng DT"].map((h, i) => (
+                        <th key={i} style={{
+                          padding: "10px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)",
+                          textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)",
+                          textAlign: i >= 2 ? "right" : "left",
+                        }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {carriers.map((c, i) => {
+                      const gmv = c.gdMonth * ppRow.avgValue;
+                      const dtPct = ppRow.dtThangBase > 0 ? (c.dtBase / ppRow.dtThangBase * 100) : 0;
+                      const dotColor = PP_COLORS[c.carrier] || "#8b5cf6";
+                      return (
+                        <tr key={i} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                          <td style={{ padding: "10px 14px", fontWeight: 600 }}>
+                            <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: dotColor, marginRight: 10, verticalAlign: "middle" }} />
+                            {c.carrier}
+                          </td>
+                          <td style={{ padding: "10px 14px" }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: "rgba(124,108,255,0.08)", color: "var(--accent-2)" }}>{(c.share * 100).toFixed(0)}%</span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmtFull(c.gdMonth)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: "rgba(52,211,153,0.10)", color: "var(--green)" }}>{c.ck}%</span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: "#38bdf8", fontWeight: 600 }}>{fmt(gmv)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10 }}>
+                              <div style={{ width: 80, height: 6, borderRadius: 3, background: "var(--border-faint)", overflow: "hidden" }}>
+                                <div style={{ width: `${(c.dtBase / maxDt) * 100}%`, height: "100%", borderRadius: 3, background: dotColor }} />
+                              </div>
+                              <span style={{ fontWeight: 600, fontVariantNumeric: "tabular-nums", minWidth: 70, textAlign: "right" }}>{fmt(c.dtBase)}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 600, color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{dtPct.toFixed(1)}%</td>
+                        </tr>
+                      );
+                    })}
+                    <tr style={{ background: "rgba(124,108,255,0.05)", borderTop: "2px solid var(--border)" }}>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, color: "var(--accent-2)" }}>TỔNG CỘNG</td>
+                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "var(--text-dim)" }}>100%</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmtFull(ppRow.gdMonth)}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: "rgba(251,191,36,0.10)", color: "var(--amber)" }}>~0.45%</span>
+                      </td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "#38bdf8", fontVariantNumeric: "tabular-nums" }}>{fmt(ppRow.gdMonth * ppRow.avgValue)}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmt(ppRow.dtThangBase)}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "var(--accent-2)" }}>100%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style={{ padding: "10px 14px", borderTop: "1px solid var(--border-faint)", fontSize: 11, color: "var(--text-faint)", display: "flex", gap: 6, alignItems: "center" }}>
+                <span style={{ color: "#378ADD" }}>ℹ</span>
+                Phí bình quân gia quyền ~0.45%/GTGD · Viettel có phí cao nhất (0.5%) · Miễn phí thu KH · Nguồn: <strong style={{ color: "#378ADD", marginLeft: 2 }}>Imedia T7/2026</strong>
+              </div>
+            </div>
+          </>
+        );
+      })()}
+
+      {/* ════════════════════════════════════════════════
           APPENDIX: Imedia pricing detail (collapsible)
          ════════════════════════════════════════════════ */}
       <div className="card" style={{ marginTop: 20, overflow: "hidden", border: "1px solid rgba(55,138,221,0.15)" }}>
@@ -1212,10 +1296,10 @@ function FinanceTab() {
               📎 Phụ lục hợp đồng Imedia
             </div>
             <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>
-              Bảng giá chi tiết dịch vụ Topup & Data Card
+              Bảng giá chi tiết dịch vụ Topup, Data Card & Billing
             </div>
             <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 2 }}>
-              HĐ 1010/2022/HĐKT/PTKD/IMEDIA–GALAXYPAY · Phụ lục 01, Phần II · Ký 10/10/2022
+              Topup & Data Card: HĐ 1010/2022 · Billing: Chính sách phí T7/2026, hiệu lực 10/07/2026
             </div>
           </div>
           <span style={{
@@ -1381,16 +1465,165 @@ function FinanceTab() {
               </div>
             ))}
 
+            {/* ── 3. Billing — Postpaid ── */}
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 3, height: 16, borderRadius: 2, background: "#f59e0b" }} />
+              3. Chính sách phí Billing — Di động trả sau (Postpaid)
+            </h4>
+            <div style={{ overflowX: "auto", marginBottom: 28 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
+                <thead>
+                  <tr>
+                    {["TT", "Nhà mạng", "Phí GP nhận", "Phí thu KH"].map((h, i) => (
+                      <th key={i} style={{ padding: "8px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)", textAlign: i >= 2 ? "center" : "left" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { tt: 1, carrier: "Viettel", fee: "0.5%/GTGD", feeKH: "Miễn phí", color: "#e11d48" },
+                    { tt: 2, carrier: "VinaPhone", fee: "0.4%/GTGD", feeKH: "Miễn phí", color: "#2563eb" },
+                    { tt: 3, carrier: "MobiFone", fee: "0.4%/GTGD", feeKH: "Miễn phí", color: "#16a34a" },
+                  ].map((r) => (
+                    <tr key={r.tt} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                      <td style={{ padding: "8px 14px", fontWeight: 600, color: "var(--accent-2)", textAlign: "center", width: 40 }}>{r.tt}</td>
+                      <td style={{ padding: "8px 14px", fontWeight: 600 }}>
+                        <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: r.color, marginRight: 8, verticalAlign: "middle" }} />
+                        {r.carrier}
+                      </td>
+                      <td style={{ padding: "8px 14px", textAlign: "center" }}>
+                        <span style={{ fontWeight: 700, padding: "3px 12px", borderRadius: 8, background: "rgba(52,211,153,0.10)", color: "var(--green)" }}>{r.fee}</span>
+                      </td>
+                      <td style={{ padding: "8px 14px", textAlign: "center", color: "var(--text-dim)" }}>{r.feeKH}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── 4. Billing — Công ích & tiện ích ── */}
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 3, height: 16, borderRadius: 2, background: "#f59e0b" }} />
+              4. Chính sách phí Billing — Công ích & Tiện ích
+            </h4>
+            <div style={{ overflowX: "auto", marginBottom: 28 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
+                <thead>
+                  <tr>
+                    {["TT", "Dịch vụ", "NCC", "Phí GP nhận", "Phí thu KH"].map((h, i) => (
+                      <th key={i} style={{ padding: "8px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)", textAlign: i >= 3 ? "center" : "left" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { tt: 1, service: "Điện", ncc: "EVN (tất cả)", fee: "400đ", feeKH: "Miễn phí" },
+                    { tt: 2, service: "Nước", ncc: "245+ NCC", fee: "400đ", feeKH: "Miễn phí / theo NCC" },
+                    { tt: 3, service: "Internet", ncc: "FPT", fee: "400đ", feeKH: "Miễn phí" },
+                    { tt: 4, service: "Internet", ncc: "VNPT", fee: "0.4%/GTGD", feeKH: "Miễn phí" },
+                    { tt: 5, service: "Truyền hình", ncc: "SCTV, FPT Play, HTV, MyTV...", fee: "400đ–2.0%", feeKH: "Miễn phí–3,000đ" },
+                    { tt: 6, service: "Học phí", ncc: "VNPAY / Viettelpay", fee: "1,000đ–3,000đ", feeKH: "5,000đ–7,500đ" },
+                    { tt: 7, service: "Chung cư", ncc: "24 dự án", fee: "1,700đ", feeKH: "5,500đ" },
+                  ].map((r) => (
+                    <tr key={r.tt} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                      <td style={{ padding: "8px 14px", fontWeight: 600, color: "var(--accent-2)", textAlign: "center", width: 40 }}>{r.tt}</td>
+                      <td style={{ padding: "8px 14px", fontWeight: 600, color: "var(--text)" }}>{r.service}</td>
+                      <td style={{ padding: "8px 14px", fontSize: 11, color: "var(--text-dim)" }}>{r.ncc}</td>
+                      <td style={{ padding: "8px 14px", textAlign: "center" }}>
+                        <span style={{ fontWeight: 700, padding: "3px 12px", borderRadius: 8, background: "rgba(52,211,153,0.10)", color: "var(--green)" }}>{r.fee}</span>
+                      </td>
+                      <td style={{ padding: "8px 14px", textAlign: "center", color: "var(--text-dim)" }}>{r.feeKH}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── 5. Billing — Tài chính & Bảo hiểm ── */}
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 3, height: 16, borderRadius: 2, background: "#f59e0b" }} />
+              5. Chính sách phí Billing — Tài chính & Bảo hiểm
+            </h4>
+            <div style={{ overflowX: "auto", marginBottom: 28 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
+                <thead>
+                  <tr>
+                    {["TT", "NCC", "Phí GP nhận", "Phí thu KH"].map((h, i) => (
+                      <th key={i} style={{ padding: "8px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)", textAlign: i >= 2 ? "center" : "left" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { tt: 1, ncc: "FE Credit", fee: "3,000đ", feeKH: "10,000đ" },
+                    { tt: 2, ncc: "Home Credit", fee: "3,000đ", feeKH: "5,000đ" },
+                    { tt: 3, ncc: "HD Saison", fee: "3,000đ", feeKH: "Miễn phí" },
+                    { tt: 4, ncc: "Shinhan Finance", fee: "3,000đ", feeKH: "Miễn phí" },
+                    { tt: 5, ncc: "Mirae Asset", fee: "4,000đ", feeKH: "5,000đ" },
+                    { tt: 6, ncc: "Toyota Financial / Lotte / VPBank / VIB / OCB / MSB / Techcombank / MCredit / Prudential Fin. / MB / TPBank", fee: "5,000đ", feeKH: "5,000đ" },
+                    { tt: 7, ncc: "EasyCredit", fee: "5,000đ", feeKH: "Miễn phí" },
+                    { tt: 8, ncc: "JACCS", fee: "7,000đ", feeKH: "10,000đ" },
+                    { tt: 9, ncc: "BH Nhân thọ (9 NCC: Prudential, Manulife, Dai-ichi, AIA, Generali, Hanwha Life, Chubb Life, Sun Life, MB Ageas)", fee: "4,000đ", feeKH: "Miễn phí" },
+                  ].map((r) => (
+                    <tr key={r.tt} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                      <td style={{ padding: "8px 14px", fontWeight: 600, color: "var(--accent-2)", textAlign: "center", width: 40 }}>{r.tt}</td>
+                      <td style={{ padding: "8px 14px", fontWeight: 600, color: "var(--text)", fontSize: 11 }}>{r.ncc}</td>
+                      <td style={{ padding: "8px 14px", textAlign: "center" }}>
+                        <span style={{ fontWeight: 700, padding: "3px 12px", borderRadius: 8, background: "rgba(52,211,153,0.10)", color: "var(--green)" }}>{r.fee}</span>
+                      </td>
+                      <td style={{ padding: "8px 14px", textAlign: "center", color: "var(--text-dim)" }}>{r.feeKH}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── 6. Billing — Vé & Dịch vụ khác ── */}
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 3, height: 16, borderRadius: 2, background: "#f59e0b" }} />
+              6. Chính sách phí Billing — Vé, Bảo hiểm OPES & DV khác
+            </h4>
+            <div style={{ overflowX: "auto", marginBottom: 28 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
+                <thead>
+                  <tr>
+                    {["TT", "Dịch vụ", "Chi tiết", "Phí GP nhận", "Phí thu KH"].map((h, i) => (
+                      <th key={i} style={{ padding: "8px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)", textAlign: i >= 3 ? "center" : "left" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { tt: 1, service: "Vé máy bay", detail: "VN Airlines, Bamboo, Pacific", fee: "40,000đ/vé", feeKH: "100,000đ/vé" },
+                    { tt: 2, service: "Vé máy bay", detail: "Vietjet Air", fee: "20,000đ/vé", feeKH: "50,000đ/vé" },
+                    { tt: 3, service: "Vé xe", detail: "Vexere", fee: "3.0%/GTGD", feeKH: "3,000đ" },
+                    { tt: 4, service: "BH tai nạn", detail: "OPES", fee: "20%/GTGD", feeKH: "—" },
+                    { tt: 5, service: "BH trễ chuyến bay", detail: "OPES", fee: "20%/GTGD", feeKH: "—" },
+                  ].map((r) => (
+                    <tr key={r.tt} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                      <td style={{ padding: "8px 14px", fontWeight: 600, color: "var(--accent-2)", textAlign: "center", width: 40 }}>{r.tt}</td>
+                      <td style={{ padding: "8px 14px", fontWeight: 600, color: "var(--text)" }}>{r.service}</td>
+                      <td style={{ padding: "8px 14px", fontSize: 11, color: "var(--text-dim)" }}>{r.detail}</td>
+                      <td style={{ padding: "8px 14px", textAlign: "center" }}>
+                        <span style={{ fontWeight: 700, padding: "3px 12px", borderRadius: 8, background: "rgba(52,211,153,0.10)", color: "var(--green)" }}>{r.fee}</span>
+                      </td>
+                      <td style={{ padding: "8px 14px", textAlign: "center", color: "var(--text-dim)" }}>{r.feeKH}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
             <div style={{ padding: "10px 14px", background: "rgba(55,138,221,0.05)", borderRadius: 8, fontSize: 11, color: "var(--text-faint)", lineHeight: 1.7 }}>
-              <strong style={{ color: "#378ADD" }}>Nguồn:</strong> HĐ cung cấp dịch vụ Topup số 1010/2022/HĐKT/PTKD/IMEDIA–GALAXYPAY, ký ngày 10/10/2022 giữa CTCP CNGH & DV Imedia và Công ty TNHH Galaxy Pay.
-              Phụ lục 01, Phần II: Quy định chính sách bán hàng. Giá bán sản phẩm của Bên B do Bên B tự xây dựng, nhưng không được vượt quá mệnh giá do nhà phát hành quy định.
+              <strong style={{ color: "#378ADD" }}>Nguồn:</strong> (1) HĐ cung cấp dịch vụ Topup số 1010/2022/HĐKT/PTKD/IMEDIA–GALAXYPAY, ký ngày 10/10/2022 — Phụ lục 01, Phần II.
+              (2) Thông báo chính sách phí dịch vụ hợp tác kênh thanh toán tháng 07/2026 — CTCP CNGH & DV Imedia, hiệu lực 10/07/2026.
             </div>
           </div>
         )}
       </div>
 
       {/* ════════════════════════════════════════════════
-          SECTION 8: Assumptions
+          SECTION 9: Assumptions
          ════════════════════════════════════════════════ */}
       <div className="card" style={{ marginTop: 24, background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.12)" }}>
         <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--amber)", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>📌 Giả định & Ghi chú</h3>
@@ -1401,11 +1634,14 @@ function FinanceTab() {
           "GMV = GD/tháng × GTGD trung bình — tổng giá trị giao dịch qua nền tảng (chưa trừ phí)",
           "Take Rate = DT / GMV — tỷ lệ phí thu được trên tổng GTGD, phụ thuộc cơ cấu sản phẩm",
           "Dự phóng Year 1: Tăng trưởng lũy tiến qua 6 chu kỳ 2 tháng (×1.0 → ×1.15 → ×1.3 → ×1.5 → ×1.7 → ×2.0)",
-          "Phí nguồn iMedia T7/2026: căn cứ chính sách phí hợp tác kênh thanh toán — Cty CNGH & DV iMedia",
+          "Phí nguồn iMedia T7/2026: căn cứ chính sách phí hợp tác kênh thanh toán — Cty CNGH & DV iMedia, hiệu lực 10/07/2026",
           "Topup Direct: CK từ Imedia — Viettel 3.6%, VinaPhone 4.6%, MobiFone 3.7%, Vietnamobile 6.5% (đã gồm VAT). Bình quân gia quyền ~4.07%",
           "Thị phần GD Topup ước tính: Viettel 50%, VinaPhone 22%, MobiFone 20%, Vietnamobile 8% — dùng để tính CK bình quân",
           "Data Card (TopupData): CK từ Imedia — Viettel Sponsor 10%, MobiFone TT 17%, MobiFone DC_ON 10%, VinaPhone 14% (đã gồm VAT). Bình quân gia quyền ~12%",
           "Thị phần GD Data Card ước tính: Viettel 50%, VinaPhone 25%, MobiFone TT 15%, MobiFone DC_ON 10%",
+          "Postpaid (Billing): Phí tính theo %GTGD từ Imedia — Viettel 0.5%, MobiFone 0.4%, VinaPhone 0.4%. Bình quân gia quyền ~0.45%/GTGD. Miễn phí thu KH",
+          "Thị phần GD Postpaid ước tính: Viettel 50%, MobiFone 25%, VinaPhone 25%",
+          "Billing dịch vụ công ích (Điện/Nước/Internet FPT): 400đ/GD — đã xác nhận từ chính sách Imedia T7/2026",
           "Chưa bao gồm chi phí vận hành, hạ tầng, nhân sự — đây là dự phóng doanh thu gộp (Gross Revenue)",
         ].map((note, i) => (
           <p key={i} style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 6px", lineHeight: 1.6, display: "flex", gap: 8 }}>
