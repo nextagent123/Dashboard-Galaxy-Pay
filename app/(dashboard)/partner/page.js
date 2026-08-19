@@ -631,6 +631,7 @@ function Phase1Tab() {
 // TAB 3: KỊCH BẢN TÀI CHÍNH
 // ═══════════════════════════════════════════════════
 function FinanceTab() {
+  const [showAppendix, setShowAppendix] = useState(false);
   const data = SKY_PARTNER_PHASE1;
 
   // ── Core financial aggregates ──
@@ -1193,6 +1194,200 @@ function FinanceTab() {
           </>
         );
       })()}
+
+      {/* ════════════════════════════════════════════════
+          APPENDIX: Imedia pricing detail (collapsible)
+         ════════════════════════════════════════════════ */}
+      <div className="card" style={{ marginTop: 20, overflow: "hidden", border: "1px solid rgba(55,138,221,0.15)" }}>
+        <button
+          onClick={() => setShowAppendix(!showAppendix)}
+          style={{
+            width: "100%", background: "none", border: "none", cursor: "pointer",
+            padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between",
+            textAlign: "left",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 11, color: "#378ADD", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4, fontWeight: 600 }}>
+              📎 Phụ lục hợp đồng Imedia
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)" }}>
+              Bảng giá chi tiết dịch vụ Topup & Data Card
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 2 }}>
+              HĐ 1010/2022/HĐKT/PTKD/IMEDIA–GALAXYPAY · Phụ lục 01, Phần II · Ký 10/10/2022
+            </div>
+          </div>
+          <span style={{
+            fontSize: 18, color: "#378ADD", transition: "transform 0.2s",
+            transform: showAppendix ? "rotate(180deg)" : "rotate(0deg)",
+          }}>▼</span>
+        </button>
+
+        {showAppendix && (
+          <div style={{ borderTop: "1px solid var(--border-faint)", padding: "20px" }}>
+
+            {/* ── 1. Direct Topup ── */}
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 3, height: 16, borderRadius: 2, background: "#378ADD" }} />
+              1. Chính sách Dịch vụ Topup (Direct Topup)
+            </h4>
+            <div style={{ overflowX: "auto", marginBottom: 28 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
+                <thead>
+                  <tr>
+                    {["TT", "Nhà mạng", "Mệnh giá (VNĐ)", "Chiết khấu (đã gồm VAT)"].map((h, i) => (
+                      <th key={i} style={{ padding: "8px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)", textAlign: i >= 2 ? "center" : "left" }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { tt: 1, carrier: "VinaPhone", price: "Tất cả", ck: "4.6%", color: "#2563eb" },
+                    { tt: 2, carrier: "MobiFone", price: "Tất cả", ck: "3.7%", color: "#16a34a" },
+                    { tt: 3, carrier: "Viettel", price: "Tất cả", ck: "3.6%", color: "#e11d48" },
+                    { tt: 4, carrier: "Vietnamobile", price: "Tất cả", ck: "6.5%", color: "#f59e0b" },
+                  ].map((r) => (
+                    <tr key={r.tt} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                      <td style={{ padding: "8px 14px", fontWeight: 600, color: "var(--accent-2)", textAlign: "center", width: 40 }}>{r.tt}</td>
+                      <td style={{ padding: "8px 14px", fontWeight: 600 }}>
+                        <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: r.color, marginRight: 8, verticalAlign: "middle" }} />
+                        {r.carrier}
+                      </td>
+                      <td style={{ padding: "8px 14px", textAlign: "center", color: "var(--text-dim)" }}>{r.price}</td>
+                      <td style={{ padding: "8px 14px", textAlign: "center" }}>
+                        <span style={{ fontWeight: 700, padding: "3px 12px", borderRadius: 8, background: "rgba(52,211,153,0.10)", color: "var(--green)" }}>{r.ck}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ── 2. TopupData ── */}
+            <h4 style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ width: 3, height: 16, borderRadius: 2, background: "#378ADD" }} />
+              2. Chính sách TopupData (Data Card)
+            </h4>
+
+            {/* ── Viettel Sponsor ── */}
+            {[
+              {
+                carrier: "Viettel (Gói Sponsor)", ck: "10.0%", color: "#e11d48",
+                packages: [
+                  { stt: 1, sys: "DataVTT2 5000", name: "ST5KDS", data: "500MB", price: "5,000", days: "01 ngày" },
+                  { stt: 2, sys: "DataVTT2 9000", name: "G3DS", data: "3GB", price: "9,000", days: "03 giờ" },
+                  { stt: 3, sys: "DataVTT2 10000", name: "ST10KDS", data: "2GB", price: "10,000", days: "01 ngày" },
+                  { stt: 4, sys: "DataVTT2 15000", name: "ST15KDS", data: "3GB", price: "15,000", days: "03 ngày" },
+                  { stt: 5, sys: "DataVTT2 17000", name: "1G7N", data: "1GB", price: "17,000", days: "07 ngày" },
+                  { stt: 6, sys: "DataVTT2 20000", name: "ECOD20DS", data: "1.5GB", price: "20,000", days: "30 ngày" },
+                  { stt: 7, sys: "DataVTT2 24000", name: "1G30N", data: "1GB", price: "24,000", days: "30 ngày" },
+                  { stt: 8, sys: "DataVTT2 29000", name: "2G7N", data: "2GB", price: "29,000", days: "07 ngày" },
+                  { stt: 9, sys: "DataVTT2 30000", name: "ST30KDS", data: "7GB", price: "30,000", days: "07 ngày" },
+                  { stt: 10, sys: "DataVTT2 38000", name: "3G7N", data: "3GB", price: "38,000", days: "07 ngày" },
+                  { stt: 11, sys: "DataVTT2 42000", name: "2G30N", data: "2GB", price: "42,000", days: "30 ngày" },
+                  { stt: 12, sys: "DataVTT2 55000", name: "3G30N", data: "3GB", price: "55,000", days: "30 ngày" },
+                  { stt: 13, sys: "DataVTT2 63000", name: "4G30N", data: "4GB", price: "63,000", days: "30 ngày" },
+                  { stt: 14, sys: "DataVTT2 69000", name: "5G30N", data: "5GB", price: "69,000", days: "30 ngày" },
+                  { stt: 15, sys: "DataVTT2 70000", name: "ST70KDS", data: "500MB/Ngày", price: "70,000", days: "30 ngày" },
+                  { stt: 16, sys: "DataVTT2 90000", name: "ST90KDS", data: "1GB/Ngày", price: "90,000", days: "30 ngày" },
+                  { stt: 17, sys: "DataVTT2 120000", name: "ST120KDS", data: "2GB/Ngày", price: "120,000", days: "30 ngày" },
+                  { stt: 18, sys: "DataVTT2 150000", name: "ST150KDS", data: "3GB/Ngày", price: "150,000", days: "30 ngày" },
+                ],
+              },
+              {
+                carrier: "MobiFone (Gói Thông thường)", ck: "17.0%", color: "#16a34a",
+                packages: [
+                  { stt: 1, sys: "DataVMS 1000", name: "DC1", data: "50 MB", price: "1,000", days: "24 giờ" },
+                  { stt: 2, sys: "DataVMS 2000", name: "DC2", data: "100 MB", price: "2,000", days: "24 giờ" },
+                  { stt: 3, sys: "DataVMS 3000", name: "DC3", data: "150 MB", price: "3,000", days: "24 giờ" },
+                  { stt: 4, sys: "DataVMS 5000", name: "DC5", data: "250 MB", price: "5,000", days: "24 giờ" },
+                  { stt: 5, sys: "DataVMS 10000", name: "DC10", data: "1,000 MB", price: "10,000", days: "10 ngày" },
+                  { stt: 6, sys: "DataVMS 14000", name: "DataQT14", data: "1,400 MB", price: "14,000", days: "10 ngày" },
+                  { stt: 7, sys: "DataVMS 20000", name: "DC20", data: "1,500 MB", price: "20,000", days: "10 ngày" },
+                  { stt: 8, sys: "DataVMS 28000", name: "DataQT28", data: "2,800 MB", price: "28,000", days: "30 ngày" },
+                  { stt: 9, sys: "DataVMS 42000", name: "DataQT42", data: "4,000 MB", price: "42,000", days: "30 ngày" },
+                  { stt: 10, sys: "DataVMS 56000", name: "DataQT56", data: "5,000 MB", price: "56,000", days: "30 ngày" },
+                  { stt: 11, sys: "DataVMS 84000", name: "DataQT84", data: "8,000 MB", price: "84,000", days: "30 ngày" },
+                ],
+              },
+              {
+                carrier: "MobiFone (DC_ON)", ck: "10.0%", color: "#059669",
+                packages: [
+                  { stt: 1, sys: "", name: "DC_ON1", data: "1 GB", price: "20,000", days: "30 ngày" },
+                  { stt: 2, sys: "", name: "DC_ON3", data: "3 GB", price: "45,000", days: "30 ngày" },
+                  { stt: 3, sys: "", name: "DC_ON5", data: "5 GB", price: "70,000", days: "30 ngày" },
+                  { stt: 4, sys: "", name: "DC_ON8", data: "8 GB", price: "100,000", days: "30 ngày" },
+                  { stt: 5, sys: "", name: "DC_ON15", data: "15 GB", price: "180,000", days: "30 ngày" },
+                  { stt: 6, sys: "", name: "DC_ON20", data: "18 GB", price: "200,000", days: "30 ngày" },
+                ],
+              },
+              {
+                carrier: "VinaPhone (TopupData)", ck: "14.0%", color: "#2563eb",
+                packages: [
+                  { stt: 1, sys: "DataVNP 150", name: "MD5", data: "5 MB", price: "150", days: "24 giờ" },
+                  { stt: 2, sys: "DataVNP 300", name: "MD10", data: "10 MB", price: "300", days: "24 giờ" },
+                  { stt: 3, sys: "DataVNP 600", name: "MD20", data: "20 MB", price: "600", days: "24 giờ" },
+                  { stt: 4, sys: "DataVNP 900", name: "MD30", data: "30 MB", price: "900", days: "24 giờ" },
+                  { stt: 5, sys: "DataVNP 1500", name: "MD50", data: "50 MB", price: "1,500", days: "7 ngày" },
+                  { stt: 6, sys: "DataVNP 3000", name: "MD100", data: "100 MB", price: "3,000", days: "7 ngày" },
+                  { stt: 7, sys: "DataVNP 5200", name: "MD200", data: "200 MB", price: "5,200", days: "7 ngày" },
+                  { stt: 8, sys: "DataVNP 7800", name: "MD300", data: "300 MB", price: "7,800", days: "7 ngày" },
+                  { stt: 9, sys: "DataVNP 13000", name: "MD500", data: "500 MB", price: "13,000", days: "7 ngày" },
+                  { stt: 10, sys: "DataVNP 20000", name: "MD1G", data: "1 GB", price: "20,000", days: "30 ngày" },
+                  { stt: 11, sys: "DataVNP 60000", name: "MD3G", data: "3 GB", price: "60,000", days: "30 ngày" },
+                  { stt: 12, sys: "DataVNP 100000", name: "MD5G", data: "5 GB", price: "100,000", days: "30 ngày" },
+                  { stt: 13, sys: "DataVNP 160000", name: "MD8G", data: "8 GB", price: "160,000", days: "30 ngày" },
+                  { stt: 14, sys: "DataVNP 185000", name: "MD10G", data: "10 GB", price: "185,000", days: "30 ngày" },
+                  { stt: 15, sys: "DataVNP 220000", name: "MD12G", data: "12 GB", price: "220,000", days: "30 ngày" },
+                  { stt: 16, sys: "DataVNP 275000", name: "MD15G", data: "15 GB", price: "275,000", days: "30 ngày" },
+                ],
+              },
+            ].map((group) => (
+              <div key={group.carrier} style={{ marginBottom: 24 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, padding: "8px 14px", background: "rgba(124,108,255,0.03)", borderRadius: 8 }}>
+                  <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: group.color }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>{group.carrier}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 8, background: "rgba(52,211,153,0.12)", color: "var(--green)", marginLeft: "auto" }}>CK {group.ck}</span>
+                  <span style={{ fontSize: 11, color: "var(--text-faint)" }}>{group.packages.length} gói</span>
+                </div>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11, whiteSpace: "nowrap" }}>
+                    <thead>
+                      <tr>
+                        {["STT", "Mã hệ thống iMedia", "Tên gói", "Dung lượng", "Mệnh giá (VND)", "Thời hạn"].map((h, i) => (
+                          <th key={i} style={{
+                            padding: "6px 12px", fontSize: 9, fontWeight: 600, color: "var(--text-faint)",
+                            textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "1px solid var(--border)",
+                            textAlign: i === 0 ? "center" : i >= 3 ? "right" : "left",
+                          }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {group.packages.map((p) => (
+                        <tr key={p.stt} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                          <td style={{ padding: "5px 12px", textAlign: "center", color: "var(--text-faint)", fontSize: 10 }}>{p.stt}</td>
+                          <td style={{ padding: "5px 12px", color: "#378ADD", fontSize: 10, fontFamily: "monospace" }}>{p.sys || "—"}</td>
+                          <td style={{ padding: "5px 12px", fontWeight: 600, color: "var(--text)" }}>{p.name}</td>
+                          <td style={{ padding: "5px 12px", textAlign: "right", color: "var(--accent-2)", fontWeight: 600 }}>{p.data}</td>
+                          <td style={{ padding: "5px 12px", textAlign: "right", fontVariantNumeric: "tabular-nums", color: "var(--text)" }}>{p.price}</td>
+                          <td style={{ padding: "5px 12px", textAlign: "right", color: "var(--text-dim)" }}>{p.days}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+
+            <div style={{ padding: "10px 14px", background: "rgba(55,138,221,0.05)", borderRadius: 8, fontSize: 11, color: "var(--text-faint)", lineHeight: 1.7 }}>
+              <strong style={{ color: "#378ADD" }}>Nguồn:</strong> HĐ cung cấp dịch vụ Topup số 1010/2022/HĐKT/PTKD/IMEDIA–GALAXYPAY, ký ngày 10/10/2022 giữa CTCP CNGH & DV Imedia và Công ty TNHH Galaxy Pay.
+              Phụ lục 01, Phần II: Quy định chính sách bán hàng. Giá bán sản phẩm của Bên B do Bên B tự xây dựng, nhưng không được vượt quá mệnh giá do nhà phát hành quy định.
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ════════════════════════════════════════════════
           SECTION 8: Assumptions
