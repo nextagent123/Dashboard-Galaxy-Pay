@@ -369,102 +369,231 @@ function BlocksTab() {
 // TAB 2: TRIỂN KHAI GIAI ĐOẠN 1
 // ═══════════════════════════════════════════════════
 function Phase1Tab() {
-  const goals = [
-    { icon: "🎯", title: "Kinh doanh", items: ["Hệ sinh thái bán chéo đa dịch vụ", "Tăng doanh thu hoa hồng & phí dịch vụ", "Mở rộng kênh phân phối số & O2O", "Nền tảng hợp tác đối tác bên ngoài"] },
-    { icon: "⚙️", title: "Công nghệ", items: ["Chuẩn hóa tích hợp qua API platform", "Kiến trúc mở, dễ mở rộng", "Hạ tầng dùng chung toàn hệ sinh thái", "An toàn bảo mật & mở rộng quy mô lớn"] },
-    { icon: "📋", title: "Vận hành", items: ["Chuẩn hóa quy trình giao dịch", "Tự động đối soát & thanh toán", "Quản lý tập trung dữ liệu & báo cáo", "Kiểm soát rủi ro hiệu quả"] },
+  // 8 dịch vụ chào giá cho Vikki/HDBank GĐ1
+  // vnpayPrice: để trống cho user bổ sung sau
+  const serviceOffering = [
+    {
+      stt: 1, service: "Topup (Nạp tiền trả trước)", category: "Telco",
+      subItems: [
+        { carrier: "Viettel", gpPrice: "CK 3.6%", vnpayPrice: null, unit: "% mệnh giá" },
+        { carrier: "VinaPhone", gpPrice: "CK 4.6%", vnpayPrice: null, unit: "% mệnh giá" },
+        { carrier: "MobiFone", gpPrice: "CK 3.7%", vnpayPrice: null, unit: "% mệnh giá" },
+        { carrier: "Vietnamobile", gpPrice: "CK 6.5%", vnpayPrice: null, unit: "% mệnh giá" },
+      ],
+      gpSource: "Imedia", note: "Chiết khấu đã gồm VAT",
+    },
+    {
+      stt: 2, service: "Điện (EVN)", category: "Công ích",
+      gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD",
+      gpSource: "Imedia", note: "Tất cả NCC điện",
+    },
+    {
+      stt: 3, service: "Nước (245+ NCC)", category: "Công ích",
+      gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD",
+      gpSource: "Imedia", note: "245+ nhà cung cấp nước",
+    },
+    {
+      stt: 4, service: "Internet (FPT, VNPT, Viettel)", category: "Công ích",
+      gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD",
+      gpSource: "Imedia", note: "",
+    },
+    {
+      stt: 5, service: "Postpaid (Nạp tiền trả sau)", category: "Telco",
+      gpPrice: "~400đ/GD", vnpayPrice: null, unit: "VND/GD",
+      gpSource: "Imedia", note: "Tất cả nhà mạng",
+    },
+    {
+      stt: 6, service: "Data Card (Thẻ cào / Gói dữ liệu)", category: "Telco",
+      gpPrice: "CK 6%", vnpayPrice: null, unit: "% mệnh giá",
+      gpSource: "Benchmark TT", note: "",
+    },
+    {
+      stt: 7, service: "Loan (Vay trả góp)", category: "Tài chính",
+      gpPrice: null, vnpayPrice: null, unit: "",
+      gpSource: "", note: "Đang triển khai",
+    },
+    {
+      stt: 8, service: "Vietlott (Xổ số)", category: "Giải trí",
+      gpPrice: null, vnpayPrice: null, unit: "",
+      gpSource: "", note: "Đang triển khai",
+    },
   ];
 
-  const phase1Products = ["Topup", "Điện", "Nước", "Internet", "Postpaid", "Data Card", "Loan", "Vietlott"];
+  const CATEGORY_COLORS = {
+    Telco: { bg: "rgba(124,108,255,0.08)", color: "#a78bfa" },
+    "Công ích": { bg: "rgba(56,138,221,0.08)", color: "#378ADD" },
+    "Tài chính": { bg: "rgba(216,90,48,0.08)", color: "#D85A30" },
+    "Giải trí": { bg: "rgba(251,191,36,0.08)", color: "#fbbf24" },
+  };
 
-  const techLayers = [
-    { layer: "Layer 1", name: "API Gateway & Open Platform", color: "#378ADD" },
-    { layer: "Layer 2", name: "Channel Access & POS Agent", color: "#1D9E75" },
-    { layer: "Layer 3", name: "Core Commerce & Agent Orchestration", color: "#D85A30" },
-    { layer: "Layer 4", name: "Financial Operations & Double-Entry Ledger", color: "#D4537E" },
-    { layer: "Layer 5", name: "Canonical Domain Adapters (6 core)", color: "#534AB7" },
-  ];
+  function CompareTag({ gp, vnpay }) {
+    if (!gp || !vnpay) return <span style={{ fontSize: 11, color: "var(--text-faint)" }}>—</span>;
+    // parse numeric for comparison
+    const gpNum = parseFloat(gp.replace(/[^\d.]/g, ""));
+    const vnNum = parseFloat(vnpay.replace(/[^\d.]/g, ""));
+    if (isNaN(gpNum) || isNaN(vnNum)) return <span style={{ fontSize: 11, color: "var(--text-faint)" }}>—</span>;
+    const isLower = gpNum < vnNum;
+    const isEqual = gpNum === vnNum;
+    if (isEqual) return <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: "rgba(124,108,255,0.10)", color: "var(--accent-2)" }}>Bằng</span>;
+    return (
+      <span style={{
+        fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 8,
+        background: isLower ? "rgba(52,211,153,0.12)" : "rgba(239,68,68,0.10)",
+        color: isLower ? "#34d399" : "#f87171",
+      }}>
+        {isLower ? "▼ Thấp hơn" : "▲ Cao hơn"}
+      </span>
+    );
+  }
+
+  const cellStyle = { padding: "10px 14px", fontSize: 12, fontVariantNumeric: "tabular-nums" };
+  const headerStyle = { padding: "10px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)" };
 
   return (
     <>
-      {/* Project Overview */}
+      {/* Header */}
       <div className="card" style={{
         padding: "24px 28px",
         background: "linear-gradient(135deg, rgba(124,108,255,0.08), rgba(52,211,153,0.04))",
         border: "1px solid rgba(124,108,255,0.15)",
       }}>
-        <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Tờ trình</div>
+        <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Bảng chào dịch vụ · Giai đoạn 1</div>
         <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--text)", margin: "0 0 8px" }}>
-          Dự án nền tảng Sky Partner Platform
+          Chào giá dịch vụ cho Vikki / HDBank
         </h3>
         <p style={{ fontSize: 13, color: "var(--text-dim)", lineHeight: 1.7, margin: 0 }}>
-          Digital Commerce Orchestration Platform theo mô hình PaaS — hạ tầng trung gian kết nối nguồn cung dịch vụ, kênh phân phối và khách hàng cuối cho toàn hệ sinh thái Sovico.
+          So sánh biểu phí Galaxy Pay đề xuất với VNPay (đối tác hiện tại) — 08 dịch vụ trọng tâm Giai đoạn 1 trên nền tảng Sky Partner Platform.
         </p>
         <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(124,108,255,0.12)", color: "var(--accent-2)" }}>Galaxy Pay chủ trì</span>
-          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(52,211,153,0.12)", color: "var(--green)" }}>Omni-Channel Orchestration</span>
-          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(251,191,36,0.12)", color: "var(--amber)" }}>Invisible Back-end</span>
+          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(124,108,255,0.12)", color: "var(--accent-2)" }}>Galaxy Pay · Nguồn cung Imedia</span>
+          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(251,191,36,0.12)", color: "var(--amber)" }}>VNPay · Đối tác hiện tại Vikki</span>
+          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(52,211,153,0.12)", color: "var(--green)" }}>08 Dịch vụ GĐ1</span>
         </div>
       </div>
 
-      {/* Objectives */}
+      {/* KPI summary */}
       <div className="grid-3" style={{ marginTop: 20 }}>
-        {goals.map((g, i) => (
-          <div key={i} className="card">
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", margin: "0 0 12px" }}>{g.icon} Mục tiêu {g.title}</h3>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              {g.items.map((item, j) => (
-                <li key={j} style={{ fontSize: 12, color: "var(--text-dim)", padding: "4px 0", display: "flex", gap: 8 }}>
-                  <span style={{ color: "var(--green)", flexShrink: 0 }}>✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      {/* Technology Architecture */}
-      <div className="card" style={{ marginTop: 20 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", margin: "0 0 4px" }}>Kiến trúc công nghệ</h3>
-        <p style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 16px" }}>Composite Dual-Layer Architecture · API First · Modular & Scalable</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {techLayers.map((l, i) => (
-            <div key={i} style={{
-              display: "flex", alignItems: "center", gap: 14, padding: "12px 16px",
-              borderRadius: 10, background: `${l.color}0a`, border: `1px solid ${l.color}20`,
-            }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: l.color, width: 60, flexShrink: 0 }}>{l.layer}</span>
-              <div style={{ width: 3, height: 24, borderRadius: 2, background: l.color, flexShrink: 0 }} />
-              <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 500 }}>{l.name}</span>
-            </div>
-          ))}
+        <div className="card" style={{ textAlign: "center", padding: "20px 16px" }}>
+          <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", marginBottom: 6 }}>Số dịch vụ GĐ1</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--accent-2)" }}>08</div>
+          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>nhóm sản phẩm</div>
+        </div>
+        <div className="card" style={{ textAlign: "center", padding: "20px 16px" }}>
+          <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", marginBottom: 6 }}>Nguồn cung GP</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "#378ADD" }}>Imedia</div>
+          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Aggregator chính</div>
+        </div>
+        <div className="card" style={{ textAlign: "center", padding: "20px 16px" }}>
+          <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", marginBottom: 6 }}>Đối thủ so sánh</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--amber)" }}>VNPay</div>
+          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>Đang phục vụ Vikki</div>
         </div>
       </div>
 
-      {/* Phase 1 Scope */}
-      <div className="card" style={{ marginTop: 20 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", margin: "0 0 4px" }}>
-          Giai đoạn 1 — Sản phẩm trọng tâm
-        </h3>
-        <p style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 16px" }}>
-          08 nhóm sản phẩm trọng tâm · Nền tảng dùng chung · Omni-channel distribution
-        </p>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          {phase1Products.map((p, i) => (
-            <div key={i} style={{
-              padding: "10px 20px", borderRadius: 10,
-              background: "var(--surface)", border: "1px solid var(--border)",
-              fontSize: 13, fontWeight: 500, color: "var(--text)",
-              display: "flex", alignItems: "center", gap: 8,
-            }}>
-              <span style={{
-                width: 24, height: 24, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
-                background: "var(--accent-soft-bg)", color: "var(--accent-2)", fontSize: 11, fontWeight: 700,
-              }}>{i + 1}</span>
-              {p}
-            </div>
-          ))}
+      {/* Main comparison table */}
+      <div className="card" style={{ marginTop: 20, padding: 0, overflow: "hidden" }}>
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", margin: 0 }}>Bảng so sánh biểu phí dịch vụ</h3>
+            <p style={{ fontSize: 12, color: "var(--text-dim)", margin: "4px 0 0" }}>Galaxy Pay đề xuất vs VNPay hiện tại · Đơn vị: VND hoặc % mệnh giá</p>
+          </div>
+          <div style={{ display: "flex", gap: 12, fontSize: 10 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent-2)" }} /> Galaxy Pay</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--amber)" }} /> VNPay</span>
+          </div>
+        </div>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap", minWidth: 900 }}>
+            <thead>
+              <tr>
+                <th style={{ ...headerStyle, textAlign: "center", width: 40 }}>TT</th>
+                <th style={{ ...headerStyle, textAlign: "left", minWidth: 200 }}>Dịch vụ</th>
+                <th style={{ ...headerStyle, textAlign: "center" }}>Phân loại</th>
+                <th style={{ ...headerStyle, textAlign: "center" }}>Đơn vị</th>
+                <th style={{ ...headerStyle, textAlign: "center", background: "rgba(124,108,255,0.04)" }}>
+                  <span style={{ color: "var(--accent-2)" }}>Giá Galaxy Pay</span>
+                </th>
+                <th style={{ ...headerStyle, textAlign: "center", background: "rgba(251,191,36,0.04)" }}>
+                  <span style={{ color: "var(--amber)" }}>Giá VNPay cho Vikki</span>
+                </th>
+                <th style={{ ...headerStyle, textAlign: "center" }}>So sánh GP</th>
+                <th style={{ ...headerStyle, textAlign: "left" }}>Nguồn GP</th>
+                <th style={{ ...headerStyle, textAlign: "left" }}>Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              {serviceOffering.map((s) => {
+                if (s.subItems) {
+                  // Topup with carrier breakdown
+                  return (
+                    <React.Fragment key={s.stt}>
+                      {/* Group header row */}
+                      <tr style={{ background: "rgba(124,108,255,0.03)" }}>
+                        <td style={{ ...cellStyle, textAlign: "center", fontWeight: 700, color: "var(--accent-2)", borderBottom: "none", verticalAlign: "top", paddingTop: 14 }} rowSpan={s.subItems.length + 1}>{s.stt}</td>
+                        <td colSpan={8} style={{ ...cellStyle, fontWeight: 700, color: "var(--text)", borderBottom: "1px solid var(--border-faint)" }}>
+                          {s.service}
+                          {s.note && <span style={{ fontSize: 10, color: "var(--text-faint)", fontWeight: 400, marginLeft: 8 }}>({s.note})</span>}
+                        </td>
+                      </tr>
+                      {s.subItems.map((sub, j) => {
+                        const catStyle = CATEGORY_COLORS[s.category] || {};
+                        return (
+                          <tr key={`${s.stt}-${j}`} style={{ borderBottom: j === s.subItems.length - 1 ? "2px solid var(--border)" : "1px solid var(--border-faint)" }}>
+                            <td style={{ ...cellStyle, paddingLeft: 24, color: "var(--text-dim)" }}>
+                              <span style={{ fontSize: 11 }}>└</span> {sub.carrier}
+                            </td>
+                            <td style={{ ...cellStyle, textAlign: "center" }}>
+                              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 8, background: catStyle.bg, color: catStyle.color, fontWeight: 600 }}>{s.category}</span>
+                            </td>
+                            <td style={{ ...cellStyle, textAlign: "center", fontSize: 11, color: "var(--text-dim)" }}>{sub.unit}</td>
+                            <td style={{ ...cellStyle, textAlign: "center", fontWeight: 700, color: "var(--accent-2)", background: "rgba(124,108,255,0.02)" }}>
+                              {sub.gpPrice || <span style={{ color: "var(--text-faint)" }}>—</span>}
+                            </td>
+                            <td style={{ ...cellStyle, textAlign: "center", fontWeight: 700, color: "var(--amber)", background: "rgba(251,191,36,0.02)" }}>
+                              {sub.vnpayPrice || <span style={{ color: "var(--text-faint)", fontWeight: 400, fontStyle: "italic" }}>Chờ bổ sung</span>}
+                            </td>
+                            <td style={{ ...cellStyle, textAlign: "center" }}>
+                              <CompareTag gp={sub.gpPrice} vnpay={sub.vnpayPrice} />
+                            </td>
+                            <td style={{ ...cellStyle, fontSize: 11, color: "#378ADD" }}>{s.gpSource}</td>
+                            <td style={{ ...cellStyle, fontSize: 11, color: "var(--text-faint)" }}></td>
+                          </tr>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                }
+
+                // Normal row
+                const catStyle = CATEGORY_COLORS[s.category] || {};
+                return (
+                  <tr key={s.stt} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                    <td style={{ ...cellStyle, textAlign: "center", fontWeight: 700, color: "var(--accent-2)" }}>{s.stt}</td>
+                    <td style={{ ...cellStyle, fontWeight: 600, color: "var(--text)" }}>{s.service}</td>
+                    <td style={{ ...cellStyle, textAlign: "center" }}>
+                      <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 8, background: catStyle.bg, color: catStyle.color, fontWeight: 600 }}>{s.category}</span>
+                    </td>
+                    <td style={{ ...cellStyle, textAlign: "center", fontSize: 11, color: "var(--text-dim)" }}>{s.unit || "—"}</td>
+                    <td style={{ ...cellStyle, textAlign: "center", fontWeight: 700, color: "var(--accent-2)", background: "rgba(124,108,255,0.02)" }}>
+                      {s.gpPrice || <span style={{ color: "var(--text-faint)", fontWeight: 400, fontStyle: "italic" }}>Đang triển khai</span>}
+                    </td>
+                    <td style={{ ...cellStyle, textAlign: "center", fontWeight: 700, color: "var(--amber)", background: "rgba(251,191,36,0.02)" }}>
+                      {s.vnpayPrice || <span style={{ color: "var(--text-faint)", fontWeight: 400, fontStyle: "italic" }}>Chờ bổ sung</span>}
+                    </td>
+                    <td style={{ ...cellStyle, textAlign: "center" }}>
+                      <CompareTag gp={s.gpPrice} vnpay={s.vnpayPrice} />
+                    </td>
+                    <td style={{ ...cellStyle, fontSize: 11, color: s.gpSource ? "#378ADD" : "var(--text-faint)" }}>{s.gpSource || "—"}</td>
+                    <td style={{ ...cellStyle, fontSize: 11, color: "var(--text-faint)" }}>{s.note}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div style={{ padding: "10px 16px", borderTop: "1px solid var(--border-faint)", fontSize: 11, color: "var(--text-faint)", display: "flex", gap: 6, alignItems: "center" }}>
+          <span style={{ color: "#378ADD" }}>ℹ</span>
+          Giá Galaxy Pay: nguồn Imedia (Cty CNGH & DV iMedia) · Giá VNPay: đối tác hiện tại của Vikki — <em style={{ marginLeft: 2 }}>chờ bổ sung</em>
         </div>
       </div>
 
@@ -472,7 +601,7 @@ function Phase1Tab() {
       <div className="grid-2" style={{ marginTop: 20 }}>
         <div className="card">
           <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", margin: "0 0 12px" }}>📱 Kênh số (Owned Digital)</h3>
-          {["Vietjet Air App", "HDBank App", "Vikki Bank App", "SkyJoy", "Trạm công dân số"].map((ch, i) => (
+          {["Vikki Bank App", "HDBank App", "Vietjet Air App", "SkyJoy", "Trạm công dân số"].map((ch, i) => (
             <div key={i} style={{ fontSize: 12, color: "var(--text-dim)", padding: "4px 0", display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--accent)", flexShrink: 0 }} />
               {ch}
