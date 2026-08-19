@@ -1349,6 +1349,83 @@ function FinanceTab() {
       })()}
 
       {/* ════════════════════════════════════════════════
+          SECTION 9: Loan provider breakdown
+         ════════════════════════════════════════════════ */}
+      {(() => {
+        const loanRow = data.find((r) => r.loanProviders);
+        if (!loanRow) return null;
+        const providers = loanRow.loanProviders;
+        const maxDt = Math.max(...providers.map((p) => p.dtBase));
+        const LOAN_COLORS = ["#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
+        return (
+          <>
+            <SectionHead num="9" title="Chi tiết phí Thanh toán khoản vay theo nhóm NCC" sub="Nguồn: Imedia T7/2026 · 19 NCC · Phí 3,000–7,000đ/GD" />
+            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, whiteSpace: "nowrap" }}>
+                  <thead>
+                    <tr>
+                      {["Nhóm NCC", "Share (%)", "GD/tháng", "Phí (đ/GD)", "DT Base/tháng", "Tỷ trọng DT"].map((h, i) => (
+                        <th key={i} style={{
+                          padding: "10px 14px", fontSize: 10, fontWeight: 600, color: "var(--text-faint)",
+                          textTransform: "uppercase", letterSpacing: 0.5, borderBottom: "2px solid var(--border)",
+                          textAlign: i >= 2 ? "right" : "left",
+                        }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {providers.map((p, i) => {
+                      const dtPct = loanRow.dtThangBase > 0 ? (p.dtBase / loanRow.dtThangBase * 100) : 0;
+                      const dotColor = LOAN_COLORS[i] || "#8b5cf6";
+                      return (
+                        <tr key={i} style={{ borderBottom: "1px solid var(--border-faint)" }}>
+                          <td style={{ padding: "10px 14px", fontWeight: 600 }}>
+                            <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: dotColor, marginRight: 10, verticalAlign: "middle" }} />
+                            {p.group}
+                          </td>
+                          <td style={{ padding: "10px 14px" }}>
+                            <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 8, background: "rgba(124,108,255,0.08)", color: "var(--accent-2)" }}>{(p.share * 100).toFixed(0)}%</span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{fmtFull(p.gdMonth)}</td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: "rgba(216,90,48,0.10)", color: "#D85A30" }}>{fmtFull(p.fee)}đ</span>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10 }}>
+                              <div style={{ width: 80, height: 6, borderRadius: 3, background: "var(--border-faint)", overflow: "hidden" }}>
+                                <div style={{ width: `${(p.dtBase / maxDt) * 100}%`, height: "100%", borderRadius: 3, background: dotColor }} />
+                              </div>
+                              <span style={{ fontWeight: 600, fontVariantNumeric: "tabular-nums", minWidth: 70, textAlign: "right" }}>{fmt(p.dtBase)}</span>
+                            </div>
+                          </td>
+                          <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 600, color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{dtPct.toFixed(1)}%</td>
+                        </tr>
+                      );
+                    })}
+                    <tr style={{ background: "rgba(216,90,48,0.05)", borderTop: "2px solid var(--border)" }}>
+                      <td style={{ padding: "10px 14px", fontWeight: 700, color: "#D85A30" }}>TỔNG CỘNG (19 NCC)</td>
+                      <td style={{ padding: "10px 14px", fontWeight: 600, color: "var(--text-dim)" }}>100%</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmtFull(loanRow.gdMonth)}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right" }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 8, background: "rgba(251,191,36,0.10)", color: "var(--amber)" }}>~4.250đ</span>
+                      </td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{fmt(loanRow.dtThangBase)}</td>
+                      <td style={{ padding: "10px 14px", textAlign: "right", fontWeight: 700, color: "#D85A30" }}>100%</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style={{ padding: "10px 14px", borderTop: "1px solid var(--border-faint)", fontSize: 11, color: "var(--text-faint)", display: "flex", gap: 6, alignItems: "center" }}>
+                <span style={{ color: "#D85A30" }}>ℹ</span>
+                Phí bình quân gia quyền ~4.250đ/GD · Phí KH: 5,000–10,000đ tùy NCC · Baseline: 708 GD/tháng (Vikki Q3/2026) · Nguồn: <strong style={{ color: "#D85A30", marginLeft: 2 }}>Imedia T7/2026</strong>
+              </div>
+            </div>
+          </>
+        );
+      })()}
+
+      {/* ════════════════════════════════════════════════
           APPENDIX: Imedia pricing detail (collapsible)
          ════════════════════════════════════════════════ */}
       <div className="card" style={{ marginTop: 20, overflow: "hidden", border: "1px solid rgba(55,138,221,0.15)" }}>
@@ -1692,7 +1769,7 @@ function FinanceTab() {
       </div>
 
       {/* ════════════════════════════════════════════════
-          SECTION 9: Assumptions
+          SECTION 10: Assumptions
          ════════════════════════════════════════════════ */}
       <div className="card" style={{ marginTop: 24, background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.12)" }}>
         <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--amber)", margin: "0 0 10px", display: "flex", alignItems: "center", gap: 8 }}>📌 Giả định & Ghi chú</h3>
@@ -1711,6 +1788,7 @@ function FinanceTab() {
           "Postpaid (Billing): Phí tính theo %GTGD từ Imedia — Viettel 0.5%, MobiFone 0.4%, VinaPhone 0.4%. Bình quân gia quyền ~0.45%/GTGD. Miễn phí thu KH",
           "Thị phần GD Postpaid ước tính: Viettel 50%, MobiFone 25%, VinaPhone 25%",
           "Billing dịch vụ công ích (Điện/Nước/Internet FPT): 400đ/GD — đã xác nhận từ chính sách Imedia T7/2026",
+          "Thanh toán khoản vay (19 NCC): Phí 3,000–7,000đ/GD tùy NCC. Bình quân gia quyền ~4.250đ/GD. Share ước tính: FE Credit/Home Credit/HDS/Shinhan 45%, VPBank+10 NCC 40%, JACCS 10%, Mirae 5%",
           "Chưa bao gồm chi phí vận hành, hạ tầng, nhân sự — đây là dự phóng doanh thu gộp (Gross Revenue)",
         ].map((note, i) => (
           <p key={i} style={{ fontSize: 12, color: "var(--text-dim)", margin: "0 0 6px", lineHeight: 1.6, display: "flex", gap: 8 }}>
