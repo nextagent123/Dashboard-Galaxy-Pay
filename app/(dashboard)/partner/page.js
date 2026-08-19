@@ -369,9 +369,10 @@ function BlocksTab() {
 // TAB 2: TRIỂN KHAI GIAI ĐOẠN 1
 // ═══════════════════════════════════════════════════
 function Phase1Tab() {
-  // 8 dịch vụ chào giá cho Vikki/HDBank GĐ1
+  // Dịch vụ chào giá cho Vikki/HDBank GĐ1 — nguồn Imedia T7/2026
   // vnpayPrice: để trống cho user bổ sung sau
   const serviceOffering = [
+    // ── TELCO ──
     {
       stt: 1, service: "Topup (Nạp tiền trả trước)", category: "Telco",
       subItems: [
@@ -383,22 +384,7 @@ function Phase1Tab() {
       gpSource: "Imedia", note: "Chiết khấu đã gồm VAT",
     },
     {
-      stt: 2, service: "Điện (EVN)", category: "Công ích",
-      gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD",
-      gpSource: "Imedia", note: "Tất cả NCC điện",
-    },
-    {
-      stt: 3, service: "Nước (245+ NCC)", category: "Công ích",
-      gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD",
-      gpSource: "Imedia", note: "245+ nhà cung cấp nước",
-    },
-    {
-      stt: 4, service: "Internet (FPT, VNPT, Viettel)", category: "Công ích",
-      gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD",
-      gpSource: "Imedia", note: "",
-    },
-    {
-      stt: 5, service: "Postpaid (Nạp tiền trả sau)", category: "Telco",
+      stt: 2, service: "Postpaid (Nạp tiền trả sau)", category: "Telco",
       subItems: [
         { carrier: "Viettel", gpPrice: "0.5%/GTGD", vnpayPrice: null, unit: "% GTGD" },
         { carrier: "MobiFone", gpPrice: "0.4%/GTGD", vnpayPrice: null, unit: "% GTGD" },
@@ -407,7 +393,7 @@ function Phase1Tab() {
       gpSource: "Imedia", note: "Miễn phí thu KH",
     },
     {
-      stt: 6, service: "Data Card (Thẻ cào / Gói dữ liệu)", category: "Telco",
+      stt: 3, service: "Data Card (Thẻ cào / Gói dữ liệu)", category: "Telco",
       subItems: [
         { carrier: "Viettel (Sponsor)", gpPrice: "CK 10.0%", vnpayPrice: null, unit: "% mệnh giá" },
         { carrier: "MobiFone (Thông thường)", gpPrice: "CK 17.0%", vnpayPrice: null, unit: "% mệnh giá" },
@@ -416,13 +402,94 @@ function Phase1Tab() {
       ],
       gpSource: "Imedia", note: "Chiết khấu đã gồm VAT",
     },
+    // ── CÔNG ÍCH ──
     {
-      stt: 7, service: "Loan (Vay trả góp)", category: "Tài chính",
+      stt: 4, service: "Điện (EVN)", category: "Công ích",
+      gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD",
+      gpSource: "Imedia", note: "Miễn phí thu KH",
+    },
+    {
+      stt: 5, service: "Nước (245+ NCC)", category: "Công ích",
+      gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD",
+      gpSource: "Imedia", note: "Miễn phí thu KH",
+    },
+    {
+      stt: 6, service: "Internet", category: "Công ích",
+      subItems: [
+        { carrier: "FPT", gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD" },
+        { carrier: "VNPT", gpPrice: "0.4%/GTGD", vnpayPrice: null, unit: "% GTGD" },
+      ],
+      gpSource: "Imedia", note: "Miễn phí thu KH",
+    },
+    {
+      stt: 7, service: "Truyền hình", category: "Công ích",
+      subItems: [
+        { carrier: "SCTV", gpPrice: "0.4%/GTGD", vnpayPrice: null, unit: "% GTGD" },
+        { carrier: "K+", gpPrice: "800đ/GD", vnpayPrice: null, unit: "VND/GD" },
+        { carrier: "MobiTV", gpPrice: "2.0%/GTGD", vnpayPrice: null, unit: "% GTGD" },
+        { carrier: "VTC / FPT Play / HTV / MyTV", gpPrice: "400đ/GD", vnpayPrice: null, unit: "VND/GD" },
+      ],
+      gpSource: "Imedia", note: "Phí KH tùy NCC",
+    },
+    {
+      stt: 8, service: "Học phí", category: "Công ích",
+      subItems: [
+        { carrier: "VNPAY", gpPrice: "1,000đ/GD", vnpayPrice: null, unit: "VND/GD" },
+        { carrier: "Viettelpay", gpPrice: "2,000–3,000đ/GD", vnpayPrice: null, unit: "VND/GD" },
+      ],
+      gpSource: "Imedia", note: "Phí KH 5,000–7,500đ",
+    },
+    {
+      stt: 9, service: "Chung cư (24 dự án)", category: "Công ích",
+      gpPrice: "1,700đ/GD", vnpayPrice: null, unit: "VND/GD",
+      gpSource: "Imedia", note: "Phí KH 5,500đ",
+    },
+    // ── TÀI CHÍNH & BẢO HIỂM ──
+    {
+      stt: 10, service: "Thanh toán khoản vay (19 NCC)", category: "Tài chính",
+      subItems: [
+        { carrier: "FE Credit / Home Credit / HD Saison / Shinhan", gpPrice: "3,000đ/GD", vnpayPrice: null, unit: "VND/GD" },
+        { carrier: "Mirae Asset", gpPrice: "4,000đ/GD", vnpayPrice: null, unit: "VND/GD" },
+        { carrier: "VPBank / VIB / OCB / MSB / Techcombank / MB + 5 NCC", gpPrice: "5,000đ/GD", vnpayPrice: null, unit: "VND/GD" },
+        { carrier: "JACCS", gpPrice: "7,000đ/GD", vnpayPrice: null, unit: "VND/GD" },
+      ],
+      gpSource: "Imedia", note: "Phí KH 5,000–10,000đ",
+    },
+    {
+      stt: 11, service: "BH Nhân thọ (9 NCC)", category: "Bảo hiểm",
+      gpPrice: "4,000đ/GD", vnpayPrice: null, unit: "VND/GD",
+      gpSource: "Imedia", note: "Prudential, Manulife, AIA, Dai-ichi…",
+    },
+    {
+      stt: 12, service: "BH OPES", category: "Bảo hiểm",
+      subItems: [
+        { carrier: "BH Tai nạn cá nhân", gpPrice: "20%/GTGD", vnpayPrice: null, unit: "% GTGD" },
+        { carrier: "BH Trễ chuyến máy bay", gpPrice: "20%/GTGD", vnpayPrice: null, unit: "% GTGD" },
+      ],
+      gpSource: "Imedia", note: "",
+    },
+    // ── VÉ ──
+    {
+      stt: 13, service: "Vé máy bay", category: "Vé & DL",
+      subItems: [
+        { carrier: "Vietjet Air", gpPrice: "20,000đ/vé", vnpayPrice: null, unit: "VND/vé" },
+        { carrier: "VN Airlines / Bamboo / Pacific", gpPrice: "40,000đ/vé", vnpayPrice: null, unit: "VND/vé" },
+      ],
+      gpSource: "Imedia", note: "Phí KH 50K–100K/vé",
+    },
+    {
+      stt: 14, service: "Vé xe khách (Vexere)", category: "Vé & DL",
+      gpPrice: "3.0%/GTGD", vnpayPrice: null, unit: "% GTGD",
+      gpSource: "Imedia", note: "Phí KH 3,000đ",
+    },
+    // ── ĐANG TRIỂN KHAI ──
+    {
+      stt: 15, service: "Loan (Vay trả góp)", category: "Tài chính",
       gpPrice: null, vnpayPrice: null, unit: "",
       gpSource: "", note: "Đang triển khai",
     },
     {
-      stt: 8, service: "Vietlott (Xổ số)", category: "Giải trí",
+      stt: 16, service: "Vietlott (Xổ số)", category: "Giải trí",
       gpPrice: null, vnpayPrice: null, unit: "",
       gpSource: "", note: "Đang triển khai",
     },
@@ -432,6 +499,8 @@ function Phase1Tab() {
     Telco: { bg: "rgba(124,108,255,0.08)", color: "#a78bfa" },
     "Công ích": { bg: "rgba(56,138,221,0.08)", color: "#378ADD" },
     "Tài chính": { bg: "rgba(216,90,48,0.08)", color: "#D85A30" },
+    "Bảo hiểm": { bg: "rgba(239,68,68,0.08)", color: "#ef4444" },
+    "Vé & DL": { bg: "rgba(14,165,233,0.08)", color: "#0ea5e9" },
     "Giải trí": { bg: "rgba(251,191,36,0.08)", color: "#fbbf24" },
   };
 
@@ -471,12 +540,12 @@ function Phase1Tab() {
           Chào giá dịch vụ cho Vikki / HDBank
         </h3>
         <p style={{ fontSize: 13, color: "var(--text-dim)", lineHeight: 1.7, margin: 0 }}>
-          So sánh biểu phí Galaxy Pay đề xuất với VNPay (đối tác hiện tại) — 08 dịch vụ trọng tâm Giai đoạn 1 trên nền tảng Sky Partner Platform.
+          So sánh biểu phí Galaxy Pay đề xuất với VNPay (đối tác hiện tại) — 16 dịch vụ Giai đoạn 1 trên nền tảng Sky Partner Platform.
         </p>
         <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
           <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(124,108,255,0.12)", color: "var(--accent-2)" }}>Galaxy Pay · Nguồn cung Imedia</span>
           <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(251,191,36,0.12)", color: "var(--amber)" }}>VNPay · Đối tác hiện tại Vikki</span>
-          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(52,211,153,0.12)", color: "var(--green)" }}>08 Dịch vụ GĐ1</span>
+          <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 20, background: "rgba(52,211,153,0.12)", color: "var(--green)" }}>16 Dịch vụ GĐ1</span>
         </div>
       </div>
 
@@ -484,8 +553,8 @@ function Phase1Tab() {
       <div className="grid-3" style={{ marginTop: 20 }}>
         <div className="card" style={{ textAlign: "center", padding: "20px 16px" }}>
           <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", marginBottom: 6 }}>Số dịch vụ GĐ1</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--accent-2)" }}>08</div>
-          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>nhóm sản phẩm</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: "var(--accent-2)" }}>16</div>
+          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>dịch vụ chào giá</div>
         </div>
         <div className="card" style={{ textAlign: "center", padding: "20px 16px" }}>
           <div style={{ fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", marginBottom: 6 }}>Nguồn cung GP</div>
