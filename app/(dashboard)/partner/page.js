@@ -404,8 +404,13 @@ function Phase1Tab() {
     },
     {
       stt: 6, service: "Data Card (Thẻ cào / Gói dữ liệu)", category: "Telco",
-      gpPrice: "CK 6%", vnpayPrice: null, unit: "% mệnh giá",
-      gpSource: "Benchmark TT", note: "",
+      subItems: [
+        { carrier: "Viettel (Sponsor)", gpPrice: "CK 10.0%", vnpayPrice: null, unit: "% mệnh giá" },
+        { carrier: "MobiFone (Thông thường)", gpPrice: "CK 17.0%", vnpayPrice: null, unit: "% mệnh giá" },
+        { carrier: "MobiFone (DC_ON)", gpPrice: "CK 10.0%", vnpayPrice: null, unit: "% mệnh giá" },
+        { carrier: "VinaPhone", gpPrice: "CK 14.0%", vnpayPrice: null, unit: "% mệnh giá" },
+      ],
+      gpSource: "Imedia", note: "Chiết khấu đã gồm VAT",
     },
     {
       stt: 7, service: "Loan (Vay trả góp)", category: "Tài chính",
