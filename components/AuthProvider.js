@@ -75,6 +75,14 @@ export function AuthProvider({ children }) {
     if (!found) return { ok: false, error: "Tài khoản hoặc mật khẩu không đúng." };
     saveSession(found.u, found.h);
     setUser(found);
+    // Fire-and-forget login log
+    try {
+      fetch("/api/auth/login-log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: found.u, name: found.name, role: found.role }),
+      }).catch(() => {});
+    } catch {}
     return { ok: true };
   }
 
