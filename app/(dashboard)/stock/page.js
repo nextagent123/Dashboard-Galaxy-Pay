@@ -681,6 +681,7 @@ export default function StockPage() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [stockDetail, setStockDetail] = useState(null);
@@ -688,31 +689,32 @@ export default function StockPage() {
   const [detailError, setDetailError] = useState(null);
   const searchRef = useRef(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const r = await fetch("/api/stock");
-        const j = await r.json();
-        if (!cancelled) {
-          if (j.error) setErr(j.error);
-          else { setData(j); setErr(null); }
-          setLoading(false);
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setErr("Lỗi kết nối đến server");
-          setLoading(false);
-        }
-      }
-    };
-    load();
-    const iv = setInterval(load, 5 * 60 * 1000);
-    return () => {
-      cancelled = true;
-      clearInterval(iv);
-    };
+  const fetchStock = useCallback(async (signal) => {
+    try {
+      const r = await fetch("/api/stock", { signal });
+      const j = await r.json();
+      if (j.error) setErr(j.error);
+      else { setData(j); setErr(null); }
+    } catch (e) {
+      if (e.name !== "AbortError") setErr("Lỗi kết nối đến server");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    fetchStock(ac.signal);
+    const iv = setInterval(() => fetchStock(), 5 * 60 * 1000);
+    return () => { ac.abort(); clearInterval(iv); };
+  }, [fetchStock]);
+
+  const handleRefresh = useCallback(() => {
+    if (refreshing) return;
+    setRefreshing(true);
+    fetchStock();
+  }, [refreshing, fetchStock]);
 
   const allTickers = useMemo(() => {
     if (!data) return [];
@@ -784,6 +786,10 @@ export default function StockPage() {
           0% { background-position: -200% 0; }
           100% { background-position: 200% 0; }
         }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
       `}</style>
 
       {/* Hero Header */}
@@ -825,13 +831,38 @@ export default function StockPage() {
             Theo dõi chỉ số VN-Index, HNX, UPCOM và biến động cổ phiếu trên sàn HOSE.
             Dữ liệu tự động cập nhật mỗi 5 phút.
           </p>
-          {data?.updated && (
-            <div style={{ marginTop: 10, fontSize: 11.5, color: "var(--text-faintest)", display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", boxShadow: "0 0 6px rgba(52,211,153,0.5)", display: "inline-block" }}/>
-              Cập nhật: {new Date(data.updated).toLocaleString("vi-VN")}
-              {data.source && <span style={{ marginLeft: 4 }}>| Nguồn: {data.source}</span>}
-            </div>
-          )}
+          <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            {data?.updated && (
+              <div style={{ fontSize: 11.5, color: "var(--text-faintest)", display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", boxShadow: "0 0 6px rgba(52,211,153,0.5)", display: "inline-block" }}/>
+                Cập nhật: {new Date(data.updated).toLocaleString("vi-VN")}
+                {data.source && <span style={{ marginLeft: 4 }}>| Nguồn: {data.source}</span>}
+              </div>
+            )}
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "6px 16px", fontSize: 12, fontWeight: 600,
+                borderRadius: 10, cursor: refreshing ? "not-allowed" : "pointer",
+                border: "1px solid rgba(124,108,255,0.3)",
+                background: refreshing ? "rgba(124,108,255,0.08)" : "rgba(124,108,255,0.12)",
+                color: "var(--accent-2)",
+                transition: "all 0.2s",
+                opacity: refreshing ? 0.7 : 1,
+              }}
+              onMouseEnter={(e) => { if (!refreshing) e.currentTarget.style.background = "rgba(124,108,255,0.22)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = refreshing ? "rgba(124,108,255,0.08)" : "rgba(124,108,255,0.12)"; }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                style={{ animation: refreshing ? "spin 1s linear infinite" : "none" }}>
+                <path d="M21 2v6h-6" /><path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
+                <path d="M3 22v-6h6" /><path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
+              </svg>
+              {refreshing ? "Đang tải..." : "Làm mới dữ liệu"}
+            </button>
+          </div>
         </div>
       </section>
 
