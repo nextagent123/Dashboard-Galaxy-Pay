@@ -55,7 +55,17 @@ export function AuthProvider({ children }) {
       const saved = loadSession();
       if (saved) {
         const match = list.find((x) => x.u === saved.u && x.h === saved.h);
-        if (match) setUser(match);
+        if (match) {
+          setUser(match);
+          // Fire-and-forget login log for session restore
+          try {
+            fetch("/api/auth/login-log", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ user: match.u, name: match.name, role: match.role, type: "session" }),
+            }).catch(() => {});
+          } catch {}
+        }
       }
       setReady(true);
     }

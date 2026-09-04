@@ -37,12 +37,12 @@ async function appendLog(key, entry) {
 // POST — record a login event
 export async function POST(request) {
   try {
-    const { user, name, role } = await request.json();
+    const { user, name, role, type } = await request.json();
     if (!user) return Response.json({ error: "Missing user" }, { status: 400 });
 
     const now = new Date().toISOString();
     const ua = request.headers.get("user-agent") || "";
-    const entry = { user, name: name || "", role: role || "", ts: now, ua };
+    const entry = { user, name: name || "", role: role || "", ts: now, ua, type: type || "login" };
     const key = monthKey(now);
 
     await appendLog(key, entry);

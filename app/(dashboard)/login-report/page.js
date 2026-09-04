@@ -412,6 +412,7 @@ export default function LoginReportPage() {
                     <th style={thSt}>Vai trò</th>
                     <th style={{ ...thSt, textAlign: "right" }}>Thời gian</th>
                     <th style={thSt}>Thiết bị</th>
+                    <th style={{ ...thSt, textAlign: "center" }}>Loại</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -421,6 +422,7 @@ export default function LoginReportPage() {
                       : /firefox/i.test(l.ua) ? "Firefox"
                       : /safari/i.test(l.ua) ? "Safari"
                       : /edge/i.test(l.ua) ? "Edge" : "—";
+                    const isSession = l.type === "session";
                     return (
                       <tr key={i} style={{ borderBottom: "1px solid var(--border-faint)" }}>
                         <td style={{ ...cellSt, textAlign: "center", color: "var(--text-faint)", fontSize: 11 }}>{i + 1}</td>
@@ -434,6 +436,15 @@ export default function LoginReportPage() {
                         </td>
                         <td style={{ ...cellSt, fontSize: 11, color: "var(--text-dim)" }}>
                           {isMobile ? "📱" : "💻"} {browser}
+                        </td>
+                        <td style={{ ...cellSt, fontSize: 10, textAlign: "center" }}>
+                          <span style={{
+                            padding: "2px 8px", borderRadius: 10, fontWeight: 600,
+                            background: isSession ? "rgba(251,191,36,0.12)" : "rgba(52,211,153,0.12)",
+                            color: isSession ? "#f59e0b" : "var(--green)",
+                          }}>
+                            {isSession ? "Phiên" : "Đăng nhập"}
+                          </span>
                         </td>
                       </tr>
                     );
