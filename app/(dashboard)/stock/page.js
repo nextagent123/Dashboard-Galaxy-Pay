@@ -689,9 +689,11 @@ export default function StockPage() {
   const [detailError, setDetailError] = useState(null);
   const searchRef = useRef(null);
 
-  const fetchStock = useCallback(async (signal) => {
+  const fetchStock = useCallback(async (opts = {}) => {
+    const { signal, forceRefresh = false } = opts;
     try {
-      const r = await fetch("/api/stock", { signal });
+      const url = forceRefresh ? "/api/stock?refresh=1" : "/api/stock";
+      const r = await fetch(url, { signal });
       const j = await r.json();
       if (j.error) setErr(j.error);
       else { setData(j); setErr(null); }
@@ -705,7 +707,7 @@ export default function StockPage() {
 
   useEffect(() => {
     const ac = new AbortController();
-    fetchStock(ac.signal);
+    fetchStock({ signal: ac.signal });
     const iv = setInterval(() => fetchStock(), 5 * 60 * 1000);
     return () => { ac.abort(); clearInterval(iv); };
   }, [fetchStock]);
@@ -713,7 +715,7 @@ export default function StockPage() {
   const handleRefresh = useCallback(() => {
     if (refreshing) return;
     setRefreshing(true);
-    fetchStock();
+    fetchStock({ forceRefresh: true });
   }, [refreshing, fetchStock]);
 
   const allTickers = useMemo(() => {

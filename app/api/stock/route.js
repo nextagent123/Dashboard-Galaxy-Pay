@@ -361,8 +361,9 @@ async function ensureWatchlist(data) {
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const debug = searchParams.get("debug") === "1";
+  const forceRefresh = searchParams.get("refresh") === "1";
 
-  if (_cache && Date.now() - _cacheTime < CACHE_MS && !debug) {
+  if (_cache && Date.now() - _cacheTime < CACHE_MS && !debug && !forceRefresh) {
     return Response.json(_cache);
   }
 
