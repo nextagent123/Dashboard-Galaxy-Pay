@@ -692,8 +692,11 @@ export default function StockPage() {
   const fetchStock = useCallback(async (opts = {}) => {
     const { signal, forceRefresh = false } = opts;
     try {
-      const url = forceRefresh ? "/api/stock?refresh=1" : "/api/stock";
-      const r = await fetch(url, { signal });
+      const t = Date.now();
+      const url = forceRefresh
+        ? `/api/stock?refresh=1&_t=${t}`
+        : `/api/stock?_t=${t}`;
+      const r = await fetch(url, { signal, cache: "no-store" });
       const j = await r.json();
       if (j.error) setErr(j.error);
       else { setData(j); setErr(null); }
@@ -839,6 +842,11 @@ export default function StockPage() {
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#34d399", boxShadow: "0 0 6px rgba(52,211,153,0.5)", display: "inline-block" }}/>
                 Cập nhật: {new Date(data.updated).toLocaleString("vi-VN")}
                 {data.source && <span style={{ marginLeft: 4 }}>| Nguồn: {data.source}</span>}
+                {data._refreshLog && (
+                  <span style={{ marginLeft: 4, padding: "1px 8px", borderRadius: 6, fontSize: 10, background: "rgba(52,211,153,0.12)", color: "#34d399", fontWeight: 600 }}>
+                    Live
+                  </span>
+                )}
               </div>
             )}
             <button

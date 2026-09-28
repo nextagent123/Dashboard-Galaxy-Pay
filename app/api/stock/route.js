@@ -1,5 +1,8 @@
 import { supabase } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 async function tryFetch(url, timeout = 8000, extraHeaders = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
@@ -429,7 +432,13 @@ export async function GET(request) {
   // Always ensure watchlist has all BLUE tickers
   await ensureWatchlist(result);
 
+  if (forceRefresh) {
+    result._refreshLog = log;
+  }
+
   _cache = result;
   _cacheTime = Date.now();
-  return Response.json(result);
+  return Response.json(result, {
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" },
+  });
 }
