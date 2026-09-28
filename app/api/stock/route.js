@@ -370,23 +370,27 @@ export async function GET(request) {
   const log = [];
   let result = null;
 
-  // 1. Try Supabase first (populated by GitHub Actions cron)
-  try {
-    const start = Date.now();
-    const sbData = await fetchFromSupabase();
-    const ms = Date.now() - start;
-    if (sbData) {
-      log.push({ source: "supabase", status: "ok", ms });
-      if (debug) sbData._debug = { winner: "supabase", ms, log };
-      result = sbData;
-    } else {
-      log.push({ source: "supabase", status: "empty", ms });
+  // 1. Try Supabase first (populated by GitHub Actions cron) — skip when force-refreshing
+  if (!forceRefresh) {
+    try {
+      const start = Date.now();
+      const sbData = await fetchFromSupabase();
+      const ms = Date.now() - start;
+      if (sbData) {
+        log.push({ source: "supabase", status: "ok", ms });
+        if (debug) sbData._debug = { winner: "supabase", ms, log };
+        result = sbData;
+      } else {
+        log.push({ source: "supabase", status: "empty", ms });
+      }
+    } catch (e) {
+      log.push({ source: "supabase", status: "fail", error: e.message });
     }
-  } catch (e) {
-    log.push({ source: "supabase", status: "fail", error: e.message });
+  } else {
+    log.push({ source: "supabase", status: "skipped (force refresh)" });
   }
 
-  // 2. Try direct APIs if Supabase didn't work
+  // 2. Try direct APIs if Supabase didn't work (or was skipped)
   if (!result) {
     const directAPIs = [
       { name: "tradingview", fn: fetchFromTradingView },
