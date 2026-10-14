@@ -326,7 +326,7 @@ export default function DoiTacPage() {
   return (
     <>
       <ReportHeader
-        eyebrow="GALAXY PAY · QUẢN LÝ ĐẦU VÀO"
+        eyebrow="GALAXY PAY · QUẢN LÝ ĐẦU VÀO & DỰ ÁN"
         title="Kiến trúc tổng thể kết nối đối tác"
         subtitle="Flow diagram — Trực tiếp, qua Ngân hàng, qua Hub"
       />

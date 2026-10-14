@@ -802,7 +802,7 @@ export default function VendorPage() {
   return (
     <>
       <ReportHeader
-        eyebrow="QUẢN LÝ ĐẦU VÀO"
+        eyebrow="QUẢN LÝ ĐẦU VÀO & DỰ ÁN"
         title="Vendor & Provider Inventory"
         subtitle="HDBank × Vikki Bank — Sovico Group Ecosystem · 60 integrations · 17 vendors"
         right={
