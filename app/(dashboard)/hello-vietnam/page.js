@@ -142,12 +142,14 @@ const IFRAME_HEIGHTS = {
 };
 
 const DESIGN_WIDTH = 1440;
+const MIN_SCALE = 0.5;
 
 export default function HelloVietnamPage() {
   const [activeView, setActiveView] = useState("overview");
   const [iframeLoading, setIframeLoading] = useState(true);
   const [scale, setScale] = useState(1);
   const wrapRef = useRef(null);
+  const effectiveScale = Math.max(MIN_SCALE, scale);
 
   useEffect(() => {
     function onMessage(e) {
@@ -258,10 +260,25 @@ export default function HelloVietnamPage() {
           background-size: 200% 100%;
           animation: hv-shimmer 1.5s infinite;
         }
+        @media (max-width: 768px) {
+          .hv-header { padding: 16px !important; border-radius: 10px !important; margin-bottom: 12px !important; }
+          .hv-header-icon { width: 36px !important; height: 36px !important; }
+          .hv-header-title { font-size: 18px !important; }
+          .hv-header-sub { font-size: 11px !important; }
+          .hv-tabs { gap: 4px !important; margin-bottom: 10px !important; padding: 6px 0 6px !important; -ms-overflow-style: none; scrollbar-width: none; }
+          .hv-tabs::-webkit-scrollbar { display: none; }
+          .hv-tabs button { padding: 6px 10px !important; font-size: 11px !important; flex-shrink: 0; }
+          .hv-iframe-wrap { border-radius: 10px !important; }
+          .hv-hub-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+          .hv-card { padding: 12px !important; gap: 10px !important; border-radius: 10px !important; }
+          .hv-card-icon { width: 36px !important; height: 36px !important; border-radius: 8px !important; }
+          .hv-back-btn { padding: 8px 14px !important; font-size: 12px !important; }
+          .hv-iframe-wrap { -webkit-overflow-scrolling: touch; }
+        }
       `}</style>
 
       {/* Header */}
-      <div style={{
+      <div className="hv-header" style={{
         background: "linear-gradient(135deg, #0B5D50 0%, #0D6B5C 50%, #0B5D50 100%)",
         borderRadius: 16,
         padding: "28px 32px",
@@ -273,19 +290,19 @@ export default function HelloVietnamPage() {
         flexWrap: "wrap",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <svg width="52" height="52" viewBox="0 0 72 72" role="img" aria-label="Hello Vietnam">
+          <svg className="hv-header-icon" width="52" height="52" viewBox="0 0 72 72" role="img" aria-label="Hello Vietnam">
             <circle cx="36" cy="30" r="18" fill="#F2B441"/>
             <path d="M6 46c8-6 16-6 24 0s16 6 24 0 10-4 12-3" fill="none" stroke="#FFFFFF" strokeWidth="5" strokeLinecap="round"/>
             <path d="M10 58c8-5 14-5 22 0s16 5 24 0" fill="none" stroke="#A9CFC6" strokeWidth="5" strokeLinecap="round"/>
           </svg>
           <div>
-            <div style={{
+            <div className="hv-header-title" style={{
               fontSize: 26, fontWeight: 800, color: "#fff",
               letterSpacing: -0.5, lineHeight: 1,
             }}>
               HELLO VIETNAM
             </div>
-            <div style={{ fontSize: 13, color: "#CFE5DF", marginTop: 4 }}>
+            <div className="hv-header-sub" style={{ fontSize: 13, color: "#CFE5DF", marginTop: 4 }}>
               Phác thảo nền tảng · Cổng kết nối số cho du lịch, mua sắm và thanh toán
             </div>
           </div>
@@ -293,6 +310,7 @@ export default function HelloVietnamPage() {
 
         {activeView !== "overview" && (
           <button
+            className="hv-back-btn"
             onClick={handleBackToOverview}
             style={{
               display: "flex", alignItems: "center", gap: 8,
@@ -319,7 +337,7 @@ export default function HelloVietnamPage() {
       </div>
 
       {/* Tab navigation bar — sticky */}
-      <div style={{
+      <div className="hv-tabs" style={{
         display: "flex", gap: 6, marginBottom: 16,
         overflowX: "auto", paddingBottom: 8, paddingTop: 8,
         scrollbarWidth: "thin",
@@ -380,8 +398,10 @@ export default function HelloVietnamPage() {
           maxWidth: DESIGN_WIDTH,
           marginLeft: "auto",
           marginRight: "auto",
-          height: iframeHeight * scale,
-          overflow: "hidden",
+          height: iframeHeight * effectiveScale,
+          overflowX: scale < MIN_SCALE ? "auto" : "hidden",
+          overflowY: "hidden",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {iframeLoading && (
@@ -403,7 +423,7 @@ export default function HelloVietnamPage() {
             height: iframeHeight,
             border: "none",
             display: "block",
-            transform: `scale(${scale})`,
+            transform: `scale(${effectiveScale})`,
             transformOrigin: "top left",
           }}
           onLoad={(e) => {
@@ -440,7 +460,7 @@ export default function HelloVietnamPage() {
             }}/>
             Chi tiết các Hub
           </h2>
-          <div style={{
+          <div className="hv-hub-grid" style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
             gap: 14,
@@ -451,7 +471,7 @@ export default function HelloVietnamPage() {
                 className="hv-card"
                 onClick={() => handleNavToHub(hub.id)}
               >
-                <div style={{
+                <div className="hv-card-icon" style={{
                   width: 44, height: 44, borderRadius: 12,
                   background: hub.color,
                   display: "flex", alignItems: "center", justifyContent: "center",
