@@ -222,7 +222,7 @@ export default function PspPage() {
   return (
     <>
       <ReportHeader
-        eyebrow="GALAXY PAY · QUẢN LÝ ĐẦU VÀO"
+        eyebrow="GALAXY PAY · QUẢN LÝ ĐẦU VÀO & DỰ ÁN"
         title="Nền tảng điều phối thanh toán"
         subtitle="Payment Orchestration Platform — Quy hoạch đầu vào PSP"
       />

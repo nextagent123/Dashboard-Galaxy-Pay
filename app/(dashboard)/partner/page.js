@@ -1811,7 +1811,7 @@ export default function PartnerPage() {
   return (
     <>
       <ReportHeader
-        eyebrow="QUẢN LÝ ĐẦU VÀO"
+        eyebrow="QUẢN LÝ ĐẦU VÀO & DỰ ÁN"
         title="Dự án Partner Platform"
         subtitle="Sky Partner Platform — Digital Commerce Orchestration · Sovico Group · Galaxy Pay"
         right={
