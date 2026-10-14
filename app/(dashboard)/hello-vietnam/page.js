@@ -194,7 +194,7 @@ export default function HelloVietnamPage() {
   const iframeHeight = IFRAME_HEIGHTS[activeView] || 1600;
 
   return (
-    <div style={{ padding: "0 0 40px" }}>
+    <div style={{ padding: "0 0 40px", maxWidth: DESIGN_WIDTH, marginLeft: "auto", marginRight: "auto" }}>
       <style>{`
         @keyframes hv-shimmer {
           0% { background-position: -200% 0; }
@@ -377,6 +377,9 @@ export default function HelloVietnamPage() {
         className="hv-iframe-wrap"
         style={{
           marginBottom: activeView === "overview" ? 28 : 0,
+          maxWidth: DESIGN_WIDTH,
+          marginLeft: "auto",
+          marginRight: "auto",
           height: iframeHeight * scale,
           overflow: "hidden",
         }}
