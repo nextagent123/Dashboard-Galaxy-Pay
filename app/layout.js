@@ -14,7 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "Galaxy Pay · Báo cáo Khối Kinh doanh",
+  title: "Galaxy Pay · Báo cáo Khối KD",
   description: "Dashboard báo cáo hoạt động kinh doanh Galaxy Pay",
 };
 
