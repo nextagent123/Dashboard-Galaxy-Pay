@@ -59,7 +59,7 @@ export default function Sidebar({ desktopHidden, onDesktopToggle }) {
         <div style={{
           fontSize: 10.5, color: "var(--text-faint)", fontWeight: 500,
           letterSpacing: 0.3, paddingLeft: 2,
-        }}>Báo cáo Khối Kinh doanh</div>
+        }}>Báo cáo Khối KD</div>
       </div>
 
       {/* Nav sections */}
