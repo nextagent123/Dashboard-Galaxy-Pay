@@ -128,17 +128,17 @@ const HUBS = [
 
 const IFRAME_HEIGHTS = {
   overview: 1940,
-  "travel-hub": 1600,
-  "commerce-hub": 1600,
-  "event-ticketing": 1900,
-  "payment-loyalty": 2600,
-  "distribution-hub": 1600,
-  "control-center": 1600,
-  "revenue-model": 2750,
-  "service-providers": 3000,
-  "voucher-engine": 2000,
-  "voucher-studio": 1300,
-  "last-page": 1600,
+  "travel-hub": 1536,
+  "commerce-hub": 1536,
+  "event-ticketing": 1836,
+  "payment-loyalty": 2536,
+  "distribution-hub": 1536,
+  "control-center": 1536,
+  "revenue-model": 2686,
+  "service-providers": 2936,
+  "voucher-engine": 1936,
+  "voucher-studio": 1236,
+  "last-page": 1536,
 };
 
 const DESIGN_WIDTH = 1440;
@@ -318,11 +318,13 @@ export default function HelloVietnamPage() {
         )}
       </div>
 
-      {/* Tab navigation bar */}
+      {/* Tab navigation bar — sticky */}
       <div style={{
         display: "flex", gap: 6, marginBottom: 16,
-        overflowX: "auto", paddingBottom: 4,
+        overflowX: "auto", paddingBottom: 8, paddingTop: 8,
         scrollbarWidth: "thin",
+        position: "sticky", top: 0, zIndex: 10,
+        background: "var(--bg, #0d1117)",
       }}>
         <button
           onClick={handleBackToOverview}
