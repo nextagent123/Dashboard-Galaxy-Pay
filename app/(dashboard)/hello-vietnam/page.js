@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 const HUBS = [
   {
@@ -141,9 +141,40 @@ const IFRAME_HEIGHTS = {
   "last-page": 1600,
 };
 
+const DESIGN_WIDTH = 1440;
+
 export default function HelloVietnamPage() {
   const [activeView, setActiveView] = useState("overview");
   const [iframeLoading, setIframeLoading] = useState(true);
+  const [scale, setScale] = useState(1);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    function onMessage(e) {
+      if (e.data && typeof e.data.hub === "string") {
+        const hubId = e.data.hub;
+        if (hubId === "overview") {
+          handleBackToOverview();
+        } else if (HUBS.some((h) => h.id === hubId)) {
+          handleNavToHub(hubId);
+        }
+      }
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  });
+
+  useEffect(() => {
+    function calcScale() {
+      if (wrapRef.current) {
+        const w = wrapRef.current.offsetWidth;
+        setScale(Math.min(1, w / DESIGN_WIDTH));
+      }
+    }
+    calcScale();
+    window.addEventListener("resize", calcScale);
+    return () => window.removeEventListener("resize", calcScale);
+  }, []);
 
   const handleNavToHub = useCallback((hubId) => {
     setIframeLoading(true);
@@ -161,6 +192,7 @@ export default function HelloVietnamPage() {
   const iframeSrc = activeView === "overview"
     ? "/hello-vietnam/overview.html"
     : `/hello-vietnam/${activeView}.html`;
+  const iframeHeight = IFRAME_HEIGHTS[activeView] || 1600;
 
   return (
     <div style={{ padding: "0 0 40px" }}>
@@ -307,7 +339,15 @@ export default function HelloVietnamPage() {
       )}
 
       {/* Iframe viewer */}
-      <div className="hv-iframe-wrap" style={{ marginBottom: activeView === "overview" ? 28 : 0 }}>
+      <div
+        ref={wrapRef}
+        className="hv-iframe-wrap"
+        style={{
+          marginBottom: activeView === "overview" ? 28 : 0,
+          height: iframeHeight * scale,
+          overflow: "hidden",
+        }}
+      >
         {iframeLoading && (
           <div className="hv-iframe-loading">
             <div style={{ textAlign: "center" }}>
@@ -323,11 +363,12 @@ export default function HelloVietnamPage() {
           src={iframeSrc}
           title={activeView === "overview" ? "Hello Vietnam – Tổng quan" : activeHub?.title}
           style={{
-            width: "100%",
-            height: IFRAME_HEIGHTS[activeView] || 1600,
+            width: DESIGN_WIDTH,
+            height: iframeHeight,
             border: "none",
             display: "block",
-            minHeight: 600,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
           }}
           onLoad={() => setIframeLoading(false)}
           sandbox="allow-scripts allow-same-origin"
