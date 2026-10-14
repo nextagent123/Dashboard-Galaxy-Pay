@@ -165,15 +165,14 @@ export default function HelloVietnamPage() {
   });
 
   useEffect(() => {
-    function calcScale() {
-      if (wrapRef.current) {
-        const w = wrapRef.current.offsetWidth;
-        setScale(Math.min(1, w / DESIGN_WIDTH));
-      }
-    }
-    calcScale();
-    window.addEventListener("resize", calcScale);
-    return () => window.removeEventListener("resize", calcScale);
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const w = entry.contentRect.width;
+      if (w > 0) setScale(Math.min(1, w / DESIGN_WIDTH));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
   const handleNavToHub = useCallback((hubId) => {
