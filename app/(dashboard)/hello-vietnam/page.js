@@ -318,24 +318,56 @@ export default function HelloVietnamPage() {
         )}
       </div>
 
-      {/* Active hub breadcrumb */}
-      {activeView !== "overview" && activeHub && (
-        <div style={{
-          display: "flex", alignItems: "center", gap: 8,
-          marginBottom: 16, fontSize: 14, color: "var(--text-dim)",
-        }}>
-          <span
-            onClick={handleBackToOverview}
-            style={{ cursor: "pointer", color: "#0B5D50", fontWeight: 500 }}
+      {/* Tab navigation bar */}
+      <div style={{
+        display: "flex", gap: 6, marginBottom: 16,
+        overflowX: "auto", paddingBottom: 4,
+        scrollbarWidth: "thin",
+      }}>
+        <button
+          onClick={handleBackToOverview}
+          style={{
+            padding: "7px 16px", borderRadius: 8, fontSize: 12.5,
+            fontWeight: activeView === "overview" ? 700 : 500,
+            whiteSpace: "nowrap", cursor: "pointer",
+            border: activeView === "overview"
+              ? "1.5px solid #0B5D50"
+              : "1px solid var(--border-soft)",
+            background: activeView === "overview"
+              ? "rgba(11,93,80,0.12)"
+              : "var(--surface)",
+            color: activeView === "overview"
+              ? "#0B5D50"
+              : "var(--text-dim)",
+            transition: "all 0.18s",
+          }}
+        >
+          Tổng quan
+        </button>
+        {HUBS.map((hub) => (
+          <button
+            key={hub.id}
+            onClick={() => handleNavToHub(hub.id)}
+            style={{
+              padding: "7px 16px", borderRadius: 8, fontSize: 12.5,
+              fontWeight: activeView === hub.id ? 700 : 500,
+              whiteSpace: "nowrap", cursor: "pointer",
+              border: activeView === hub.id
+                ? `1.5px solid ${hub.color}`
+                : "1px solid var(--border-soft)",
+              background: activeView === hub.id
+                ? `${hub.color}1F`
+                : "var(--surface)",
+              color: activeView === hub.id
+                ? hub.color
+                : "var(--text-dim)",
+              transition: "all 0.18s",
+            }}
           >
-            Tổng quan
-          </span>
-          <span style={{ opacity: 0.4 }}>/</span>
-          <span style={{ fontWeight: 600, color: "var(--text-strong)" }}>
-            {activeHub.title}
-          </span>
-        </div>
-      )}
+            {hub.title}
+          </button>
+        ))}
+      </div>
 
       {/* Iframe viewer */}
       <div
