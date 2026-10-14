@@ -403,7 +403,21 @@ export default function HelloVietnamPage() {
             transform: `scale(${scale})`,
             transformOrigin: "top left",
           }}
-          onLoad={() => setIframeLoading(false)}
+          onLoad={(e) => {
+            setIframeLoading(false);
+            try {
+              const doc = e.target.contentDocument;
+              if (doc) {
+                doc.addEventListener("click", (ev) => {
+                  const t = ev.target.closest("[data-hub]");
+                  if (t) {
+                    ev.preventDefault();
+                    window.postMessage({ hub: t.getAttribute("data-hub") }, "*");
+                  }
+                });
+              }
+            } catch (_) {}
+          }}
           sandbox="allow-scripts allow-same-origin"
         />
       </div>
