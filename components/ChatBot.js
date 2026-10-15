@@ -254,20 +254,7 @@ export default function ChatBot() {
           aria-label="Mở Trợ lý AI"
         >
           <div className="chatbot-fab-inner">
-            <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-              <rect x="6" y="10" width="28" height="22" rx="6" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" />
-              <rect x="14" y="4" width="12" height="8" rx="4" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2" />
-              <line x1="20" y1="12" x2="20" y2="10" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2" />
-              <circle className="chatbot-ai-eye-left" cx="15" cy="20" r="2.5" fill="#fff" />
-              <circle className="chatbot-ai-eye-right" cx="25" cy="20" r="2.5" fill="#fff" />
-              <circle className="chatbot-ai-pupil-left" cx="15.8" cy="20" r="1.2" fill="#7c6cff" />
-              <circle className="chatbot-ai-pupil-right" cx="25.8" cy="20" r="1.2" fill="#7c6cff" />
-              <path d="M15 26 Q20 29 25 26" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-              <line x1="2" y1="18" x2="6" y2="18" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="2" y1="22" x2="6" y2="22" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="34" y1="18" x2="38" y2="18" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="34" y1="22" x2="38" y2="22" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round" />
-            </svg>
+            <img src="/chatbot-ai.jpg" alt="AI" width="32" height="32" style={{ borderRadius: "50%", objectFit: "cover" }} />
             <span className="chatbot-fab-sparkle chatbot-fab-sparkle-1">✦</span>
             <span className="chatbot-fab-sparkle chatbot-fab-sparkle-2">✧</span>
             <span className="chatbot-fab-sparkle chatbot-fab-sparkle-3">✦</span>
@@ -282,9 +269,7 @@ export default function ChatBot() {
           <div className="chatbot-header">
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div className="chatbot-header-avatar">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
-                </svg>
+                <img src="/chatbot-ai.jpg" alt="AI" width="28" height="28" style={{ borderRadius: "50%", objectFit: "cover" }} />
               </div>
               <div>
                 <div className="chatbot-header-title">Trợ lý Khối Kinh doanh</div>
@@ -310,9 +295,7 @@ export default function ChatBot() {
               <div key={i} className={`chatbot-msg chatbot-msg--${msg.role}`}>
                 {msg.role === "assistant" && (
                   <div className="chatbot-msg-avatar">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
-                    </svg>
+                    <img src="/chatbot-ai.jpg" alt="AI" width="18" height="18" style={{ borderRadius: "50%", objectFit: "cover" }} />
                   </div>
                 )}
                 <div className={`chatbot-bubble chatbot-bubble--${msg.role}`}>
@@ -341,9 +324,7 @@ export default function ChatBot() {
             {loading && messages[messages.length - 1]?.role !== "assistant" && (
               <div className="chatbot-msg chatbot-msg--assistant">
                 <div className="chatbot-msg-avatar">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3c-4.97 0-9 3.13-9 7 0 2.38 1.41 4.5 3.6 5.85L5 21l4.2-2.1c.9.2 1.84.1 2.8.1 4.97 0 9-3.13 9-7s-4.03-7-9-7Z" />
-                  </svg>
+                  <img src="/chatbot-ai.jpg" alt="AI" width="18" height="18" style={{ borderRadius: "50%", objectFit: "cover" }} />
                 </div>
                 <div className="chatbot-bubble chatbot-bubble--assistant chatbot-typing">
                   <span /><span /><span />
