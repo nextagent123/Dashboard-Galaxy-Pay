@@ -143,13 +143,28 @@ const IFRAME_HEIGHTS = {
 
 const DESIGN_WIDTH = 1440;
 const MIN_SCALE = 0.5;
+const MOBILE_BP = 768;
+const MOBILE_IFRAME_CSS = `
+  div[style*="grid-template-columns"]{grid-template-columns:1fr!important}
+  *{max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+  img,video,canvas{max-width:100%!important;height:auto!important}
+  body{min-width:0!important;width:100%!important;overflow-x:hidden!important}
+  nav[aria-label]{display:none!important}
+  table{display:block!important;overflow-x:auto!important}
+`;
 
 export default function HelloVietnamPage() {
   const [activeView, setActiveView] = useState("overview");
   const [iframeLoading, setIframeLoading] = useState(true);
   const [scale, setScale] = useState(1);
+  const [containerWidth, setContainerWidth] = useState(DESIGN_WIDTH);
+  const [mobileHeight, setMobileHeight] = useState(null);
   const wrapRef = useRef(null);
-  const effectiveScale = Math.max(MIN_SCALE, scale);
+  const measureRef = useRef(null);
+
+  const isMobile = containerWidth < MOBILE_BP;
+  const effectiveScale = isMobile ? 1 : Math.max(MIN_SCALE, scale);
+  const iframeW = isMobile ? containerWidth : DESIGN_WIDTH;
 
   useEffect(() => {
     function onMessage(e) {
@@ -171,20 +186,29 @@ export default function HelloVietnamPage() {
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
       const w = entry.contentRect.width;
-      if (w > 0) setScale(Math.min(1, w / DESIGN_WIDTH));
+      if (w > 0) {
+        setContainerWidth(w);
+        setScale(Math.min(1, w / DESIGN_WIDTH));
+      }
     });
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
 
+  useEffect(() => {
+    return () => { if (measureRef.current) clearInterval(measureRef.current); };
+  }, []);
+
   const handleNavToHub = useCallback((hubId) => {
     setIframeLoading(true);
+    setMobileHeight(null);
     setActiveView(hubId);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const handleBackToOverview = useCallback(() => {
     setIframeLoading(true);
+    setMobileHeight(null);
     setActiveView("overview");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
@@ -273,7 +297,6 @@ export default function HelloVietnamPage() {
           .hv-card { padding: 12px !important; gap: 10px !important; border-radius: 10px !important; }
           .hv-card-icon { width: 36px !important; height: 36px !important; border-radius: 8px !important; }
           .hv-back-btn { padding: 8px 14px !important; font-size: 12px !important; }
-          .hv-iframe-wrap { -webkit-overflow-scrolling: touch; }
         }
       `}</style>
 
@@ -398,10 +421,10 @@ export default function HelloVietnamPage() {
           maxWidth: DESIGN_WIDTH,
           marginLeft: "auto",
           marginRight: "auto",
-          height: iframeHeight * effectiveScale,
-          overflowX: scale < MIN_SCALE ? "auto" : "hidden",
-          overflowY: "hidden",
-          WebkitOverflowScrolling: "touch",
+          height: isMobile
+            ? (mobileHeight || iframeHeight * 1.8)
+            : iframeHeight * effectiveScale,
+          overflow: "hidden",
         }}
       >
         {iframeLoading && (
@@ -415,29 +438,44 @@ export default function HelloVietnamPage() {
           </div>
         )}
         <iframe
-          key={activeView}
+          key={activeView + (isMobile ? "-m" : "-d")}
           src={iframeSrc}
           title={activeView === "overview" ? "Hello Vietnam – Tổng quan" : activeHub?.title}
           style={{
-            width: DESIGN_WIDTH,
-            height: iframeHeight,
+            width: iframeW,
+            height: isMobile ? (mobileHeight || iframeHeight * 1.8) : iframeHeight,
             border: "none",
             display: "block",
-            transform: `scale(${effectiveScale})`,
+            transform: isMobile ? "none" : `scale(${effectiveScale})`,
             transformOrigin: "top left",
           }}
           onLoad={(e) => {
             setIframeLoading(false);
             try {
               const doc = e.target.contentDocument;
-              if (doc) {
-                doc.addEventListener("click", (ev) => {
-                  const t = ev.target.closest("[data-hub]");
-                  if (t) {
-                    ev.preventDefault();
-                    window.postMessage({ hub: t.getAttribute("data-hub") }, "*");
+              if (!doc) return;
+              doc.addEventListener("click", (ev) => {
+                const t = ev.target.closest("[data-hub]");
+                if (t) {
+                  ev.preventDefault();
+                  window.postMessage({ hub: t.getAttribute("data-hub") }, "*");
+                }
+              });
+              if (isMobile) {
+                const s = doc.createElement("style");
+                s.textContent = MOBILE_IFRAME_CSS;
+                doc.head.appendChild(s);
+                if (measureRef.current) clearInterval(measureRef.current);
+                let tries = 0;
+                measureRef.current = setInterval(() => {
+                  tries++;
+                  const h = doc.body?.scrollHeight;
+                  if ((h && h > 300) || tries > 30) {
+                    clearInterval(measureRef.current);
+                    measureRef.current = null;
+                    if (h) setMobileHeight(h + 20);
                   }
-                });
+                }, 300);
               }
             } catch (_) {}
           }}
