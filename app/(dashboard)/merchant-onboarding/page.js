@@ -4,6 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { MERCHANT_STATUSES } from "@/lib/merchantSchema";
 
+const TABS = [
+  { key: "leads", label: "Quản lý Lead" },
+  { key: "pipeline", label: "Pipeline" },
+];
+
 const cardStyle = {
   background: "var(--card-bg)",
   border: "1px solid var(--border)",
@@ -13,6 +18,7 @@ const cardStyle = {
 
 export default function MerchantOnboardingPage() {
   const { user, isAdmin } = useAuth();
+  const [tab, setTab] = useState("leads");
   const [merchants, setMerchants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -24,25 +30,26 @@ export default function MerchantOnboardingPage() {
   const fetchMerchants = useCallback(async () => {
     try {
       const params = new URLSearchParams();
-      if (search) params.set("search", search);
-      if (statusFilter) params.set("status", statusFilter);
+      if (tab === "leads") {
+        if (search) params.set("search", search);
+        if (statusFilter) params.set("status", statusFilter);
+      }
       const res = await fetch(`/api/merchant-onboarding?${params}`);
       const data = await res.json();
       setMerchants(data.merchants || []);
     } catch { /* ignore */ }
     setLoading(false);
-  }, [search, statusFilter]);
+  }, [search, statusFilter, tab]);
 
-  useEffect(() => { fetchMerchants(); }, [fetchMerchants]);
+  useEffect(() => { setLoading(true); fetchMerchants(); }, [fetchMerchants]);
 
   function getFormLink(token) {
     return `${window.location.origin}/merchant-form?token=${token}`;
   }
 
   async function copyLink(token) {
-    const link = getFormLink(token);
     try {
-      await navigator.clipboard.writeText(link);
+      await navigator.clipboard.writeText(getFormLink(token));
       setLinkCopied(token);
       setTimeout(() => setLinkCopied(null), 2000);
     } catch { /* ignore */ }
@@ -54,47 +61,110 @@ export default function MerchantOnboardingPage() {
 
   return (
     <div style={{ padding: "0 4px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--text)", margin: 0 }}>Merchant Onboarding</h1>
           <p style={{ fontSize: 13, color: "var(--text-dim)", margin: "4px 0 0" }}>Quản lý tiếp nhận & kích hoạt Merchant</p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          style={{
-            padding: "10px 20px", border: "none", borderRadius: 10,
-            background: "linear-gradient(135deg,#7c6cff,#9d8bff)", color: "#fff",
-            fontSize: 13, fontWeight: 600, cursor: "pointer",
-            boxShadow: "0 4px 16px rgba(124,108,255,0.3)",
-          }}
-        >
-          + Tạo Lead mới
-        </button>
+        {tab === "leads" && (
+          <button onClick={() => setShowCreate(true)} style={createBtnStyle}>
+            + Tạo Lead mới
+          </button>
+        )}
       </div>
 
-      {/* Status summary cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 10, marginBottom: 20 }}>
+      {/* Tab switcher */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid var(--border-soft)", paddingBottom: 0 }}>
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            style={{
+              padding: "10px 20px",
+              fontSize: 13,
+              fontWeight: tab === t.key ? 700 : 500,
+              color: tab === t.key ? "var(--accent-soft)" : "var(--text-dim)",
+              background: "none",
+              border: "none",
+              borderBottom: tab === t.key ? "2px solid var(--accent-soft)" : "2px solid transparent",
+              cursor: "pointer",
+              transition: "all 0.15s",
+              marginBottom: -1,
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      {tab === "leads" && (
+        <LeadsView
+          merchants={merchants}
+          loading={loading}
+          search={search}
+          setSearch={setSearch}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          statusCounts={statusCounts}
+          linkCopied={linkCopied}
+          copyLink={copyLink}
+          onSelect={setSelectedMerchant}
+        />
+      )}
+      {tab === "pipeline" && (
+        <PipelineView merchants={merchants} loading={loading} />
+      )}
+
+      {/* Modals */}
+      {showCreate && (
+        <CreateLeadModal
+          user={user}
+          onClose={() => setShowCreate(false)}
+          onCreated={() => { setShowCreate(false); fetchMerchants(); }}
+        />
+      )}
+      {selectedMerchant && (
+        <MerchantDetailModal
+          merchant={selectedMerchant}
+          user={user}
+          isAdmin={isAdmin}
+          onClose={() => setSelectedMerchant(null)}
+          onUpdated={() => { setSelectedMerchant(null); fetchMerchants(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ─── Leads View ─── */
+function LeadsView({ merchants, loading, search, setSearch, statusFilter, setStatusFilter, statusCounts, linkCopied, copyLink, onSelect }) {
+  return (
+    <>
+      {/* Status summary */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 8, marginBottom: 18 }}>
         {MERCHANT_STATUSES.map((s) => (
           <button
             key={s.key}
             onClick={() => setStatusFilter(statusFilter === s.key ? "" : s.key)}
             style={{
               ...cardStyle,
-              padding: "12px 14px",
+              padding: "10px 12px",
               cursor: "pointer",
               borderColor: statusFilter === s.key ? s.color : "var(--border)",
               background: statusFilter === s.key ? `${s.color}11` : "var(--card-bg)",
               textAlign: "left",
             }}
           >
-            <div style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{statusCounts[s.key]}</div>
-            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>{s.label}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: s.color }}>{statusCounts[s.key]}</div>
+            <div style={{ fontSize: 10.5, color: "var(--text-dim)", marginTop: 2 }}>{s.label}</div>
           </button>
         ))}
       </div>
 
       {/* Search */}
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 14 }}>
         <input
           type="text"
           value={search}
@@ -108,7 +178,7 @@ export default function MerchantOnboardingPage() {
         />
       </div>
 
-      {/* Merchant list */}
+      {/* List */}
       {loading ? (
         <div style={{ textAlign: "center", padding: 40, color: "var(--text-dim)" }}>Đang tải...</div>
       ) : merchants.length === 0 ? (
@@ -125,7 +195,7 @@ export default function MerchantOnboardingPage() {
               <div
                 key={m.id}
                 style={{ ...cardStyle, padding: "14px 18px", cursor: "pointer", display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}
-                onClick={() => setSelectedMerchant(m)}
+                onClick={() => onSelect(m)}
               >
                 <div style={{ flex: 1, minWidth: 200 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{m.company_name}</div>
@@ -160,30 +230,99 @@ export default function MerchantOnboardingPage() {
           })}
         </div>
       )}
+    </>
+  );
+}
 
-      {/* Create Lead Modal */}
-      {showCreate && (
-        <CreateLeadModal
-          user={user}
-          onClose={() => setShowCreate(false)}
-          onCreated={() => { setShowCreate(false); fetchMerchants(); }}
-        />
-      )}
+/* ─── Pipeline View ─── */
+const PIPELINE_COLUMNS = MERCHANT_STATUSES.filter((s) => s.step >= 0);
 
-      {/* Merchant Detail Modal */}
-      {selectedMerchant && (
-        <MerchantDetailModal
-          merchant={selectedMerchant}
-          user={user}
-          isAdmin={isAdmin}
-          onClose={() => setSelectedMerchant(null)}
-          onUpdated={() => { setSelectedMerchant(null); fetchMerchants(); }}
-        />
+function PipelineView({ merchants, loading }) {
+  if (loading) {
+    return <div style={{ textAlign: "center", padding: 40, color: "var(--text-dim)" }}>Đang tải pipeline...</div>;
+  }
+
+  const rejected = merchants.filter((m) => m.status === "tu_choi");
+
+  return (
+    <>
+      <div style={{ fontSize: 13, color: "var(--text-dim)", marginBottom: 14 }}>
+        Theo dõi tiến trình onboarding theo từng bước · {merchants.length} merchant
+      </div>
+
+      {/* Kanban */}
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 16, minHeight: 400 }}>
+        {PIPELINE_COLUMNS.map((col) => {
+          const items = merchants.filter((m) => m.status === col.key);
+          return (
+            <div key={col.key} style={{ minWidth: 210, maxWidth: 250, flex: "0 0 auto", display: "flex", flexDirection: "column" }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "10px 12px", marginBottom: 8, borderRadius: 10,
+                background: `${col.color}10`, borderBottom: `2px solid ${col.color}`,
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: col.color, flexShrink: 0 }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: col.color }}>{col.label}</span>
+                <span style={{
+                  marginLeft: "auto", fontSize: 11, fontWeight: 700,
+                  background: `${col.color}20`, color: col.color,
+                  padding: "2px 8px", borderRadius: 10,
+                }}>
+                  {items.length}
+                </span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+                {items.length === 0 ? (
+                  <div style={{
+                    padding: "20px 12px", textAlign: "center", fontSize: 11,
+                    color: "var(--text-faintest)", border: "1px dashed var(--border-soft)", borderRadius: 10,
+                  }}>
+                    Trống
+                  </div>
+                ) : items.map((m) => <PipelineCard key={m.id} merchant={m} />)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Rejected */}
+      {rejected.length > 0 && (
+        <div style={{ marginTop: 20 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#fb7185", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#fb7185" }} />
+            Từ chối ({rejected.length})
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 8 }}>
+            {rejected.map((m) => <PipelineCard key={m.id} merchant={m} />)}
+          </div>
+        </div>
       )}
+    </>
+  );
+}
+
+function PipelineCard({ merchant }) {
+  const daysSince = Math.floor((Date.now() - new Date(merchant.updated_at || merchant.created_at).getTime()) / 86400000);
+  return (
+    <div style={{ background: "var(--card-bg)", border: "1px solid var(--border)", borderRadius: 10, padding: "12px 14px" }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4, lineHeight: 1.3 }}>{merchant.company_name}</div>
+      <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 6 }}>{merchant.contact_name || "Chưa có LH"}</div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ fontSize: 10, color: "var(--text-faint)" }}>{merchant.sales_owner || "—"}</span>
+        <span style={{
+          fontSize: 10,
+          color: daysSince > 7 ? "#fb7185" : daysSince > 3 ? "#fbbf24" : "var(--text-faint)",
+          fontWeight: daysSince > 3 ? 600 : 400,
+        }}>
+          {daysSince === 0 ? "Hôm nay" : `${daysSince} ngày`}
+        </span>
+      </div>
     </div>
   );
 }
 
+/* ─── Create Lead Modal ─── */
 function CreateLeadModal({ user, onClose, onCreated }) {
   const [form, setForm] = useState({
     company_name: "", tax_id: "", contact_name: "", contact_phone: "", contact_email: "", notes: "",
@@ -238,6 +377,7 @@ function CreateLeadModal({ user, onClose, onCreated }) {
   );
 }
 
+/* ─── Merchant Detail Modal ─── */
 function MerchantDetailModal({ merchant, user, isAdmin, onClose, onUpdated }) {
   const [history, setHistory] = useState([]);
   const [note, setNote] = useState("");
@@ -252,10 +392,7 @@ function MerchantDetailModal({ merchant, user, isAdmin, onClose, onUpdated }) {
 
   const st = MERCHANT_STATUSES.find((s) => s.key === merchant.status) || MERCHANT_STATUSES[0];
 
-  const possibleNext = MERCHANT_STATUSES.filter((s) => {
-    if (s.key === merchant.status) return false;
-    return true;
-  });
+  const possibleNext = MERCHANT_STATUSES.filter((s) => s.key !== merchant.status);
 
   async function changeStatus(newStatus) {
     setBusy(true);
@@ -264,12 +401,8 @@ function MerchantDetailModal({ merchant, user, isAdmin, onClose, onUpdated }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "status",
-          id: merchant.id,
-          new_status: newStatus,
-          changed_by: user?.name || "Unknown",
-          role: "admin",
-          note,
+          action: "status", id: merchant.id, new_status: newStatus,
+          changed_by: user?.name || "Unknown", role: "admin", note,
         }),
       });
       const data = await res.json();
@@ -302,50 +435,41 @@ function MerchantDetailModal({ merchant, user, isAdmin, onClose, onUpdated }) {
           </div>
         </div>
 
-        {/* Contact info */}
-        <div style={{ ...cardStyle, marginBottom: 14, padding: "14px 16px" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>
-            Thông tin liên hệ
-          </div>
+        {/* Contact */}
+        <DetailSection title="Thông tin liên hệ">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13 }}>
             <div><span style={{ color: "var(--text-dim)" }}>Người LH:</span> <span style={{ color: "var(--text)" }}>{merchant.contact_name || "—"}</span></div>
             <div><span style={{ color: "var(--text-dim)" }}>SĐT:</span> <span style={{ color: "var(--text)" }}>{merchant.contact_phone || "—"}</span></div>
             <div style={{ gridColumn: "1/-1" }}><span style={{ color: "var(--text-dim)" }}>Email:</span> <span style={{ color: "var(--text)" }}>{merchant.contact_email || "—"}</span></div>
           </div>
-          {merchant.notes && (
-            <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-dim)", fontStyle: "italic" }}>
-              {merchant.notes}
-            </div>
-          )}
-        </div>
+          {merchant.notes && <div style={{ marginTop: 8, fontSize: 12, color: "var(--text-dim)", fontStyle: "italic" }}>{merchant.notes}</div>}
+        </DetailSection>
 
-        {/* Declaration data if exists */}
+        {/* Declaration */}
         {decl && (
-          <div style={{ ...cardStyle, marginBottom: 14, padding: "14px 16px" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>
-              Thông tin khai báo
-            </div>
+          <DetailSection title="Thông tin khai báo">
             <div style={{ fontSize: 13, display: "flex", flexDirection: "column", gap: 6 }}>
-              {decl.business_type && <div><span style={{ color: "var(--text-dim)" }}>Loại hình KD:</span> <span style={{ color: "var(--text)" }}>{decl.business_type}</span></div>}
-              {decl.website && <div><span style={{ color: "var(--text-dim)" }}>Website:</span> <span style={{ color: "var(--text)" }}>{decl.website}</span></div>}
-              {decl.address && <div><span style={{ color: "var(--text-dim)" }}>Địa chỉ:</span> <span style={{ color: "var(--text)" }}>{decl.address}</span></div>}
-              {decl.representative && <div><span style={{ color: "var(--text-dim)" }}>Người đại diện:</span> <span style={{ color: "var(--text)" }}>{decl.representative}</span></div>}
-              {decl.position && <div><span style={{ color: "var(--text-dim)" }}>Chức vụ:</span> <span style={{ color: "var(--text)" }}>{decl.position}</span></div>}
-              {decl.id_number && <div><span style={{ color: "var(--text-dim)" }}>CCCD:</span> <span style={{ color: "var(--text)" }}>{decl.id_number}</span></div>}
-              {decl.bank_account && <div><span style={{ color: "var(--text-dim)" }}>STK:</span> <span style={{ color: "var(--text)" }}>{decl.bank_account}</span></div>}
-              {decl.bank_name && <div><span style={{ color: "var(--text-dim)" }}>Ngân hàng:</span> <span style={{ color: "var(--text)" }}>{decl.bank_name}</span></div>}
-              {decl.account_holder && <div><span style={{ color: "var(--text-dim)" }}>Chủ TK:</span> <span style={{ color: "var(--text)" }}>{decl.account_holder}</span></div>}
-              {decl.expected_volume && <div><span style={{ color: "var(--text-dim)" }}>DSGD dự kiến:</span> <span style={{ color: "var(--text)" }}>{decl.expected_volume}</span></div>}
-              {decl.payment_methods && <div><span style={{ color: "var(--text-dim)" }}>PTTT:</span> <span style={{ color: "var(--text)" }}>{decl.payment_methods}</span></div>}
+              {[
+                ["Loại hình KD", decl.business_type],
+                ["Website", decl.website],
+                ["Địa chỉ", decl.address],
+                ["Người đại diện", decl.representative],
+                ["Chức vụ", decl.position],
+                ["CCCD", decl.id_number],
+                ["STK", decl.bank_account],
+                ["Ngân hàng", decl.bank_name],
+                ["Chủ TK", decl.account_holder],
+                ["DSGD dự kiến", decl.expected_volume],
+                ["PTTT", Array.isArray(decl.payment_methods) ? decl.payment_methods.join(", ") : decl.payment_methods],
+              ].filter(([, v]) => v).map(([label, val]) => (
+                <div key={label}><span style={{ color: "var(--text-dim)" }}>{label}:</span> <span style={{ color: "var(--text)" }}>{val}</span></div>
+              ))}
             </div>
-          </div>
+          </DetailSection>
         )}
 
         {/* Status change */}
-        <div style={{ ...cardStyle, marginBottom: 14, padding: "14px 16px" }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 10 }}>
-            Chuyển trạng thái
-          </div>
+        <DetailSection title="Chuyển trạng thái">
           <input
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -359,9 +483,7 @@ function MerchantDetailModal({ merchant, user, isAdmin, onClose, onUpdated }) {
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             {possibleNext.map((s) => (
               <button
-                key={s.key}
-                disabled={busy}
-                onClick={() => changeStatus(s.key)}
+                key={s.key} disabled={busy} onClick={() => changeStatus(s.key)}
                 style={{
                   padding: "6px 12px", borderRadius: 8, fontSize: 11, fontWeight: 600,
                   background: `${s.color}12`, color: s.color,
@@ -372,14 +494,11 @@ function MerchantDetailModal({ merchant, user, isAdmin, onClose, onUpdated }) {
               </button>
             ))}
           </div>
-        </div>
+        </DetailSection>
 
         {/* History */}
         {history.length > 0 && (
-          <div style={{ ...cardStyle, padding: "14px 16px" }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 10 }}>
-              Lịch sử trạng thái
-            </div>
+          <DetailSection title="Lịch sử trạng thái">
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {history.map((h, i) => {
                 const from = MERCHANT_STATUSES.find((s) => s.key === h.from_status);
@@ -398,9 +517,21 @@ function MerchantDetailModal({ merchant, user, isAdmin, onClose, onUpdated }) {
                 );
               })}
             </div>
-          </div>
+          </DetailSection>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ─── Shared UI ─── */
+function DetailSection({ title, children }) {
+  return (
+    <div style={{ ...cardStyle, marginBottom: 14, padding: "14px 16px" }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>
+        {title}
+      </div>
+      {children}
     </div>
   );
 }
@@ -411,11 +542,8 @@ function Field({ label, value, onChange, type = "text", autoFocus, multiline }) 
     <label style={{ display: "flex", flexDirection: "column", gap: 5 }}>
       <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, color: "var(--text-dim)", textTransform: "uppercase" }}>{label}</span>
       <Tag
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        autoFocus={autoFocus}
-        rows={multiline ? 3 : undefined}
+        type={type} value={value} onChange={(e) => onChange(e.target.value)}
+        autoFocus={autoFocus} rows={multiline ? 3 : undefined}
         style={{
           background: "var(--surface-soft)", border: "1px solid var(--border)",
           borderRadius: 10, padding: "10px 14px", fontSize: 13,
@@ -429,21 +557,23 @@ function Field({ label, value, onChange, type = "text", autoFocus, multiline }) 
 const overlayStyle = {
   position: "fixed", inset: 0, zIndex: 1000,
   background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
-  display: "flex", alignItems: "center", justifyContent: "center",
-  padding: 16,
+  display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
 };
-
 const modalStyle = {
   background: "var(--bg)", border: "1px solid var(--border)",
   borderRadius: 16, padding: "24px 28px", width: "100%", maxWidth: 520,
   boxShadow: "0 30px 80px rgba(0,0,0,0.5)",
 };
-
 const closeBtnStyle = {
   background: "none", border: "none", fontSize: 18,
   color: "var(--text-faint)", cursor: "pointer", padding: "4px 8px",
 };
-
+const createBtnStyle = {
+  padding: "10px 20px", border: "none", borderRadius: 10,
+  background: "linear-gradient(135deg,#7c6cff,#9d8bff)", color: "#fff",
+  fontSize: 13, fontWeight: 600, cursor: "pointer",
+  boxShadow: "0 4px 16px rgba(124,108,255,0.3)",
+};
 const submitBtnStyle = {
   marginTop: 4, padding: "12px 16px", border: "none", borderRadius: 10,
   background: "linear-gradient(135deg,#7c6cff,#9d8bff)", color: "#fff",
