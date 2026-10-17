@@ -3,10 +3,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { MERCHANT_STATUSES } from "@/lib/merchantSchema";
+import RiskReviewView from "@/components/merchant/RiskReviewView";
+import ContractView from "@/components/merchant/ContractView";
+import SigningView from "@/components/merchant/SigningView";
+import BulkImportView from "@/components/merchant/BulkImportView";
+import DashboardOverviewView from "@/components/merchant/DashboardOverviewView";
 
 const TABS = [
+  { key: "dashboard", label: "Tổng quan" },
   { key: "leads", label: "Quản lý Lead" },
   { key: "pipeline", label: "Pipeline" },
+  { key: "risk", label: "Đánh giá rủi ro" },
+  { key: "contract", label: "Hợp đồng" },
+  { key: "signing", label: "Ký kết & Kích hoạt" },
+  { key: "import", label: "Import" },
 ];
 
 const cardStyle = {
@@ -18,7 +28,7 @@ const cardStyle = {
 
 export default function MerchantOnboardingPage() {
   const { user, isAdmin } = useAuth();
-  const [tab, setTab] = useState("leads");
+  const [tab, setTab] = useState("dashboard");
   const [merchants, setMerchants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -30,10 +40,8 @@ export default function MerchantOnboardingPage() {
   const fetchMerchants = useCallback(async () => {
     try {
       const params = new URLSearchParams();
-      if (tab === "leads") {
-        if (search) params.set("search", search);
-        if (statusFilter) params.set("status", statusFilter);
-      }
+      if (tab === "leads" && search) params.set("search", search);
+      if (tab === "leads" && statusFilter) params.set("status", statusFilter);
       const res = await fetch(`/api/merchant-onboarding?${params}`);
       const data = await res.json();
       setMerchants(data.merchants || []);
@@ -115,6 +123,21 @@ export default function MerchantOnboardingPage() {
       )}
       {tab === "pipeline" && (
         <PipelineView merchants={merchants} loading={loading} />
+      )}
+      {tab === "dashboard" && (
+        <DashboardOverviewView merchants={merchants} loading={loading} />
+      )}
+      {tab === "risk" && (
+        <RiskReviewView merchants={merchants} loading={loading} onRefresh={fetchMerchants} />
+      )}
+      {tab === "contract" && (
+        <ContractView merchants={merchants} loading={loading} onRefresh={fetchMerchants} />
+      )}
+      {tab === "signing" && (
+        <SigningView merchants={merchants} loading={loading} onRefresh={fetchMerchants} />
+      )}
+      {tab === "import" && (
+        <BulkImportView merchants={merchants} loading={loading} onRefresh={fetchMerchants} />
       )}
 
       {/* Modals */}
