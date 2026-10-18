@@ -8,11 +8,15 @@ import ContractView from "@/components/merchant/ContractView";
 import SigningView from "@/components/merchant/SigningView";
 import BulkImportView from "@/components/merchant/BulkImportView";
 import DashboardOverviewView from "@/components/merchant/DashboardOverviewView";
+import ManualDeclarationView from "@/components/merchant/ManualDeclarationView";
+import FeeDeclarationView from "@/components/merchant/FeeDeclarationView";
 
 const TABS = [
   { key: "dashboard", label: "Tổng quan" },
   { key: "leads", label: "Quản lý Lead" },
   { key: "pipeline", label: "Pipeline" },
+  { key: "manual", label: "Khai báo thủ công" },
+  { key: "fees", label: "Biểu phí" },
   { key: "risk", label: "Đánh giá rủi ro" },
   { key: "contract", label: "Hợp đồng" },
   { key: "signing", label: "Ký kết & Kích hoạt" },
@@ -83,7 +87,7 @@ export default function MerchantOnboardingPage() {
       </div>
 
       {/* Tab switcher */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid var(--border-soft)", paddingBottom: 0 }}>
+      <div style={{ display: "flex", gap: 4, marginBottom: 20, borderBottom: "1px solid var(--border-soft)", paddingBottom: 0, overflowX: "auto" }}>
         {TABS.map((t) => (
           <button
             key={t.key}
@@ -135,6 +139,12 @@ export default function MerchantOnboardingPage() {
       )}
       {tab === "signing" && (
         <SigningView merchants={merchants} loading={loading} onRefresh={fetchMerchants} />
+      )}
+      {tab === "manual" && (
+        <ManualDeclarationView merchants={merchants} loading={loading} onRefresh={fetchMerchants} />
+      )}
+      {tab === "fees" && (
+        <FeeDeclarationView merchants={merchants} loading={loading} onRefresh={fetchMerchants} />
       )}
       {tab === "import" && (
         <BulkImportView merchants={merchants} loading={loading} onRefresh={fetchMerchants} />
