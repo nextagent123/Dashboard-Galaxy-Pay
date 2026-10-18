@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS merchant_onboarding (
   documents JSONB,
   risk_review JSONB,
   contract_data JSONB,
+  fee_schedule JSONB,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
