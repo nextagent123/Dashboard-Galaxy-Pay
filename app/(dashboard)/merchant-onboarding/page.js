@@ -93,7 +93,7 @@ export default function MerchantOnboardingPage() {
             key={t.key}
             onClick={() => setTab(t.key)}
             style={{
-              padding: "10px 20px",
+              padding: "10px 14px",
               fontSize: 13,
               fontWeight: tab === t.key ? 700 : 500,
               color: tab === t.key ? "var(--accent-soft)" : "var(--text-dim)",
@@ -103,6 +103,8 @@ export default function MerchantOnboardingPage() {
               cursor: "pointer",
               transition: "all 0.15s",
               marginBottom: -1,
+              whiteSpace: "nowrap",
+              flexShrink: 0,
             }}
           >
             {t.label}
