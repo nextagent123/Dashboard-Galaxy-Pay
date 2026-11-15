@@ -34,7 +34,7 @@ export default function HomePage() {
         right={
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <SegmentedTabs options={PERIOD_OPTIONS} value={period} onChange={setPeriod} />
-            <DateBadge>Số liệu đến 05/08/2026</DateBadge>
+            <DateBadge>Số liệu đến 12/11/2026</DateBadge>
           </div>
         }
       />
@@ -118,8 +118,8 @@ export default function HomePage() {
             flexDirection: "column",
           }}
         >
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Summary mục tiêu H1</h2>
-          <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 3 }}>Lũy kế T1–T7 vs Target H1 (bình quân GMV/DT/LN)</div>
+          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>Summary tiến độ mục tiêu</h2>
+          <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 3 }}>Lũy kế T1–T{data.monthsN} vs KH lũy kế cùng kỳ (bình quân GMV/DT/LN)</div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "20px 0 4px" }}>
             <span
               className="mono"
@@ -128,22 +128,22 @@ export default function HomePage() {
                 color: "var(--accent-light)",
               }}
             >
-              98,8%
+              {data.paceAvg}
             </span>
           </div>
-          <div style={{ display: "inline-flex", alignSelf: "flex-start", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 8, color: "#fbbf24", background: "rgba(251,191,36,0.12)" }}>
-            ↓ Chậm hơn tiến độ (đã qua 7/12 tháng)
+          <div style={{ display: "inline-flex", alignSelf: "flex-start", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 700, padding: "4px 10px", borderRadius: 8, color: data.paceAhead ? "#34d399" : "#fbbf24", background: data.paceAhead ? "rgba(52,211,153,0.12)" : "rgba(251,191,36,0.12)" }}>
+            {data.paceAhead ? "↑ Đúng/vượt tiến độ" : "↓ Chậm hơn tiến độ"} (đã qua {data.monthsN}/12 tháng)
           </div>
 
           <div style={{ height: 1, background: "var(--border-soft)", margin: "20px 0" }} />
 
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 12.5, color: "var(--text-dim)" }}>Chỉ số bám tiến độ H1</span>
-              <span className="mono" style={{ fontWeight: 700, color: "#fbbf24" }}>2 / 3</span>
+              <span style={{ fontSize: 12.5, color: "var(--text-dim)" }}>Chỉ số đạt KH cùng kỳ</span>
+              <span className="mono" style={{ fontWeight: 700, color: "#fbbf24" }}>{data.paceOnTrack}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 12.5, color: "var(--text-dim)" }}>GMV lũy kế T1–T7</span>
+              <span style={{ fontSize: 12.5, color: "var(--text-dim)" }}>GMV lũy kế T1–T{data.monthsN}</span>
               <span className="mono" style={{ fontWeight: 700 }}>{data.trendTotal}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -175,16 +175,16 @@ export default function HomePage() {
         right={
           <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
             <span className="mono" style={{ fontSize: 22, fontWeight: 700 }}>{data.trendTotal}</span>
-            <span style={{ fontSize: 12, color: "var(--text-dim)" }}>lũy kế T1–T7</span>
+            <span style={{ fontSize: 12, color: "var(--text-dim)" }}>lũy kế T1–T{data.monthsN}</span>
           </div>
         }
       >
         <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 11.5, color: "var(--text-dim)", marginTop: 6, marginBottom: -8 }}>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#b98cff,#7c6cff)" }} />Thực đạt (T1–T7)
+            <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#b98cff,#7c6cff)" }} />Thực đạt (T1–T{data.monthsN})
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,var(--text-faintest),var(--text-faintest) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T6–T12)
+            <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,var(--text-faintest),var(--text-faintest) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T{data.monthsN + 1}–T12)
           </span>
           <span style={{ color: "var(--text-faint)" }}>Đơn vị: tỷ VND</span>
         </div>
@@ -197,16 +197,16 @@ export default function HomePage() {
           right={
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
               <span className="mono" style={{ fontSize: 20, fontWeight: 700 }}>{data.trendTotalDT}</span>
-              <span style={{ fontSize: 11, color: "var(--text-dim)" }}>lũy kế T1–T7</span>
+              <span style={{ fontSize: 11, color: "var(--text-dim)" }}>lũy kế T1–T{data.monthsN}</span>
             </div>
           }
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 11.5, color: "var(--text-dim)", marginTop: 6, marginBottom: -6 }}>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#6ee7b7,#34d399)" }} />Thực đạt (T1–T7)
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#6ee7b7,#34d399)" }} />Thực đạt (T1–T{data.monthsN})
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,var(--text-faintest),var(--text-faintest) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T6–T12)
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,var(--text-faintest),var(--text-faintest) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T{data.monthsN + 1}–T12)
             </span>
           </div>
           <BarTrendChart data={data.trendDT} heightPx={180} gap="6px" maxBarWidth={34} valueFontSize={9.5} labelFontSize={10} />
@@ -217,16 +217,16 @@ export default function HomePage() {
           right={
             <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
               <span className="mono" style={{ fontSize: 20, fontWeight: 700 }}>{data.trendTotalLN}</span>
-              <span style={{ fontSize: 11, color: "var(--text-dim)" }}>lũy kế T1–T7</span>
+              <span style={{ fontSize: 11, color: "var(--text-dim)" }}>lũy kế T1–T{data.monthsN}</span>
             </div>
           }
         >
           <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 11.5, color: "var(--text-dim)", marginTop: 6, marginBottom: -6 }}>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#fcd34d,#f59e0b)" }} />Thực đạt (T1–T7)
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "linear-gradient(180deg,#fcd34d,#f59e0b)" }} />Thực đạt (T1–T{data.monthsN})
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,var(--text-faintest),var(--text-faintest) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T6–T12)
+              <span style={{ width: 10, height: 10, borderRadius: 3, background: "repeating-linear-gradient(135deg,var(--text-faintest),var(--text-faintest) 3px,transparent 3px,transparent 6px)" }} />Kế hoạch (T{data.monthsN + 1}–T12)
             </span>
           </div>
           <BarTrendChart data={data.trendLN} heightPx={180} gap="6px" maxBarWidth={34} valueFontSize={9.5} labelFontSize={10} />
