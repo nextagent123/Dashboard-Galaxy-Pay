@@ -87,6 +87,10 @@ async function handleUpdate(raw, token, origin) {
   await sendText(token, chatId, await answerQuestion(clean, origin));
 }
 
+export async function GET() {
+  return new Response("OK");
+}
+
 export async function POST(request) {
   const token = getEnv("ZALO_BOT_TOKEN");
   const secret = getEnv("ZALO_WEBHOOK_SECRET");
