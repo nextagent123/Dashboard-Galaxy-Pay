@@ -80,7 +80,13 @@ async function handleUpdate(raw, token, origin) {
     const note = allowed ? "" : "\nNhóm/người dùng này chưa được cấp quyền hỏi số liệu.";
     return sendText(token, chatId, `Chat ID: ${chatId}\nUser ID của bạn: ${userId}${note}`);
   }
-  if (!allowed) return;
+  if (!allowed) {
+    return sendText(
+      token,
+      chatId,
+      `Dạ, nhóm này chưa được cấp quyền hỏi số liệu salereport nên mình chưa trả lời được ạ.\nNhờ quản trị viên thêm Chat ID ${chatId} vào danh sách cho phép (ZALO_ALLOWED_CHAT_IDS).`
+    );
+  }
   if (!clean || ["help", "start", "trogiup"].includes(cmd)) return sendText(token, chatId, HELP);
 
   await zaloCall(token, "sendChatAction", { chat_id: chatId, action: "typing" }).catch(() => {});
