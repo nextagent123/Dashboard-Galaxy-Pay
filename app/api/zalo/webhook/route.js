@@ -3,9 +3,39 @@ import { getEnv, getKnowledge, fetchLiveContext, buildSystemPrompt, generateAnsw
 import { getLocalAnswer } from "@/lib/localChat";
 import { zaloCall, sendText, toPlain, envList, safeEqual } from "@/lib/zalo";
 
+const MEC_ANH_TAI = "Em sẽ méc Anh Tài nha 😅";
+
 const ZALO_STYLE = `
 
-KÊNH TRẢ LỜI: Bạn đang trả lời trong Zalo. Zalo KHÔNG hiển thị markdown: không dùng **, #, bảng — dùng xuống dòng và "•" để liệt kê. Giữ câu trả lời ngắn gọn.`;
+KÊNH TRẢ LỜI: Bạn đang trả lời trong Zalo. Zalo KHÔNG hiển thị markdown: không dùng **, #, bảng — dùng xuống dòng và "•" để liệt kê. Giữ câu trả lời ngắn gọn.
+
+NGÔN TỪ KHÔNG PHÙ HỢP: Nếu tin nhắn có lời xúc phạm, chửi bới, thô tục, quấy rối, miệt thị cá nhân/nhóm người, hoặc cố tình khiêu khích, thì KHÔNG trả lời nội dung câu hỏi. Chỉ đáp 1–2 câu từ chối nhẹ nhàng, lịch sự, xưng "em", mời người hỏi dùng ngôn từ phù hợp, và kết thúc bằng đúng câu: "${MEC_ANH_TAI}"`;
+
+const REFUSALS = [
+  "Dạ, câu này có ngôn từ chưa phù hợp nên em xin phép không trả lời ạ. Anh/chị hỏi lại nhẹ nhàng hơn giúp em nhé.",
+  "Dạ, em chỉ hỗ trợ khi mình trao đổi bằng ngôn từ lịch sự thôi ạ. Anh/chị diễn đạt lại giúp em nha.",
+  "Dạ, em xin phép không phản hồi nội dung này ạ. Mình giữ nhóm làm việc văn minh giúp em nhé.",
+];
+
+// Vietnamese profanity/insults incl. common teencode. Ambiguous unaccented words (e.g. "cac", "buoi") are left out.
+const BAD_WORDS = [
+  "địt", "đụ", "đéo", "đếch", "lồn", "buồi", "cặc", "đĩ", "đcm", "dcm", "đm", "đmm", "dmm", "đkm", "dkm",
+  "đcmm", "dcmm", "cmm", "vcl", "vkl", "vcc", "clgt", "dit me", "du ma", "đù má", "đụ má", "mẹ mày", "má mày",
+  "óc chó", "chó chết", "đồ chó", "súc vật", "khốn nạn", "mất dạy", "đồ ngu", "thằng ngu", "con ngu", "bot ngu",
+  "ngu như bò", "ngu vậy", "ngu thế", "ngu quá", "cút đi", "fuck", "shit", "bitch",
+];
+const BAD_RE = new RegExp(
+  `(?:^|[^\\p{L}\\p{N}])(?:${BAD_WORDS.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?=$|[^\\p{L}\\p{N}])`,
+  "iu"
+);
+
+function isOffensive(text) {
+  return BAD_RE.test(text.normalize("NFC").toLowerCase());
+}
+
+function refusal() {
+  return `${REFUSALS[Math.floor(Math.random() * REFUSALS.length)]}\n${MEC_ANH_TAI}`;
+}
 
 const HELP = `🤖 Trợ lý Khối Kinh doanh — hỏi đáp số liệu salereport
 Trong nhóm: @tên bot + câu hỏi (hoặc reply tin của bot).
@@ -91,6 +121,7 @@ async function handleUpdate(raw, token, origin) {
     );
   }
   if (!clean || ["help", "start", "trogiup"].includes(cmd)) return reply(HELP);
+  if (isOffensive(clean)) return reply(refusal());
 
   await zaloCall(token, "sendChatAction", { chat_id: chatId, action: "typing" }).catch(() => {});
   await reply(await answerQuestion(clean, origin));
