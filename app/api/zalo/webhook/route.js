@@ -76,21 +76,24 @@ async function handleUpdate(raw, token, origin) {
   // Dashboard figures are internal: answer only in allow-listed chats or for admin users.
   const allowed = envList("ZALO_ALLOWED_CHAT_IDS").has(chatId) || envList("ZALO_ADMIN_USER_IDS").has(userId);
 
+  // The Bot API has no real mention/reply-to, so name the asker in text when in a group.
+  const askerName = sender.display_name || sender.name || "";
+  const reply = (body) =>
+    sendText(token, chatId, askerName && chatId !== userId ? `@${askerName}\n${body}` : body);
+
   if (cmd === "id") {
     const note = allowed ? "" : "\nNhóm/người dùng này chưa được cấp quyền hỏi số liệu.";
-    return sendText(token, chatId, `Chat ID: ${chatId}\nUser ID của bạn: ${userId}${note}`);
+    return reply(`Chat ID: ${chatId}\nUser ID của bạn: ${userId}${note}`);
   }
   if (!allowed) {
-    return sendText(
-      token,
-      chatId,
+    return reply(
       `Dạ, nhóm này chưa được cấp quyền hỏi số liệu salereport nên mình chưa trả lời được ạ.\nNhờ quản trị viên thêm Chat ID ${chatId} vào danh sách cho phép (ZALO_ALLOWED_CHAT_IDS).`
     );
   }
-  if (!clean || ["help", "start", "trogiup"].includes(cmd)) return sendText(token, chatId, HELP);
+  if (!clean || ["help", "start", "trogiup"].includes(cmd)) return reply(HELP);
 
   await zaloCall(token, "sendChatAction", { chat_id: chatId, action: "typing" }).catch(() => {});
-  await sendText(token, chatId, await answerQuestion(clean, origin));
+  await reply(await answerQuestion(clean, origin));
 }
 
 export async function GET() {
