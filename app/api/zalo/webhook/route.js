@@ -86,8 +86,11 @@ function stripMention(text, name) {
 
 async function answerQuestion(question, origin) {
   const [knowledge, live] = await Promise.all([getKnowledge(), fetchLiveContext(question, origin)]);
-  const systemPrompt = buildSystemPrompt(knowledge, live) + ZALO_STYLE;
-  const ai = await generateAnswer([{ role: "user", content: question.slice(0, 4000) }], systemPrompt);
+  const systemPrompt = buildSystemPrompt(knowledge, "") + ZALO_STYLE;
+  const ai = await generateAnswer([{ role: "user", content: question.slice(0, 4000) }], systemPrompt, {
+    liveContext: live,
+    claude: true,
+  });
   return toPlain(ai || getLocalAnswer(question));
 }
 
