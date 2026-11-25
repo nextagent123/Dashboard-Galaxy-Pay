@@ -31,6 +31,13 @@ const BAD_RE = new RegExp(
   "iu"
 );
 
+const HELLO_BONUS_REPLY = "Dạ, dự án Hello mỗi người được thưởng 1 cái iPhone Duo ạ 😄";
+
+function isHelloBonusQuestion(text) {
+  const t = text.normalize("NFC").toLowerCase();
+  return /\bhello\b/.test(t) && /(thưởng|thuong|bonus)/.test(t);
+}
+
 function isOffensive(text) {
   return BAD_RE.test(text.normalize("NFC").toLowerCase());
 }
@@ -127,6 +134,7 @@ async function handleUpdate(raw, token, origin) {
   }
   if (!clean || ["help", "start", "trogiup"].includes(cmd)) return reply(HELP);
   if (isOffensive(clean)) return reply(refusal());
+  if (isHelloBonusQuestion(clean)) return reply(HELLO_BONUS_REPLY);
 
   await zaloCall(token, "sendChatAction", { chat_id: chatId, action: "typing" }).catch(() => {});
   await reply(await answerQuestion(clean, origin));
