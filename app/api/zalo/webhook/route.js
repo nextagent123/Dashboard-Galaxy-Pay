@@ -1,7 +1,8 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { getEnv, getKnowledge, fetchLiveContext, buildSystemPrompt, generateAnswer } from "@/lib/assistant";
-import { getLocalAnswer } from "@/lib/localChat";
+import { getEnv, getKnowledge, fetchLiveContext, buildGeneralPrompt, generateAnswer } from "@/lib/assistant";
 import { zaloCall, sendText, toPlain, envList, safeEqual } from "@/lib/zalo";
+
+const AI_BUSY_REPLY = "Dạ, em đang gặp chút trục trặc khi xử lý câu hỏi, anh/chị hỏi lại giúp em sau ít phút nhé.";
 
 const MEC_ANH_TAI = "Em sẽ méc Anh Tài nha 😅";
 
@@ -44,16 +45,17 @@ function refusal() {
   return `${REFUSALS[Math.floor(Math.random() * REFUSALS.length)]}\n${MEC_ANH_TAI}`;
 }
 
-const HELP = `🤖 Trợ lý Khối Kinh doanh — hỏi đáp số liệu salereport
+const HELP = `🤖 Trợ lý Khối Kinh doanh — trợ lý kiến thức tổng hợp
 Trong nhóm: @tên bot + câu hỏi (hoặc reply tin của bot).
 
 Ví dụ:
-• GMV lũy kế năm nay đạt bao nhiêu % kế hoạch?
-• Doanh thu tháng 10 so với tháng 9?
-• KPI của BDM Thúy Hằng thế nào?
-• Dự án nào trong pipeline đang Risk?
-• Biểu phí SoftPOS?
+• Thanh toán QR khác thanh toán thẻ thế nào?
+• Soạn giúp email mời đối tác họp tuần sau
+• Dịch đoạn này sang tiếng Anh: ...
+• Gợi ý kịch bản chào bán SoftPOS cho quán cà phê
+• Biểu phí SoftPOS của Galaxy Pay?
 
+Số liệu kinh doanh chi tiết: xem trên salereport.vn
 /id — xem Chat ID / User ID`;
 
 const seen = new Map();
@@ -93,12 +95,12 @@ function stripMention(text, name) {
 
 async function answerQuestion(question, origin) {
   const [knowledge, live] = await Promise.all([getKnowledge(), fetchLiveContext(question, origin)]);
-  const systemPrompt = buildSystemPrompt(knowledge, "") + ZALO_STYLE;
+  const systemPrompt = buildGeneralPrompt(knowledge) + ZALO_STYLE;
   const ai = await generateAnswer([{ role: "user", content: question.slice(0, 4000) }], systemPrompt, {
     liveContext: live,
     claude: true,
   });
-  return toPlain(ai || getLocalAnswer(question));
+  return ai ? toPlain(ai) : AI_BUSY_REPLY;
 }
 
 async function handleUpdate(raw, token, origin) {
