@@ -32,6 +32,17 @@ const BAD_RE = new RegExp(
 
 const HELLO_BONUS_REPLY = "Dạ, dự án Hello mỗi người được thưởng 1 cái iPhone Duo ạ 😄";
 
+const ANH_TAI_REPLY = "Dạ, anh Tài là anh guộc của em ạ.";
+// "tài" is also part of common words (tài chính, tài khoản, tài xế...), so only match it used as a person's name.
+const ANH_TAI_RE = new RegExp(
+  String.raw`(?:^|[^\p{L}\p{N}])(?:(?:anh|a|sếp|sep|ông|ong|bác|bac)\s+t[àa]i|cao\s+v[ăa]n\s+t[àa]i|t[àa]i\s+cao|t[àa]i\s+l[àa]\s+ai)(?=$|[^\p{L}\p{N}])(?!\s+(?:xế|xe|chính|chinh|khoản|khoan|liệu|lieu|trợ|tro|sản|san|năng|nang|nguyên|nguyen|lộc|loc|lẻ|le)(?:$|[^\p{L}\p{N}]))`,
+  "iu"
+);
+
+function isAnhTaiQuestion(text) {
+  return ANH_TAI_RE.test(text.normalize("NFC").toLowerCase());
+}
+
 function isHelloBonusQuestion(text) {
   const t = text.normalize("NFC").toLowerCase();
   return /\bhello\b/.test(t) && /(thưởng|thuong|bonus)/.test(t);
@@ -135,6 +146,7 @@ async function handleUpdate(raw, token, origin) {
   if (!clean || ["help", "start", "trogiup"].includes(cmd)) return reply(HELP);
   if (isOffensive(clean)) return reply(refusal());
   if (isHelloBonusQuestion(clean)) return reply(HELLO_BONUS_REPLY);
+  if (isAnhTaiQuestion(clean)) return reply(ANH_TAI_REPLY);
 
   await zaloCall(token, "sendChatAction", { chat_id: chatId, action: "typing" }).catch(() => {});
   await reply(await answerQuestion(clean, origin));
