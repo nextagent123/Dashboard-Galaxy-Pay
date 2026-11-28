@@ -8,6 +8,7 @@ import {
   getEnv,
   GROQ_FALLBACK_MODELS,
   GROQ_DEPRECATED,
+  GROQ_MAX_TOKENS,
   WORKERS_AI_MODEL,
 } from "@/lib/assistant";
 
@@ -49,7 +50,7 @@ async function callGroqModel(apiKey, model, messages, systemPrompt) {
         { role: "system", content: systemPrompt },
         ...messages,
       ],
-      max_tokens: 1024,
+      max_tokens: GROQ_MAX_TOKENS,
       temperature: 0.7,
       stream: true,
     }),
